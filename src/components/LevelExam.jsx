@@ -38,17 +38,22 @@ export default function LevelExam({ store, go }) {
     setQs(questions);
   }, []);
 
+  useEffect(() => {
+    if (done) {
+      const total = ok + bad;
+      const acc = total ? Math.round((ok / total) * 100) : 0;
+      if (acc >= 90) {
+        store.passExam(examLevels);
+      }
+    }
+  }, [done]); // Run once when exam is done
+
   if (!qs.length) return null;
 
   if (done) {
     const total = ok + bad;
     const acc = total ? Math.round((ok / total) * 100) : 0;
     const passed = acc >= 90;
-
-    if (passed) {
-      // Mark all exam levels as passed
-      store.passExam(examLevels);
-    }
 
     return (
       <div style={S.page}>
