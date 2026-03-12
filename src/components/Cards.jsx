@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import allWords, { LEVELS, LEVEL_NAMES, WORDS_PER_LEVEL } from '../data/words';
+import { tts } from '../utils/tts';
 
 function shuffle(a) { const b = [...a]; for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; }
 
@@ -81,12 +82,18 @@ export default function Cards({ store, go, level }) {
   const typeBadge = isReview ? '🔄 Повторение' : isPhrase ? '🏝️ Фраза' : isGlue ? '🧩 Связка' : '📝 Слово';
   const typeBadgeColor = isReview ? 'rgba(255, 215, 0, 0.15)' : isPhrase ? 'rgba(255, 51, 102, 0.15)' : isGlue ? 'rgba(178, 36, 239, 0.15)' : 'rgba(0, 240, 255, 0.15)';
 
+  const toggleFlip = () => {
+    const newFlipped = !flipped;
+    setFlipped(newFlipped);
+    if (newFlipped) tts.speak(w.en);
+  };
+
   return (
     <div style={S.page} className="anim-in">
       <Header go={go} title={LEVEL_NAMES[level]} right={`${idx + 1}/${allCards.length}`} />
       <div style={S.bar}><div style={{ ...S.barIn, width: `${pct}%`, background: 'var(--accent-gradient)', boxShadow: '0 0 10px var(--accent-glow)' }} /></div>
 
-      <div style={S.cardArea} onClick={() => setFlipped(!flipped)}>
+      <div style={S.cardArea} onClick={toggleFlip}>
         <div style={{ ...S.cardWrap, transform: flipped ? 'rotateY(180deg)' : 'rotateY(0)' }}>
           {/* Front */}
           <div className="glass-card" style={{ ...S.face, ...S.front, ...(isPhrase ? S.frontPhrase : isGlue ? S.frontGlue : {}) }}>
@@ -109,8 +116,8 @@ export default function Cards({ store, go, level }) {
       </div>
 
       <div style={S.btns}>
-        <button style={S.btnGhost} onClick={() => setFlipped(!flipped)}>
-          {flipped ? '↩ Обратно' : '🔄 Перевернуть'}
+        <button style={S.btnGhost} onClick={toggleFlip}>
+          {flipped ? '↩ Обратно' : '🔊 Произнести'}
         </button>
         <button style={S.btnPrimary} onClick={next}>Далее →</button>
       </div>
