@@ -44,7 +44,7 @@ export default function Review({ store, go }) {
           <div style={{ fontSize: 48 }}>✨</div>
           <div style={S.t}>Нет слов для повторения</div>
           <div style={S.dim}>Сначала выучи слова в карточках!</div>
-          <button style={S.btnP} onClick={() => go('home')}>На главную</button>
+          <button className="btn-primary" style={{ marginTop: 16, minWidth: 200 }} onClick={() => go('home')}>На главную</button>
         </div>
       </div>
     );
@@ -61,9 +61,9 @@ export default function Review({ store, go }) {
           <div style={S.t}>{acc >= 80 ? 'Отличная память!' : 'Хороший старт!'}</div>
           <div style={{ fontFamily: 'var(--font-display)', fontSize: 52, fontWeight: 900, color: acc >= 70 ? 'var(--green)' : 'var(--yellow)', filter: `drop-shadow(0 0 15px \${acc >= 70 ? 'var(--green-glow)' : 'var(--yellow-glow)'})` }}>{acc}%</div>
           <div style={S.dim}>✅ {ok}  ❌ {bad}</div>
-          <div style={{ display: 'flex', gap: 10, marginTop: 8, width: '100%', maxWidth: 320 }}>
-            <button style={S.btnGhost} onClick={() => go('home')}>🏠 Домой</button>
-            <button style={S.btnP} onClick={() => { setCur(0); setSel(null); setOk(0); setBad(0); setQs(shuffle(qs)); }}>🔄 Ещё раз</button>
+          <div className="btn-row" style={{ marginTop: 20, maxWidth: 320 }}>
+            <button className="btn-ghost btn-flex" onClick={() => go('home')}>🏠 Домой</button>
+            <button className="btn-primary btn-flex" onClick={() => { setCur(0); setSel(null); setOk(0); setBad(0); setQs(shuffle(qs)); }}>🔄 Ещё раз</button>
           </div>
         </div>
       </div>
@@ -110,17 +110,17 @@ export default function Review({ store, go }) {
           );
         })}
       </div>
-      {answered && <button style={{ ...S.btnP, marginTop: 16, width: '100%' }} onClick={() => { setCur(c => c + 1); setSel(null); }} className="anim-in">Далее →</button>}
+      {answered && <button className="btn-primary btn-full anim-in" style={{ marginTop: 16 }} onClick={() => { setCur(c => c + 1); setSel(null); }}>Далее →</button>}
     </div>
   );
 }
 
 function Hdr({ go, right }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14, paddingTop: 8 }}>
-      <button style={S.back} onClick={() => go('home')}>←</button>
-      <div style={{ fontFamily: 'var(--font-display)', fontSize: 15, fontWeight: 600, flex: 1 }}>🔄 Повторение</div>
-      {right && <div style={{ fontSize: 13, color: 'var(--text-dim)', fontWeight: 600 }}>{right}</div>}
+    <div className="app-header">
+      <button className="back-btn-round" onClick={() => go('home')}>←</button>
+      <div className="header-title">🔄 Повторение</div>
+      {right && <div className="header-right">{right}</div>}
     </div>
   );
 }
@@ -136,8 +136,6 @@ const S = {
   opt: { padding: '16px 20px', borderRadius: 'var(--radius)', fontSize: 16, fontWeight: 700, background: 'var(--bg-card)', color: 'var(--text)', border: '1px solid rgba(255,255,255,0.05)', textAlign: 'left', transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)', backdropFilter: 'blur(10px)', cursor: 'pointer' },
   optOk: { background: 'rgba(0, 255, 135, 0.15)', border: '1px solid var(--green)', color: 'var(--green)', boxShadow: '0 0 15px rgba(0, 255, 135, 0.2)' },
   optBad: { background: 'rgba(255, 51, 102, 0.15)', border: '1px solid var(--red)', color: 'var(--red)', boxShadow: '0 0 15px rgba(255, 51, 102, 0.2)' },
-  btnP: { padding: 18, background: 'var(--accent-gradient)', color: 'white', borderRadius: 'var(--radius-pill)', fontSize: 16, fontWeight: 800, boxShadow: '0 8px 24px rgba(0, 85, 255, 0.4)', letterSpacing: 0.5, flex: 1 },
-  btnGhost: { padding: 18, background: 'rgba(255, 255, 255, 0.05)', color: 'var(--text)', borderRadius: 'var(--radius-pill)', fontSize: 16, fontWeight: 700, border: '1px solid rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(10px)', flex: 1 },
   center: { flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', gap: 16 },
   t: { fontFamily: 'var(--font-display)', fontSize: 26, fontWeight: 900, filter: 'drop-shadow(0 0 10px rgba(255,255,255,0.2))' },
   dim: { color: 'var(--text-dim)', fontSize: 15, fontWeight: 600 },

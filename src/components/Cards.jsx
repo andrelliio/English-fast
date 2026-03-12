@@ -31,7 +31,7 @@ export default function Cards({ store, go, level }) {
       });
     const cardsToShow = newCards.length ? newCards : words.map((w, i) => ({ globalIdx: base + i, word: w }));
 
-    // Review cards from previous levels (3-5 random previously seen words)
+    // Review cards from previous levels (more variety: up to 10 random previously seen words)
     const reviewPool = [];
     for (let l = 0; l < level; l++) {
       const lvlBase = l * WORDS_PER_LEVEL;
@@ -43,7 +43,8 @@ export default function Cards({ store, go, level }) {
         }
       });
     }
-    const reviewCards = shuffle(reviewPool).slice(0, Math.min(5, Math.max(3, Math.floor(reviewPool.length * 0.1))));
+    // Mixing up to 8 review cards (was up to 5)
+    const reviewCards = shuffle(reviewPool).slice(0, Math.min(8, Math.max(3, Math.floor(reviewPool.length * 0.15))));
     setReviewCount(reviewCards.length);
 
     // Mix: new cards first, then insert review cards at random positions
@@ -115,11 +116,11 @@ export default function Cards({ store, go, level }) {
         </div>
       </div>
 
-      <div style={S.btns}>
-        <button style={S.btnGhost} onClick={toggleFlip}>
+      <div className="btn-row">
+        <button className="btn-ghost btn-flex" onClick={toggleFlip}>
           {flipped ? '↩ Обратно' : '🔊 Произнести'}
         </button>
-        <button style={S.btnPrimary} onClick={next}>Далее →</button>
+        <button className="btn-primary btn-flex" onClick={next}>Далее →</button>
       </div>
     </div>
   );
@@ -127,10 +128,10 @@ export default function Cards({ store, go, level }) {
 
 function Header({ go, title, right }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16, paddingTop: 8 }}>
-      <button style={S.backBtn} onClick={() => go('home')}>←</button>
-      <div style={{ fontFamily: 'var(--font-display)', fontSize: 15, fontWeight: 600, flex: 1 }}>{title}</div>
-      {right && <div style={{ fontSize: 13, color: 'var(--text-dim)', fontWeight: 600 }}>{right}</div>}
+    <div className="app-header">
+      <button className="back-btn-round" onClick={() => go('home')}>←</button>
+      <div className="header-title">{title}</div>
+      {right && <div className="header-right">{right}</div>}
     </div>
   );
 }
@@ -151,10 +152,10 @@ const S = {
   word: { fontFamily: 'var(--font-display)', fontSize: 28, fontWeight: 800, textAlign: 'center', marginBottom: 10, lineHeight: 1.3 },
   context: { fontSize: 13, color: 'var(--yellow)', textAlign: 'center', lineHeight: 1.5, fontWeight: 600 },
   hint: { fontSize: 13, color: 'var(--text-dim)', textAlign: 'center', lineHeight: 1.5 },
+  word: { fontFamily: 'var(--font-display)', fontSize: 28, fontWeight: 800, textAlign: 'center', marginBottom: 10, lineHeight: 1.3 },
+  context: { fontSize: 13, color: 'var(--yellow)', textAlign: 'center', lineHeight: 1.5, fontWeight: 600 },
+  hint: { fontSize: 13, color: 'var(--text-dim)', textAlign: 'center', lineHeight: 1.5 },
   tap: { fontSize: 12, color: 'var(--text-muted)', marginTop: 14 },
-  btns: { display: 'flex', gap: 12 },
-  btnPrimary: { flex: 1, padding: 18, background: 'var(--accent-gradient)', color: 'white', borderRadius: 'var(--radius-pill)', fontSize: 16, fontWeight: 800, boxShadow: '0 8px 24px rgba(0, 85, 255, 0.4)', letterSpacing: 0.5 },
-  btnGhost: { flex: 1, padding: 18, background: 'rgba(255, 255, 255, 0.05)', color: 'var(--text)', borderRadius: 'var(--radius-pill)', fontSize: 16, fontWeight: 700, border: '1px solid rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(10px)' },
   center: { flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', gap: 16 },
   doneTitle: { fontFamily: 'var(--font-display)', fontSize: 26, fontWeight: 900, filter: 'drop-shadow(0 0 10px rgba(255,255,255,0.2))' },
   dim: { color: 'var(--text-dim)', fontSize: 15, fontWeight: 600 },

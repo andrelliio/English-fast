@@ -65,10 +65,10 @@ export default function LevelExam({ store, go }) {
           <div style={S.dim}>✅ {ok}  ❌ {bad}  (из {total})</div>
           {passed && <div style={{ color: 'var(--green)', fontWeight: 700, fontSize: 14 }}>🎉 Новые уровни разблокированы!</div>}
           {!passed && <div style={{ color: 'var(--text-dim)', fontSize: 13 }}>Повтори материал и попробуй снова</div>}
-          <div style={{ display: 'flex', gap: 10, marginTop: 10, width: '100%', maxWidth: 320 }}>
-            <button style={S.btnGhost} onClick={() => go('home')}>🏠 Домой</button>
-            {!passed && <button style={S.btnPrimary} onClick={() => { setCur(0); setSel(null); setOk(0); setBad(0); setDone(false); setQs(shuffle(qs)); }}>🔄 Ещё раз</button>}
-            {passed && <button style={S.btnPrimary} onClick={() => go('levels')}>📋 Уровни</button>}
+          <div className="btn-row" style={{ marginTop: 20, maxWidth: 320, padding: '0 20px' }}>
+            <button className="btn-ghost btn-flex" onClick={() => go('home')}>🏠 Домой</button>
+            {!passed && <button className="btn-primary btn-flex" onClick={() => { setCur(0); setSel(null); setOk(0); setBad(0); setDone(false); setQs(shuffle(qs)); }}>🔄 Ещё раз</button>}
+            {passed && <button className="btn-primary btn-flex" onClick={() => go('levels')}>📋 Уровни</button>}
           </div>
         </div>
       </div>
@@ -128,7 +128,7 @@ export default function LevelExam({ store, go }) {
       </div>
 
       {answered && (
-        <button style={{ ...S.btnPrimary, marginTop: 14, width: '100%' }} onClick={next} className="anim-in">
+        <button className="btn-primary btn-full anim-in" style={{ marginTop: 14 }} onClick={next}>
           {cur + 1 >= qs.length ? 'Результаты →' : 'Далее →'}
         </button>
       )}
@@ -138,10 +138,10 @@ export default function LevelExam({ store, go }) {
 
 function Hdr({ go, title, right }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14, paddingTop: 8 }}>
-      <button style={S.backBtn} onClick={() => go('home')}>←</button>
-      <div style={{ fontFamily: 'var(--font-display)', fontSize: 15, fontWeight: 600, flex: 1 }}>{title}</div>
-      {right && <div style={{ fontSize: 13, color: 'var(--text-dim)', fontWeight: 600 }}>{right}</div>}
+    <div className="app-header">
+      <button className="back-btn-round" onClick={() => go('home')}>←</button>
+      <div className="header-title">{title}</div>
+      {right && <div className="header-right">{right}</div>}
     </div>
   );
 }
@@ -158,8 +158,6 @@ const S = {
   opt: { padding: '16px 20px', borderRadius: 'var(--radius)', fontSize: 16, fontWeight: 700, background: 'var(--bg-card)', color: 'var(--text)', border: '1px solid rgba(255,255,255,0.05)', textAlign: 'left', transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)', backdropFilter: 'blur(10px)' },
   optOk: { background: 'rgba(0, 255, 135, 0.15)', border: '1px solid var(--green)', color: 'var(--green)', boxShadow: '0 0 15px rgba(0, 255, 135, 0.2)' },
   optBad: { background: 'rgba(255, 51, 102, 0.15)', border: '1px solid var(--red)', color: 'var(--red)', boxShadow: '0 0 15px rgba(255, 51, 102, 0.2)' },
-  btnPrimary: { flex: 1, padding: 18, background: 'var(--accent-gradient)', color: 'white', borderRadius: 'var(--radius-pill)', fontSize: 16, fontWeight: 800, boxShadow: '0 8px 24px rgba(0, 85, 255, 0.4)', letterSpacing: 0.5 },
-  btnGhost: { flex: 1, padding: 18, background: 'rgba(255, 255, 255, 0.05)', color: 'var(--text)', borderRadius: 'var(--radius-pill)', fontSize: 16, fontWeight: 700, border: '1px solid rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(10px)' },
   center: { flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', gap: 16 },
   doneTitle: { fontFamily: 'var(--font-display)', fontSize: 26, fontWeight: 900, filter: 'drop-shadow(0 0 10px rgba(255,255,255,0.2))' },
   dim: { color: 'var(--text-dim)', fontSize: 15, fontWeight: 600 },

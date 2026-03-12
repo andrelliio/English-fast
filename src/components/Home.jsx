@@ -7,15 +7,22 @@ export default function Home({ store, go }) {
     ? Math.round((data.totalCorrect / (data.totalCorrect + data.totalWrong)) * 100) : 0;
 
   // Next unfinished level (among unlocked)
+  // Next level to show on the main button
   const nextLevel = (() => {
+    // 1. If user has a last active level and it's not yet passed (as lesson), stick with it
+    if (data.lastActiveLevel !== undefined && !data.passedLessons.includes(data.lastActiveLevel)) {
+      return data.lastActiveLevel;
+    }
+    
+    // 2. Otherwise find the first unlocked but not yet passed lesson
     const unlocked = [...data.unlockedLevels].sort((a, b) => a - b);
     for (const l of unlocked) {
       if (l >= LEVELS.length) continue;
-      const start = l * WORDS_PER_LEVEL;
-      const done = LEVELS[l].every((_, i) => data.wordProgress[start + i]?.mastered);
-      if (!done) return l;
+      if (!data.passedLessons.includes(l)) return l;
     }
-    return unlocked[unlocked.length - 1] || 0;
+    
+    // 3. Fallback to the latest unlocked level
+    return unlocked.length > 0 ? unlocked[unlocked.length - 1] : 0;
   })();
 
   // Count of learned words (for review availability)
@@ -97,7 +104,7 @@ export default function Home({ store, go }) {
       )}
 
       {/* Continue button */}
-      <button style={S.continueBtn} onClick={() => go('cards', nextLevel)}>
+      <button className="btn-primary btn-full" onClick={() => go('cards', nextLevel)}>
         НАЧАТЬ УРОК 🚀
       </button>
       <div style={S.levelHint}>Уровень {nextLevel + 1}: {LEVEL_NAMES[nextLevel] || ''}</div>
@@ -147,13 +154,13 @@ const S = {
   statsRow: { display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginBottom: 24 },
   stat: { padding: '16px 10px', textAlign: 'center' },
   statVal: { fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 800, marginBottom: 4 },
+  statVal: { fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 800, marginBottom: 4 },
   statLbl: { fontSize: 11, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: 1, fontWeight: 700 },
   
-  placementBanner: { width: '100%', padding: '16px 20px', marginBottom: 16, border: '1px solid rgba(0, 240, 255, 0.3)', display: 'flex', alignItems: 'center', gap: 14, color: 'var(--text)', background: 'linear-gradient(90deg, rgba(0, 240, 255, 0.1), transparent)' },
-  examBanner: { width: '100%', padding: '16px 20px', marginBottom: 16, border: '1px solid rgba(255, 51, 102, 0.3)', display: 'flex', alignItems: 'center', gap: 14, color: 'var(--text)', background: 'linear-gradient(90deg, rgba(255, 51, 102, 0.1), transparent)' },
-  reviewBanner: { width: '100%', padding: '16px 20px', marginBottom: 16, border: '1px solid rgba(178, 36, 239, 0.3)', display: 'flex', alignItems: 'center', gap: 14, color: 'var(--text)', background: 'linear-gradient(90deg, rgba(178, 36, 239, 0.1), transparent)' },
+  placementBanner: { width: '100%', padding: '16px 20px', marginBottom: 16, border: '1px solid rgba(0, 240, 255, 0.3)', display: 'flex', alignItems: 'center', gap: 14, color: 'var(--text)', background: 'linear-gradient(90deg, rgba(0, 240, 255, 0.1), transparent)', borderRadius: 'var(--radius)' },
+  examBanner: { width: '100%', padding: '16px 20px', marginBottom: 16, border: '1px solid rgba(255, 51, 102, 0.3)', display: 'flex', alignItems: 'center', gap: 14, color: 'var(--text)', background: 'linear-gradient(90deg, rgba(255, 51, 102, 0.1), transparent)', borderRadius: 'var(--radius)' },
+  reviewBanner: { width: '100%', padding: '16px 20px', marginBottom: 16, border: '1px solid rgba(178, 36, 239, 0.3)', display: 'flex', alignItems: 'center', gap: 14, color: 'var(--text)', background: 'linear-gradient(90deg, rgba(178, 36, 239, 0.1), transparent)', borderRadius: 'var(--radius)' },
   
-  continueBtn: { width: '100%', padding: 18, background: 'var(--accent-gradient)', color: 'white', borderRadius: 'var(--radius-pill)', fontSize: 16, fontWeight: 800, boxShadow: '0 8px 24px rgba(0, 85, 255, 0.4)', marginBottom: 8, letterSpacing: 0.5 },
   levelHint: { fontSize: 13, color: 'var(--text-dim)', textAlign: 'center', marginBottom: 24, fontWeight: 600 },
   
   grid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 },

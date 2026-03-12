@@ -15,7 +15,7 @@ export default function Quiz({ store, go, level }) {
   const [xp, setXp] = useState(0);
 
   useEffect(() => {
-    // Touch level on enter
+    // Touch level on enter (updates lastActiveLevel)
     store.touchLevel(level);
 
     // Reset component state when level changes
@@ -26,19 +26,42 @@ export default function Quiz({ store, go, level }) {
     setDone(false);
     setXp(0);
 
-    const questions = shuffle(words.map((w, i) => ({ ...w, idx: i }))).map(word => {
-      const globalIdx = base + word.idx;
-      // Use semantically similar distractors
+    // Core words for this level
+    const coreQs = words.map((w, i) => ({ word: w, globalIdx: base + i }));
+    
+    // Pick review words from previous levels
+    const reviewPool = [];
+    Object.entries(store.data.wordProgress).forEach(([idx, wp]) => {
+      const gIdx = parseInt(idx);
+      if (wp.seen && (gIdx < base || gIdx >= base + WORDS_PER_LEVEL)) {
+        reviewPool.push(gIdx);
+      }
+    });
+    
+    // Mix in 3-5 random review words if available
+    const reviewCount = Math.min(reviewPool.length, Math.floor(Math.random() * 3) + 3);
+    const selectedReviews = shuffle(reviewPool).slice(0, reviewCount).map(gIdx => {
+      const lvl = Math.floor(gIdx / WORDS_PER_LEVEL);
+      const lIdx = gIdx % WORDS_PER_LEVEL;
+      return { word: LEVELS[lvl][lIdx], globalIdx: gIdx };
+    });
+
+    const finalPool = shuffle([...coreQs, ...selectedReviews]);
+
+    const questions = finalPool.map(item => {
+      const { word, globalIdx } = item;
       const wrongs = getSimilarWords(globalIdx, 4, word.ru);
-      return { word, options: shuffle([...wrongs, word.ru]), answer: word.ru };
+      return { word, globalIdx, options: shuffle([...wrongs, word.ru]), answer: word.ru };
     });
     setQs(questions);
   }, [level]);
 
-  // Find next available level
+  // Find next uncompleted level (among unlocked)
   const getNextLevel = () => {
-    for (let l = level + 1; l < LEVELS.length; l++) {
-      if (store.data.unlockedLevels.includes(l)) return l;
+    const unlocked = [...store.data.unlockedLevels].sort((a, b) => a - b);
+    for (const l of unlocked) {
+      if (l >= LEVELS.length) continue;
+      if (!store.data.passedLessons.includes(l)) return l;
     }
     return null;
   };
@@ -77,12 +100,12 @@ export default function Quiz({ store, go, level }) {
           <div style={S.doneTitle}>{acc >= 90 ? 'Превосходно!' : acc >= 70 ? 'Отлично!' : acc >= 50 ? 'Хорошо!' : 'Нужна практика'}</div>
           <div style={{ fontFamily: 'var(--font-display)', fontSize: 52, fontWeight: 900, color: acc >= 70 ? 'var(--green)' : acc >= 50 ? 'var(--yellow)' : 'var(--red)', filter: `drop-shadow(0 0 15px \${acc >= 70 ? 'var(--green-glow)' : acc >= 50 ? 'var(--yellow-glow)' : 'var(--pink-glow)'})` }}>{acc}%</div>
           <div style={S.dim}>✅ {ok}  ❌ {bad}</div>
-          <div style={{ color: 'var(--yellow)', fontWeight: 700 }}>+{xp} XP</div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 8, width: '100%', maxWidth: 320 }}>
-            <button style={S.btnPrimary} onClick={handleNextTask}>Следующее задание ➡️</button>
-            <div style={{ display: 'flex', gap: 10 }}>
-              <button style={S.btnGhost} onClick={() => go('home')}>🏠 Домой</button>
-              <button style={S.btnGhost} onClick={() => { setCur(0); setSel(null); setOk(0); setBad(0); setDone(false); setXp(0); setQs(shuffle(qs)); }}>🔄 Ещё раз</button>
+          <div style={{ color: 'var(--yellow)', fontWeight: 700, marginBottom: 16 }}>+{xp} XP</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, width: '100%', maxWidth: 320 }}>
+            <button className="btn-primary btn-full" onClick={handleNextTask}>Следующее задание ➡️</button>
+            <div className="btn-row">
+              <button className="btn-ghost btn-flex" onClick={() => go('home')}>🏠 Домой</button>
+              <button className="btn-ghost btn-flex" onClick={() => { setCur(0); setSel(null); setOk(0); setBad(0); setDone(false); setXp(0); setQs(shuffle(qs)); }}>🔄 Ещё раз</button>
             </div>
           </div>
         </div>
@@ -98,7 +121,7 @@ export default function Quiz({ store, go, level }) {
     if (answered) return;
     setSel(opt);
     const correct = opt === q.answer;
-    store.recordResult(base + q.word.idx, correct);
+    store.recordResult(q.globalIdx, correct);
     if (correct) { setOk(o => o + 1); setXp(x => x + 10); }
     else { setBad(b => b + 1); setXp(x => x + 2); }
   };
@@ -138,7 +161,7 @@ export default function Quiz({ store, go, level }) {
       </div>
 
       {answered && (
-        <button style={{ ...S.btnPrimary, marginTop: 14, width: '100%' }} onClick={next} className="anim-in">
+        <button className="btn-primary btn-full anim-in" style={{ marginTop: 14 }} onClick={next}>
           {cur + 1 >= qs.length ? 'Результаты →' : 'Далее →'}
         </button>
       )}
@@ -148,10 +171,10 @@ export default function Quiz({ store, go, level }) {
 
 function Hdr({ go, title, right }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14, paddingTop: 8 }}>
-      <button style={S.backBtn} onClick={() => go('home')}>←</button>
-      <div style={{ fontFamily: 'var(--font-display)', fontSize: 15, fontWeight: 600, flex: 1 }}>{title}</div>
-      {right && <div style={{ fontSize: 13, color: 'var(--text-dim)', fontWeight: 600 }}>{right}</div>}
+    <div className="app-header">
+      <button className="back-btn-round" onClick={() => go('home')}>←</button>
+      <div className="header-title">{title}</div>
+      {right && <div className="header-right">{right}</div>}
     </div>
   );
 }
@@ -168,8 +191,6 @@ const S = {
   opt: { padding: '16px 20px', borderRadius: 'var(--radius)', fontSize: 16, fontWeight: 700, background: 'var(--bg-card)', color: 'var(--text)', border: '1px solid rgba(255,255,255,0.05)', textAlign: 'left', transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)', backdropFilter: 'blur(10px)' },
   optOk: { background: 'rgba(0, 255, 135, 0.15)', border: '1px solid var(--green)', color: 'var(--green)', boxShadow: '0 0 15px rgba(0, 255, 135, 0.2)' },
   optBad: { background: 'rgba(255, 51, 102, 0.15)', border: '1px solid var(--red)', color: 'var(--red)', boxShadow: '0 0 15px rgba(255, 51, 102, 0.2)' },
-  btnPrimary: { flex: 1, padding: 18, background: 'var(--accent-gradient)', color: 'white', borderRadius: 'var(--radius-pill)', fontSize: 16, fontWeight: 800, boxShadow: '0 8px 24px rgba(0, 85, 255, 0.4)', letterSpacing: 0.5 },
-  btnGhost: { flex: 1, padding: 18, background: 'rgba(255, 255, 255, 0.05)', color: 'var(--text)', borderRadius: 'var(--radius-pill)', fontSize: 16, fontWeight: 700, border: '1px solid rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(10px)' },
   center: { flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', gap: 16 },
   doneTitle: { fontFamily: 'var(--font-display)', fontSize: 26, fontWeight: 900, filter: 'drop-shadow(0 0 10px rgba(255,255,255,0.2))' },
   dim: { color: 'var(--text-dim)', fontSize: 15, fontWeight: 600 },

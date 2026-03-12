@@ -23,7 +23,7 @@ export default function Auth({ onRegister }) {
             onChange={e => { setName(e.target.value); setErr(''); }} maxLength={20} autoFocus
             onFocus={e => e.target.style.borderColor = 'var(--accent)'}
             onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.1)'} />
-          <button style={S.btn} type="submit">Начать обучение 🚀</button>
+          <button className="btn-primary btn-full" type="submit">Начать обучение 🚀</button>
         </form>
         <div style={S.features}>
           {['📚 Карточки', '✅ Тесты', '🔄 Повторение', '🔥 Стрик'].map(f =>
@@ -42,7 +42,6 @@ const S = {
   title: { fontFamily: 'var(--font-display)', fontSize: 36, fontWeight: 900, background: 'var(--accent-gradient)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', marginBottom: 8, letterSpacing: 1, textTransform: 'uppercase' },
   sub: { color: 'var(--text-dim)', fontSize: 15, marginBottom: 32, lineHeight: 1.5, fontWeight: 600 },
   input: { width: '100%', padding: '16px 20px', background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 'var(--radius)', color: 'var(--text)', fontSize: 16, marginBottom: 16, transition: 'all 0.2s', backdropFilter: 'blur(10px)', fontWeight: 600 },
-  btn: { width: '100%', padding: 18, background: 'var(--accent-gradient)', color: 'white', borderRadius: 'var(--radius-pill)', fontSize: 16, fontWeight: 800, boxShadow: '0 8px 24px rgba(0, 85, 255, 0.4)', letterSpacing: 0.5 },
   err: { color: 'var(--red)', fontSize: 14, marginBottom: 12, fontWeight: 700 },
   features: { display: 'flex', gap: 10, marginTop: 32, justifyContent: 'center', flexWrap: 'wrap' },
   feat: { fontSize: 12, color: 'var(--text-dim)', background: 'rgba(255, 255, 255, 0.05)', padding: '6px 14px', borderRadius: 20, border: '1px solid rgba(255, 255, 255, 0.05)', fontWeight: 600 },

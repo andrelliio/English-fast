@@ -12,7 +12,7 @@ export default function Levels({ store, go }) {
   };
 
   const isUnlocked = (l) => data.unlockedLevels.includes(l);
-  const isPassed = (l) => data.passedExams.includes(l);
+  const isPassed = (l) => data.passedLessons.includes(l);
 
   // Levels that are unlocked but not exam-passed
   const untestedLevels = data.unlockedLevels.filter(l => !data.passedExams.includes(l));
@@ -20,9 +20,9 @@ export default function Levels({ store, go }) {
 
   return (
     <div style={S.page} className="anim-in">
-      <div style={S.header}>
-        <button style={S.back} onClick={() => go('home')}>←</button>
-        <h1 style={S.title}>Уровни</h1>
+      <div className="app-header">
+        <button className="back-btn-round" onClick={() => go('home')}>←</button>
+        <div className="header-title">Уровни</div>
       </div>
 
       {/* Exam banner */}
@@ -75,9 +75,6 @@ export default function Levels({ store, go }) {
 
 const S = {
   page: { minHeight: '100vh', padding: 20, maxWidth: 460, margin: '0 auto', zIndex: 1, position: 'relative' },
-  header: { display: 'flex', alignItems: 'center', gap: 16, marginBottom: 24, paddingTop: 8 },
-  back: { color: 'var(--text-dim)', borderRadius: '50%', width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, transition: 'background 0.2s', border: '1px solid transparent' },
-  title: { fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 800, letterSpacing: 0.5 },
   list: { display: 'flex', flexDirection: 'column', gap: 12 },
   item: { padding: '16px 20px', display: 'flex', alignItems: 'center', gap: 16, color: 'var(--text)', textAlign: 'left', transition: 'all 0.3s ease' },
   locked: { opacity: 0.4, filter: 'grayscale(1)', pointerEvents: 'none' },

@@ -12,11 +12,13 @@ const defaults = () => ({
   totalWrong: 0,
   createdAt: null,
   // New fields for level management
-  unlockedLevels: [0, 1],    // Initially 2 levels open
+  unlockedLevels: [0],        // Initially only the first level is open
   touchedLevels: [],          // Levels the user has entered at least once
+  passedLessons: [],          // Individual levels completed via quiz
   passedExams: [],            // Levels that have been passed via exam
   placementDone: false,       // Whether placement test was completed
   onboardingDone: false,      // Whether the welcome screen was seen
+  lastActiveLevel: 0,         // The level the user was last looking at
 });
 
 export function useStorage() {
@@ -26,11 +28,13 @@ export function useStorage() {
       if (s) {
         const parsed = JSON.parse(s);
         // Migrate old data: add new fields if missing
-        if (!parsed.unlockedLevels) parsed.unlockedLevels = [0, 1];
+        if (!parsed.unlockedLevels) parsed.unlockedLevels = [0];
         if (!parsed.touchedLevels) parsed.touchedLevels = [];
+        if (!parsed.passedLessons) parsed.passedLessons = [];
         if (!parsed.passedExams) parsed.passedExams = [];
         if (parsed.placementDone === undefined) parsed.placementDone = false;
         if (parsed.onboardingDone === undefined) parsed.onboardingDone = false;
+        if (parsed.lastActiveLevel === undefined) parsed.lastActiveLevel = 0;
         return parsed;
       }
     } catch {}
@@ -89,45 +93,52 @@ export function useStorage() {
   // Track that a user entered a level
   const touchLevel = useCallback((lvl) => {
     setData(prev => {
-      if (prev.touchedLevels.includes(lvl)) return prev;
-      return { ...prev, touchedLevels: [...prev.touchedLevels, lvl] };
+      const isNew = !prev.touchedLevels.includes(lvl);
+      const isNewActive = prev.lastActiveLevel !== lvl;
+      if (!isNew && !isNewActive) return prev;
+      
+      const next = { ...prev, lastActiveLevel: lvl };
+      if (isNew) next.touchedLevels = [...prev.touchedLevels, lvl];
+      return next;
     });
   }, []);
 
-  // Mark a level as completed (passed quiz). Unlock next levels if under cap.
+  // Mark a level as completed (passed quiz). Unlock next level if under 5-untested cap.
   const completeLevel = useCallback((lvl) => {
     setData(prev => {
+      const newPassedLessons = [...new Set([...prev.passedLessons, lvl])];
       let newUnlocked = [...prev.unlockedLevels];
 
       // Count how many unlocked levels haven't passed exam
       const untestedCount = newUnlocked.filter(l => !prev.passedExams.includes(l)).length;
 
-      // Only unlock more if user is under the 5-level cap
+      // Only unlock ONE more if user is under the 5-level cap
+      // The user wants strictly no more than 5 untested levels open.
       if (untestedCount < 5) {
-        const maxUnlocked = Math.max(...newUnlocked);
-        const nextLvl1 = maxUnlocked + 1;
-        const nextLvl2 = maxUnlocked + 2;
-
-        if (!newUnlocked.includes(nextLvl1)) newUnlocked.push(nextLvl1);
-        if (!newUnlocked.includes(nextLvl2)) newUnlocked.push(nextLvl2);
+        const sortedUnlocked = [...newUnlocked].sort((a, b) => a - b);
+        const maxUnlocked = sortedUnlocked[sortedUnlocked.length - 1];
+        const nextLvl = maxUnlocked + 1;
+        
+        // Ensure we don't skip levels and don't re-add
+        if (!newUnlocked.includes(nextLvl)) {
+           newUnlocked.push(nextLvl);
+        }
       }
 
-      return { ...prev, unlockedLevels: newUnlocked };
+      return { ...prev, passedLessons: newPassedLessons, unlockedLevels: newUnlocked };
     });
   }, []);
 
-  // Pass an exam: mark levels as passed, unlock 2 more
+  // Pass an exam: mark levels as passed, unlock 1 more
   const passExam = useCallback((levels) => {
     setData(prev => {
       const newPassed = [...new Set([...prev.passedExams, ...levels])];
       let newUnlocked = [...prev.unlockedLevels];
 
-      // Unlock 2 more levels after passing exam
+      // Unlock ONE more level after passing exam (was 2)
       const maxUnlocked = Math.max(...newUnlocked);
-      for (let i = 1; i <= 2; i++) {
-        const nextLvl = maxUnlocked + i;
-        if (!newUnlocked.includes(nextLvl)) newUnlocked.push(nextLvl);
-      }
+      const nextLvl = maxUnlocked + 1;
+      if (!newUnlocked.includes(nextLvl)) newUnlocked.push(nextLvl);
 
       return { ...prev, passedExams: newPassed, unlockedLevels: newUnlocked };
     });
@@ -137,14 +148,15 @@ export function useStorage() {
   const unlockUpToWithWords = useCallback((maxLevel, wordsPerLevel) => {
     setData(prev => {
       const newUnlocked = [];
-      const newPassed = [];
+      const newPassedExams = [];
+      const newPassedLessons = [];
       for (let i = 0; i <= maxLevel; i++) {
         newUnlocked.push(i);
-        newPassed.push(i);
+        newPassedExams.push(i);
+        newPassedLessons.push(i);
       }
-      // Unlock 2 beyond
+      // Unlock 1 beyond (was 2)
       newUnlocked.push(maxLevel + 1);
-      newUnlocked.push(maxLevel + 2);
 
       // Mark all words in passed levels as seen (for review)
       const wp = { ...prev.wordProgress };
@@ -161,7 +173,8 @@ export function useStorage() {
         ...prev,
         wordProgress: wp,
         unlockedLevels: [...new Set([...prev.unlockedLevels, ...newUnlocked])],
-        passedExams: [...new Set([...prev.passedExams, ...newPassed])],
+        passedExams: [...new Set([...prev.passedExams, ...newPassedExams])],
+        passedLessons: [...new Set([...prev.passedLessons, ...newPassedLessons])],
         placementDone: true,
       };
     });

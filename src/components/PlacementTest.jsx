@@ -60,9 +60,9 @@ export default function PlacementTest({ store, go }) {
           <div style={S.doneTitle}>Определим твой уровень</div>
           <div style={S.dim}>Быстрый тест из ~20 слов разной сложности.</div>
           <div style={S.dim}>Как только станет сложно — мы определим твой уровень.</div>
-          <div style={{ display: 'flex', gap: 10, marginTop: 16, width: '100%', maxWidth: 320 }}>
-            <button style={S.btnGhost} onClick={skip}>Пропустить</button>
-            <button style={S.btnPrimary} onClick={startTest}>Начать тест 🚀</button>
+          <div className="btn-row" style={{ marginTop: 16, maxWidth: 320, padding: '0 20px' }}>
+            <button className="btn-ghost btn-flex" onClick={skip}>Пропустить</button>
+            <button className="btn-primary btn-flex" onClick={startTest}>Начать тест 🚀</button>
           </div>
         </div>
       </div>
@@ -86,7 +86,7 @@ export default function PlacementTest({ store, go }) {
               Все пройденные слова добавлены в повторение
             </div>
           )}
-          <button style={{ ...S.btnPrimary, marginTop: 16, width: '100%', maxWidth: 320 }} onClick={() => go('home')}>
+          <button className="btn-primary btn-full" style={{ marginTop: 24, maxWidth: 320 }} onClick={() => go('home')}>
             Начать обучение 🚀
           </button>
         </div>
@@ -172,10 +172,10 @@ export default function PlacementTest({ store, go }) {
 
   return (
     <div style={S.page} className="anim-in">
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14, paddingTop: 8 }}>
-        <button style={S.backBtn} onClick={() => { store.update({ placementDone: true }); go('home'); }}>←</button>
-        <div style={{ fontFamily: 'var(--font-display)', fontSize: 14, fontWeight: 600, flex: 1 }}>🎯 Тест на уровень</div>
-        <div style={{ fontSize: 12, color: 'var(--text-dim)', fontWeight: 600 }}>{cur + 1}/{totalQs}</div>
+      <div className="app-header">
+        <button className="back-btn-round" onClick={() => { store.update({ placementDone: true }); go('home'); }}>←</button>
+        <div className="header-title">🎯 Тест на уровень</div>
+        <div className="header-right">{cur + 1}/{totalQs}</div>
       </div>
 
       <div style={S.bar}><div style={{ ...S.barIn, width: `${pct}%` }} /></div>
@@ -214,7 +214,7 @@ export default function PlacementTest({ store, go }) {
       </div>
 
       {answered && (
-        <button style={{ ...S.btnPrimary, marginTop: 14, width: '100%' }} onClick={next} className="anim-in">
+        <button className="btn-primary btn-full anim-in" style={{ marginTop: 14 }} onClick={next}>
           Далее →
         </button>
       )}
@@ -234,8 +234,6 @@ const S = {
   opt: { padding: '16px 20px', borderRadius: 'var(--radius)', fontSize: 16, fontWeight: 700, background: 'var(--bg-card)', color: 'var(--text)', border: '1px solid rgba(255,255,255,0.05)', textAlign: 'left', transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)', backdropFilter: 'blur(10px)' },
   optOk: { background: 'rgba(0, 255, 135, 0.15)', border: '1px solid var(--green)', color: 'var(--green)', boxShadow: '0 0 15px rgba(0, 255, 135, 0.2)' },
   optBad: { background: 'rgba(255, 51, 102, 0.15)', border: '1px solid var(--red)', color: 'var(--red)', boxShadow: '0 0 15px rgba(255, 51, 102, 0.2)' },
-  btnPrimary: { flex: 1, padding: 18, background: 'var(--accent-gradient)', color: 'white', borderRadius: 'var(--radius-pill)', fontSize: 16, fontWeight: 800, boxShadow: '0 8px 24px rgba(0, 85, 255, 0.4)', letterSpacing: 0.5 },
-  btnGhost: { flex: 1, padding: 18, background: 'rgba(255, 255, 255, 0.05)', color: 'var(--text)', borderRadius: 'var(--radius-pill)', fontSize: 16, fontWeight: 700, border: '1px solid rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(10px)' },
   center: { flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', gap: 16 },
   doneTitle: { fontFamily: 'var(--font-display)', fontSize: 26, fontWeight: 900, filter: 'drop-shadow(0 0 10px rgba(255,255,255,0.2))' },
   dim: { color: 'var(--text-dim)', fontSize: 15, fontWeight: 600 },
