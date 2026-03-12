@@ -17,6 +17,11 @@ export default function Cards({ store, go, level }) {
   useEffect(() => {
     store.touchLevel(level);
 
+    // Reset component state when level changes
+    setIdx(0);
+    setFlipped(false);
+    setDone(false);
+
     // New cards from this level
     const newCards = words.map((w, i) => ({ globalIdx: base + i, word: w }))
       .filter(c => {

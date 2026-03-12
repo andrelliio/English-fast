@@ -18,6 +18,14 @@ export default function Quiz({ store, go, level }) {
     // Touch level on enter
     store.touchLevel(level);
 
+    // Reset component state when level changes
+    setCur(0);
+    setSel(null);
+    setOk(0);
+    setBad(0);
+    setDone(false);
+    setXp(0);
+
     const questions = shuffle(words.map((w, i) => ({ ...w, idx: i }))).map(word => {
       const globalIdx = base + word.idx;
       // Use semantically similar distractors
