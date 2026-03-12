@@ -8,13 +8,30 @@ import Quiz from './components/Quiz';
 import Review from './components/Review';
 import LevelExam from './components/LevelExam';
 import Onboarding from './components/Onboarding';
+import { auth } from './utils/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
 
 export default function App() {
   const store = useStorage();
   const [screen, setScreen] = useState('home');
   const [level, setLevel] = useState(0);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, (user) => {
+      store.setUser(user);
+      setLoading(false);
+      if (user && !store.data.username) {
+        // If logged in via Firebase but no local name, use email/phone as display name
+        store.update({ username: user.email || user.phoneNumber || 'User' });
+      }
+    });
+    return unsub;
+  }, []);
 
   useEffect(() => { if (store.isLoggedIn) store.checkStreak(); }, [store.isLoggedIn]);
+
+  if (loading) return null; // Or a spinner
 
   // 1. Show onboarding first if not done
   if (!store.data.onboardingDone) {

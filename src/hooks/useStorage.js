@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { auth } from '../utils/firebase';
 
 const KEY = 'vocabflame_v1';
 
@@ -24,6 +25,7 @@ const defaults = () => ({
 });
 
 export function useStorage() {
+  const [user, setUser] = useState(null); // Firebase user
   const [data, setData] = useState(() => {
     try {
       const s = localStorage.getItem(KEY);
@@ -156,13 +158,18 @@ export function useStorage() {
   // Get count of unlocked levels that haven't passed exam
   const untestedCount = data.unlockedLevels.filter(l => !data.passedExams.includes(l)).length;
 
-  const logout = useCallback(() => { localStorage.removeItem(KEY); setData(defaults()); }, []);
+  const logout = useCallback(() => { 
+    auth.signOut();
+    localStorage.removeItem(KEY); 
+    setData(defaults()); 
+  }, []);
 
   const learned = Object.values(data.wordProgress).filter(w => w.mastered).length;
 
   return {
     data, update, register, checkStreak, markSeen, recordResult, logout,
-    isLoggedIn: !!data.username, learned,
+    isLoggedIn: !!user || !!data.username, learned,
     touchLevel, completeLevel, passExam, untestedCount,
+    user, setUser,
   };
 }

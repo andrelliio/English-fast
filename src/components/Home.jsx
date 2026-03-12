@@ -145,7 +145,6 @@ const S = {
   statVal: { fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 800, marginBottom: 4 },
   statLbl: { fontSize: 11, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: 1, fontWeight: 700 },
   
-  placementBanner: { width: '100%', padding: '16px 20px', marginBottom: 16, border: '1px solid rgba(0, 240, 255, 0.3)', display: 'flex', alignItems: 'center', gap: 14, color: 'var(--text)', background: 'linear-gradient(90deg, rgba(0, 240, 255, 0.1), transparent)', borderRadius: 'var(--radius)' },
   examBanner: { width: '100%', padding: '16px 20px', marginBottom: 16, border: '1px solid rgba(255, 51, 102, 0.3)', display: 'flex', alignItems: 'center', gap: 14, color: 'var(--text)', background: 'linear-gradient(90deg, rgba(255, 51, 102, 0.1), transparent)', borderRadius: 'var(--radius)' },
   reviewBanner: { width: '100%', padding: '16px 20px', marginBottom: 16, border: '1px solid rgba(178, 36, 239, 0.3)', display: 'flex', alignItems: 'center', gap: 14, color: 'var(--text)', background: 'linear-gradient(90deg, rgba(178, 36, 239, 0.1), transparent)', borderRadius: 'var(--radius)' },
   
