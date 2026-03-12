@@ -7,7 +7,6 @@ import Cards from './components/Cards';
 import Quiz from './components/Quiz';
 import Review from './components/Review';
 import LevelExam from './components/LevelExam';
-import PlacementTest from './components/PlacementTest';
 import Onboarding from './components/Onboarding';
 
 export default function App() {
@@ -27,11 +26,6 @@ export default function App() {
     return <Auth onRegister={store.register} />;
   }
 
-  // After registration, if placement not done, offer it
-  if (!store.data.placementDone && screen === 'home') {
-    // Show home normally — placement test is offered as a button on Home
-  }
-
   const go = (s, lvl) => { setScreen(s); if (lvl !== undefined) setLevel(lvl); };
 
   const props = { store, go, level };
@@ -41,7 +35,6 @@ export default function App() {
     case 'quiz': return <Quiz {...props} />;
     case 'review': return <Review {...props} />;
     case 'levelExam': return <LevelExam {...props} />;
-    case 'placement': return <PlacementTest {...props} />;
     default: return <Home {...props} />;
   }
 }

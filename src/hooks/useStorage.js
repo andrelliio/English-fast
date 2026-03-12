@@ -16,7 +16,9 @@ const defaults = () => ({
   touchedLevels: [],          // Levels the user has entered at least once
   passedLessons: [],          // Individual levels completed via quiz
   passedExams: [],            // Levels that have been passed via exam
-  placementDone: false,       // Whether placement test was completed
+  touchedLevels: [],          // Levels the user has entered at least once
+  passedLessons: [],          // Individual levels completed via quiz
+  passedExams: [],            // Levels that have been passed via exam
   onboardingDone: false,      // Whether the welcome screen was seen
   lastActiveLevel: 0,         // The level the user was last looking at
 });
@@ -32,7 +34,6 @@ export function useStorage() {
         if (!parsed.touchedLevels) parsed.touchedLevels = [];
         if (!parsed.passedLessons) parsed.passedLessons = [];
         if (!parsed.passedExams) parsed.passedExams = [];
-        if (parsed.placementDone === undefined) parsed.placementDone = false;
         if (parsed.onboardingDone === undefined) parsed.onboardingDone = false;
         if (parsed.lastActiveLevel === undefined) parsed.lastActiveLevel = 0;
         return parsed;
@@ -144,42 +145,6 @@ export function useStorage() {
     });
   }, []);
 
-  // Unlock up to level and mark words as seen (for placement test)
-  const unlockUpToWithWords = useCallback((maxLevel, wordsPerLevel) => {
-    setData(prev => {
-      const newUnlocked = [];
-      const newPassedExams = [];
-      const newPassedLessons = [];
-      for (let i = 0; i <= maxLevel; i++) {
-        newUnlocked.push(i);
-        newPassedExams.push(i);
-        newPassedLessons.push(i);
-      }
-      // Unlock 1 beyond (was 2)
-      newUnlocked.push(maxLevel + 1);
-
-      // Mark all words in passed levels as seen (for review)
-      const wp = { ...prev.wordProgress };
-      for (let lvl = 0; lvl <= maxLevel; lvl++) {
-        for (let w = 0; w < wordsPerLevel; w++) {
-          const idx = lvl * wordsPerLevel + w;
-          if (!wp[idx]) {
-            wp[idx] = { seen: true, correct: 3, wrong: 0, mastered: true, lastSeen: Date.now() };
-          }
-        }
-      }
-
-      return {
-        ...prev,
-        wordProgress: wp,
-        unlockedLevels: [...new Set([...prev.unlockedLevels, ...newUnlocked])],
-        passedExams: [...new Set([...prev.passedExams, ...newPassedExams])],
-        passedLessons: [...new Set([...prev.passedLessons, ...newPassedLessons])],
-        placementDone: true,
-      };
-    });
-  }, []);
-
   // Get count of unlocked levels that haven't passed exam
   const untestedCount = data.unlockedLevels.filter(l => !data.passedExams.includes(l)).length;
 
@@ -190,6 +155,6 @@ export function useStorage() {
   return {
     data, update, register, checkStreak, markSeen, recordResult, logout,
     isLoggedIn: !!data.username, learned,
-    touchLevel, completeLevel, passExam, unlockUpToWithWords, untestedCount,
+    touchLevel, completeLevel, passExam, untestedCount,
   };
 }

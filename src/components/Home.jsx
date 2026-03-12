@@ -42,18 +42,6 @@ export default function Home({ store, go }) {
         </div>
       </div>
 
-      {/* Placement test banner (if not done) */}
-      {!data.placementDone && (
-        <button style={S.placementBanner} onClick={() => go('placement')}>
-          <span style={{ fontSize: 24 }}>🎯</span>
-          <div style={{ flex: 1, textAlign: 'left' }}>
-            <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--blue)' }}>Определи свой уровень!</div>
-            <div style={{ fontSize: 12, color: 'var(--text-dim)' }}>Пройди тест и пропусти то, что уже знаешь</div>
-          </div>
-          <span style={{ color: 'var(--blue)' }}>→</span>
-        </button>
-      )}
-
       {/* Progress card */}
       <div style={S.card} className="glass-card">
         <div style={S.label}>ПРОГРЕСС</div>
@@ -119,7 +107,6 @@ export default function Home({ store, go }) {
             go('quiz', unlocked[Math.floor(Math.random() * unlocked.length)] || 0);
           }},
           { icon: '🃏', title: 'Карточки', desc: 'Смотри и учи', action: () => go('cards', nextLevel) },
-          ...(!data.placementDone ? [{ icon: '🎯', title: 'Тест уровня', desc: 'Определи уровень', action: () => go('placement') }] : []),
           ...(showExamBanner ? [{ icon: '📝', title: 'Экзамен', desc: 'Сдай экзамен', action: () => go('levelExam') }] : []),
         ].map(n => (
           <button key={n.title} style={S.navCard} className="glass-card" onClick={n.action}
