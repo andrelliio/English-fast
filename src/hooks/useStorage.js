@@ -45,7 +45,13 @@ export function useStorage() {
 
   const register = useCallback((username) => {
     const today = new Date().toISOString().slice(0, 10);
-    setData({ ...defaults(), username, lastVisit: today, streak: 1, createdAt: today });
+    setData(prev => ({
+      ...prev,
+      username,
+      lastVisit: today,
+      streak: 1,
+      createdAt: today
+    }));
   }, []);
 
   const checkStreak = useCallback(() => {

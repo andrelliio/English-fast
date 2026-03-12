@@ -15,18 +15,21 @@ export default function App() {
   const [screen, setScreen] = useState('home');
   const [level, setLevel] = useState(0);
 
-  useEffect(() => { if (store.isLoggedIn) store.checkStreak(); }, []);
+  useEffect(() => { if (store.isLoggedIn) store.checkStreak(); }, [store.isLoggedIn]);
 
-  if (!store.isLoggedIn) return <Auth onRegister={store.register} />;
+  // 1. Show onboarding first if not done
+  if (!store.data.onboardingDone) {
+    return <Onboarding store={store} />;
+  }
+
+  // 2. Then show auth/registration if not logged in
+  if (!store.isLoggedIn) {
+    return <Auth onRegister={store.register} />;
+  }
 
   // After registration, if placement not done, offer it
   if (!store.data.placementDone && screen === 'home') {
     // Show home normally — placement test is offered as a button on Home
-  }
-
-  // Intercept normal home screen with onboarding if not done
-  if (!store.data.onboardingDone && screen === 'home') {
-    return <Onboarding store={store} />;
   }
 
   const go = (s, lvl) => { setScreen(s); if (lvl !== undefined) setLevel(lvl); };
