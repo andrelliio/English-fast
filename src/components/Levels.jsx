@@ -5,12 +5,18 @@ export default function Levels({ store, go }) {
 
   const lvlProgress = (l) => {
     const start = l * WORDS_PER_LEVEL;
-    let mastered = 0, seen = 0;
-    LEVELS[l].forEach((_, i) => { const w = data.wordProgress[start + i]; if (w?.mastered) mastered++; if (w?.seen) seen++; });
+    let mastered = 0;
+    if (!LEVELS[l]) return { mastered: 0, total: 0 };
+    LEVELS[l].forEach((_, i) => { const w = data.wordProgress[start + i]; if (w?.mastered) mastered++; });
     return { mastered, total: LEVELS[l].length };
   };
 
-  const unlocked = (l) => l === 0 || lvlProgress(l - 1).mastered >= lvlProgress(l - 1).total * 0.5;
+  const isUnlocked = (l) => data.unlockedLevels.includes(l);
+  const isPassed = (l) => data.passedExams.includes(l);
+
+  // Levels that are unlocked but not exam-passed
+  const untestedLevels = data.unlockedLevels.filter(l => !data.passedExams.includes(l));
+  const showExamBanner = untestedLevels.length >= 5;
 
   return (
     <div style={S.page} className="anim-in">
@@ -18,19 +24,32 @@ export default function Levels({ store, go }) {
         <button style={S.back} onClick={() => go('home')}>←</button>
         <h1 style={S.title}>Уровни</h1>
       </div>
+
+      {/* Exam banner */}
+      {showExamBanner && (
+        <button style={S.examBanner} onClick={() => go('levelExam')}>
+          <span style={{ fontSize: 24 }}>📝</span>
+          <div style={{ flex: 1, textAlign: 'left' }}>
+            <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--yellow)' }}>Пора сдать экзамен!</div>
+            <div style={{ fontSize: 12, color: 'var(--text-dim)' }}>{untestedLevels.length} уровней ждут проверки</div>
+          </div>
+          <span style={{ color: 'var(--yellow)' }}>→</span>
+        </button>
+      )}
+
       <div style={S.list}>
         {LEVELS.map((_, l) => {
           const p = lvlProgress(l);
-          const pct = Math.round((p.mastered / p.total) * 100);
-          const ok = unlocked(l);
-          const done = pct === 100;
+          const pct = p.total > 0 ? Math.round((p.mastered / p.total) * 100) : 0;
+          const ok = isUnlocked(l);
+          const passed = isPassed(l);
           return (
             <button key={l} style={{ ...S.item, ...(ok ? {} : S.locked) }}
               onClick={() => ok && go('cards', l)}
               onMouseEnter={e => { if (ok) e.currentTarget.style.background = 'var(--bg-hover)'; }}
               onMouseLeave={e => { e.currentTarget.style.background = 'var(--bg-card)'; }}>
-              <div style={{ ...S.num, background: done ? 'var(--green)' : ok ? 'var(--accent)' : 'var(--text-muted)', color: 'white' }}>
-                {done ? '✓' : ok ? l + 1 : '🔒'}
+              <div style={{ ...S.num, background: passed ? 'var(--green)' : ok ? 'var(--accent)' : 'var(--text-muted)', color: 'white' }}>
+                {passed ? '✓' : ok ? l + 1 : '🔒'}
               </div>
               <div style={{ flex: 1 }}>
                 <div style={S.name}>{LEVEL_NAMES[l] || `Уровень ${l + 1}`}</div>
@@ -65,4 +84,5 @@ const S = {
   miniBar: { height: 4, background: 'var(--bg)', borderRadius: 2, overflow: 'hidden', marginTop: 5 },
   miniBarIn: { height: '100%', borderRadius: 2, background: 'linear-gradient(90deg, var(--accent), var(--yellow))' },
   smallBtn: { background: 'var(--bg-elevated)', borderRadius: 8, width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, cursor: 'pointer' },
+  examBanner: { width: '100%', background: 'var(--bg-card)', borderRadius: 'var(--radius-sm)', padding: '14px 16px', marginBottom: 14, border: '1px solid var(--yellow)', display: 'flex', alignItems: 'center', gap: 10, color: 'var(--text)' },
 };

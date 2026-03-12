@@ -2369,7 +2369,7 @@ for (let i = 0; i < words.length; i += WORDS_PER_LEVEL) {
   LEVELS.push(words.slice(i, i + WORDS_PER_LEVEL));
 }
 
-const categoryRanges = [
+export const categoryRanges = [
   { name: "ЗНАКОМСТВО И ПРИВЕТСТВИЕ", start: 0, count: 37 },
   { name: "ЕЖЕДНЕВНЫЕ ФРАЗЫ И ВЕЖЛИВОСТЬ", start: 37, count: 32 },
   { name: "ЭМОЦИИ И ЧУВСТВА", start: 69, count: 41 },
@@ -2415,6 +2415,52 @@ export const LEVEL_NAMES = LEVELS.map((_, i) => {
   const cat = categoryRanges.find(c => wordStart >= c.start && wordStart < c.start + c.count);
   return cat ? cat.name : 'Уровень ' + (i + 1);
 });
+
+// Get semantically similar words (from same/neighboring categories)
+export function getSimilarWords(wordIndex, count, excludeRu) {
+  const catIdx = categoryRanges.findIndex(c => wordIndex >= c.start && wordIndex < c.start + c.count);
+  let pool = [];
+
+  // Add words from same category
+  if (catIdx >= 0) {
+    const cat = categoryRanges[catIdx];
+    for (let i = cat.start; i < cat.start + cat.count; i++) {
+      if (i !== wordIndex && words[i] && words[i].ru !== excludeRu) pool.push(words[i]);
+    }
+  }
+
+  // Add neighboring categories if not enough
+  if (pool.length < count) {
+    const neighbors = [catIdx - 1, catIdx + 1, catIdx - 2, catIdx + 2];
+    for (const ni of neighbors) {
+      if (ni >= 0 && ni < categoryRanges.length) {
+        const cat = categoryRanges[ni];
+        for (let i = cat.start; i < cat.start + cat.count; i++) {
+          if (words[i] && words[i].ru !== excludeRu && !pool.find(p => p.ru === words[i].ru)) {
+            pool.push(words[i]);
+          }
+        }
+      }
+      if (pool.length >= count * 3) break;
+    }
+  }
+
+  // Fallback: if still not enough, use random words
+  if (pool.length < count) {
+    for (let i = 0; i < words.length && pool.length < count * 3; i++) {
+      if (i !== wordIndex && words[i].ru !== excludeRu && !pool.find(p => p.ru === words[i].ru)) {
+        pool.push(words[i]);
+      }
+    }
+  }
+
+  // Shuffle and take count
+  for (let i = pool.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [pool[i], pool[j]] = [pool[j], pool[i]];
+  }
+  return pool.slice(0, count).map(w => w.ru);
+}
 
 export const TOTAL_WORDS = words.length;
 export default words;

@@ -10,6 +10,9 @@ export default function Cards({ store, go, level }) {
 
   const [indices, setIndices] = useState([]);
   useEffect(() => {
+    // Touch level to trigger unlock logic
+    store.touchLevel(level);
+
     const ids = words.map((_, i) => i).filter(i => {
       const w = store.data.wordProgress[base + i];
       return !w || !w.mastered;
@@ -23,6 +26,29 @@ export default function Cards({ store, go, level }) {
     else { setIdx(idx + 1); setFlipped(false); }
   };
 
+  // Find next available level
+  const getNextLevel = () => {
+    for (let l = level + 1; l < LEVELS.length; l++) {
+      if (store.data.unlockedLevels.includes(l)) return l;
+    }
+    return null;
+  };
+
+  const handleNextTask = () => {
+    const nextLvl = getNextLevel();
+    if (nextLvl !== null) {
+      // Mix: 50% chance to go to quiz of current level, 50% to cards of next
+      const goToQuiz = Math.random() > 0.5;
+      if (goToQuiz) {
+        go('quiz', level);
+      } else {
+        go('cards', nextLvl);
+      }
+    } else {
+      go('quiz', level);
+    }
+  };
+
   if (done || !indices.length) {
     return (
       <div style={S.page}>
@@ -30,9 +56,14 @@ export default function Cards({ store, go, level }) {
         <div style={S.center} className="anim-up">
           <div style={{ fontSize: 56 }}>🎉</div>
           <div style={S.doneTitle}>Карточки пройдены!</div>
-          <div style={S.dim}>Закрепи слова в тесте</div>
-          <button style={S.btnPrimary} onClick={() => go('quiz', level)}>Пройти тест ✅</button>
-          <button style={S.btnGhost} onClick={() => go('home')}>На главную</button>
+          <div style={S.dim}>Закрепи слова в тесте или продолжай обучение</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, width: '100%', maxWidth: 320 }}>
+            <button style={S.btnPrimary} onClick={handleNextTask}>Следующее задание ➡️</button>
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button style={S.btnGhost} onClick={() => go('home')}>🏠 Домой</button>
+              <button style={S.btnGhost} onClick={() => { setIdx(0); setFlipped(false); setDone(false); }}>🔄 Ещё раз</button>
+            </div>
+          </div>
         </div>
       </div>
     );
