@@ -27,13 +27,13 @@ export default function Levels({ store, go }) {
 
       {/* Exam banner */}
       {showExamBanner && (
-        <button style={S.examBanner} onClick={() => go('levelExam')}>
-          <span style={{ fontSize: 24 }}>📝</span>
+        <button style={S.examBanner} className="glass-card" onClick={() => go('levelExam')}>
+          <span style={{ fontSize: 28, filter: 'drop-shadow(0 0 10px rgba(255, 215, 0, 0.4))' }}>📝</span>
           <div style={{ flex: 1, textAlign: 'left' }}>
-            <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--yellow)' }}>Пора сдать экзамен!</div>
-            <div style={{ fontSize: 12, color: 'var(--text-dim)' }}>{untestedLevels.length} уровней ждут проверки</div>
+            <div style={{ fontWeight: 800, fontSize: 15, color: 'var(--yellow)' }}>Пора сдать экзамен!</div>
+            <div style={{ fontSize: 13, color: 'var(--text-dim)', fontWeight: 600 }}>{untestedLevels.length} уровней ждут проверки</div>
           </div>
-          <span style={{ color: 'var(--yellow)' }}>→</span>
+          <span style={{ color: 'var(--yellow)', fontSize: 20 }}>→</span>
         </button>
       )}
 
@@ -44,22 +44,25 @@ export default function Levels({ store, go }) {
           const ok = isUnlocked(l);
           const passed = isPassed(l);
           return (
-            <button key={l} style={{ ...S.item, ...(ok ? {} : S.locked) }}
+            <button key={l} style={{ ...S.item, ...(ok ? {} : S.locked) }} className="glass-card"
               onClick={() => ok && go('cards', l)}
               onMouseEnter={e => { if (ok) e.currentTarget.style.background = 'var(--bg-hover)'; }}
               onMouseLeave={e => { e.currentTarget.style.background = 'var(--bg-card)'; }}>
-              <div style={{ ...S.num, background: passed ? 'var(--green)' : ok ? 'var(--accent)' : 'var(--text-muted)', color: 'white' }}>
+
+              <div style={{ ...S.num, background: passed ? 'rgba(0, 255, 135, 0.2)' : ok ? 'rgba(0, 240, 255, 0.2)' : 'rgba(255, 255, 255, 0.05)', color: passed ? 'var(--green)' : ok ? 'var(--accent)' : 'var(--text-muted)', border: `1px solid ${passed ? 'var(--green)' : ok ? 'var(--accent)' : 'transparent'}` }}>
                 {passed ? '✓' : ok ? l + 1 : '🔒'}
               </div>
+
               <div style={{ flex: 1 }}>
                 <div style={S.name}>{LEVEL_NAMES[l] || `Уровень ${l + 1}`}</div>
                 <div style={S.sub}>{p.mastered}/{p.total} • {pct}%</div>
                 <div style={S.miniBar}><div style={{ ...S.miniBarIn, width: `${pct}%` }} /></div>
               </div>
+
               {ok && (
-                <div style={{ display: 'flex', gap: 6 }}>
+                <div style={{ display: 'flex', gap: 8 }}>
                   <span style={S.smallBtn} onClick={e => { e.stopPropagation(); go('cards', l); }}>🃏</span>
-                  <span style={{ ...S.smallBtn, background: 'var(--accent)' }} onClick={e => { e.stopPropagation(); go('quiz', l); }}>✅</span>
+                  <span style={{ ...S.smallBtn, background: 'rgba(0, 240, 255, 0.15)', border: '1px solid var(--accent)' }} onClick={e => { e.stopPropagation(); go('quiz', l); }}>⚡</span>
                 </div>
               )}
             </button>
@@ -71,18 +74,18 @@ export default function Levels({ store, go }) {
 }
 
 const S = {
-  page: { minHeight: '100vh', padding: 20, maxWidth: 460, margin: '0 auto' },
-  header: { display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20, paddingTop: 8 },
-  back: { background: 'var(--bg-card)', color: 'var(--text)', borderRadius: 50, width: 38, height: 38, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, border: '1px solid #ffffff08' },
-  title: { fontFamily: 'var(--font-display)', fontSize: 20, fontWeight: 700 },
-  list: { display: 'flex', flexDirection: 'column', gap: 8 },
-  item: { background: 'var(--bg-card)', borderRadius: 'var(--radius-sm)', padding: '14px 16px', border: '1px solid #ffffff08', display: 'flex', alignItems: 'center', gap: 12, color: 'var(--text)', textAlign: 'left', transition: 'background 0.2s' },
-  locked: { opacity: 0.35, pointerEvents: 'none' },
-  num: { fontFamily: 'var(--font-display)', fontSize: 13, fontWeight: 800, width: 36, height: 36, borderRadius: 9, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
-  name: { fontWeight: 700, fontSize: 14, marginBottom: 2 },
-  sub: { fontSize: 12, color: 'var(--text-dim)' },
-  miniBar: { height: 4, background: 'var(--bg)', borderRadius: 2, overflow: 'hidden', marginTop: 5 },
-  miniBarIn: { height: '100%', borderRadius: 2, background: 'linear-gradient(90deg, var(--accent), var(--yellow))' },
-  smallBtn: { background: 'var(--bg-elevated)', borderRadius: 8, width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, cursor: 'pointer' },
-  examBanner: { width: '100%', background: 'var(--bg-card)', borderRadius: 'var(--radius-sm)', padding: '14px 16px', marginBottom: 14, border: '1px solid var(--yellow)', display: 'flex', alignItems: 'center', gap: 10, color: 'var(--text)' },
+  page: { minHeight: '100vh', padding: 20, maxWidth: 460, margin: '0 auto', zIndex: 1, position: 'relative' },
+  header: { display: 'flex', alignItems: 'center', gap: 16, marginBottom: 24, paddingTop: 8 },
+  back: { color: 'var(--text-dim)', borderRadius: '50%', width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, transition: 'background 0.2s', border: '1px solid transparent' },
+  title: { fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 800, letterSpacing: 0.5 },
+  list: { display: 'flex', flexDirection: 'column', gap: 12 },
+  item: { padding: '16px 20px', display: 'flex', alignItems: 'center', gap: 16, color: 'var(--text)', textAlign: 'left', transition: 'all 0.3s ease' },
+  locked: { opacity: 0.4, filter: 'grayscale(1)', pointerEvents: 'none' },
+  num: { fontFamily: 'var(--font-display)', fontSize: 15, fontWeight: 800, width: 44, height: 44, borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
+  name: { fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 14, marginBottom: 4, letterSpacing: 0.5 },
+  sub: { fontSize: 12, color: 'var(--text-dim)', fontWeight: 600 },
+  miniBar: { height: 4, background: 'rgba(0,0,0,0.3)', borderRadius: 2, overflow: 'hidden', marginTop: 8, boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.5)' },
+  miniBarIn: { height: '100%', borderRadius: 2, background: 'var(--accent-gradient)', boxShadow: '0 0 8px var(--accent-glow)' },
+  smallBtn: { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 'var(--radius-sm)', width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, cursor: 'pointer', transition: 'all 0.2s ease', backdropFilter: 'blur(4px)' },
+  examBanner: { width: '100%', padding: '18px 20px', marginBottom: 20, border: '1px solid rgba(255, 215, 0, 0.3)', display: 'flex', alignItems: 'center', gap: 16, color: 'var(--text)', background: 'linear-gradient(90deg, rgba(255, 215, 0, 0.1), transparent)' },
 };

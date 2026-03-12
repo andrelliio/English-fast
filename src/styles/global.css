@@ -1,21 +1,47 @@
 :root {
-  --bg: #0a0a0f;
-  --bg-card: #14141f;
-  --bg-elevated: #1a1a2e;
-  --bg-hover: #22223a;
-  --accent: #ff6b35;
-  --accent-glow: #ff6b3544;
-  --green: #34d399;
-  --green-glow: #34d39933;
-  --red: #f87171;
-  --yellow: #fbbf24;
-  --yellow-glow: #fbbf2433;
-  --blue: #60a5fa;
-  --text: #e8e6f0;
-  --text-dim: #8b8a9e;
-  --text-muted: #4a4960;
-  --radius: 16px;
-  --radius-sm: 10px;
+  /* Backgrounds */
+  --bg-dark: #0A0D18;
+  --bg-deep: #0D1128;
+  --bg-gradient: radial-gradient(circle at 0% 0%, #1A1F45 0%, #0A0D18 40%), radial-gradient(circle at 100% 100%, #2A1144 0%, #0A0D18 50%);
+  
+  /* Cards (Glassmorphism) */
+  --bg-card: rgba(22, 38, 122, 0.4);
+  --bg-elevated: rgba(30, 58, 180, 0.5);
+  --bg-hover: rgba(45, 80, 220, 0.6);
+  --glass-border: 1px solid rgba(255, 255, 255, 0.08);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  
+  /* Neon Accents */
+  --accent: #00F0FF;
+  --accent-glow: rgba(0, 240, 255, 0.5);
+  --accent-gradient: linear-gradient(135deg, #00F0FF, #0055FF);
+  
+  --pink: #FF3366;
+  --pink-glow: rgba(255, 51, 102, 0.5);
+  --pink-gradient: linear-gradient(135deg, #FF3366, #ff8c5a);
+  
+  --purple: #B224EF;
+  --purple-glow: rgba(178, 36, 239, 0.5);
+  --purple-gradient: linear-gradient(135deg, #B224EF, #7579FF);
+  
+  --green: #00FF87;
+  --green-glow: rgba(0, 255, 135, 0.4);
+  
+  --red: #FF3366;
+  --yellow: #FFD700;
+  --yellow-glow: rgba(255, 215, 0, 0.3);
+  
+  /* Tyopgraphy */
+  --text: #FFFFFF;
+  --text-dim: #8E9FD5;
+  --text-muted: #53649A;
+  
+  /* Shapes */
+  --radius: 20px;
+  --radius-sm: 12px;
+  --radius-pill: 100px;
+  
+  /* Fonts */
   --font-display: 'Unbounded', sans-serif;
   --font-body: 'Nunito', sans-serif;
 }
@@ -25,25 +51,72 @@ html, body, #root { height: 100%; width: 100%; }
 
 body {
   font-family: var(--font-body);
-  background: var(--bg);
+  background-color: var(--bg-dark);
+  background-image: var(--bg-gradient);
+  background-attachment: fixed;
   color: var(--text);
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
 }
 
-button { font-family: var(--font-body); cursor: pointer; border: none; outline: none; transition: all 0.2s ease; }
-button:active { transform: scale(0.96); }
+/* Background Abstract Orbs */
+body::before, body::after {
+  content: '';
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(100px);
+  z-index: -1;
+  opacity: 0.4;
+  pointer-events: none;
+}
+body::before { top: -10%; left: -10%; width: 50vw; height: 50vw; background: rgba(0, 85, 255, 0.2); }
+body::after { bottom: -10%; right: -10%; width: 40vw; height: 40vw; background: rgba(255, 51, 102, 0.15); }
+
+button { 
+  font-family: var(--font-display); 
+  cursor: pointer; 
+  border: none; 
+  outline: none; 
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+  letter-spacing: 0.5px;
+}
+button:active { transform: scale(0.95); }
 input { font-family: var(--font-body); outline: none; border: none; }
 
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: 3px; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
 
-@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes slideUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes popIn { 0% { opacity: 0; transform: scale(0.9); } 60% { transform: scale(1.02); } 100% { opacity: 1; transform: scale(1); } }
 @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)} 40%{transform:translateX(6px)} 60%{transform:translateX(-3px)} 80%{transform:translateX(3px)} }
-@keyframes fireGlow { 0%,100%{filter:drop-shadow(0 0 6px #ff6b3555)} 50%{filter:drop-shadow(0 0 14px #ff6b35aa)} }
 
-.anim-in { animation: fadeIn 0.35s ease forwards; }
-.anim-up { animation: slideUp 0.45s ease forwards; }
-.anim-shake { animation: shake 0.35s ease; }
+.anim-in { animation: fadeIn 0.4s ease-out forwards; }
+.anim-up { animation: slideUp 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+.anim-pop { animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+.anim-shake { animation: shake 0.4s ease; }
+
+/* Utility classes for glass cards */
+.glass-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  border-radius: var(--radius);
+}
+
+.text-gradient {
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.text-gradient-pink {
+  background: var(--pink-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}

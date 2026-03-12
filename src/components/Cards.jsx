@@ -103,31 +103,31 @@ export default function Cards({ store, go, level }) {
 
   // Type badge
   const typeBadge = isReview ? '🔄 Повторение' : isPhrase ? '🏝️ Фраза' : isGlue ? '🧩 Связка' : '📝 Слово';
-  const typeBadgeColor = isReview ? '#f59e0b40' : isPhrase ? '#ff6b3540' : isGlue ? '#a78bfa40' : '#60a5fa40';
+  const typeBadgeColor = isReview ? 'rgba(255, 215, 0, 0.15)' : isPhrase ? 'rgba(255, 51, 102, 0.15)' : isGlue ? 'rgba(178, 36, 239, 0.15)' : 'rgba(0, 240, 255, 0.15)';
 
   return (
     <div style={S.page} className="anim-in">
       <Header go={go} title={LEVEL_NAMES[level]} right={`${idx + 1}/${allCards.length}`} />
-      <div style={S.bar}><div style={{ ...S.barIn, width: `${pct}%` }} /></div>
+      <div style={S.bar}><div style={{ ...S.barIn, width: `${pct}%`, background: 'var(--accent-gradient)', boxShadow: '0 0 10px var(--accent-glow)' }} /></div>
 
       <div style={S.cardArea} onClick={() => setFlipped(!flipped)}>
         <div style={{ ...S.cardWrap, transform: flipped ? 'rotateY(180deg)' : 'rotateY(0)' }}>
           {/* Front */}
-          <div style={{ ...S.face, ...S.front, ...(isPhrase ? S.frontPhrase : isGlue ? S.frontGlue : {}) }}>
+          <div className="glass-card" style={{ ...S.face, ...S.front, ...(isPhrase ? S.frontPhrase : isGlue ? S.frontGlue : {}) }}>
             {/* Type badge */}
             <div style={{ ...S.badge, background: typeBadgeColor }}>{typeBadge}</div>
-            <div style={{ ...S.word, fontSize: isPhrase ? 24 : isGlue ? 22 : 28 }}>{w.en}</div>
+            <div style={{ ...S.word, fontSize: isPhrase ? 26 : isGlue ? 24 : 32 }}>{w.en}</div>
             {w.hint && <div style={S.hint}>{w.hint}</div>}
-            {w.context && <div style={{ ...S.context, marginTop: 12 }}>💡 {w.context}</div>}
+            {w.context && <div style={{ ...S.context, marginTop: 16 }}>💡 {w.context}</div>}
             <div style={S.tap}>нажми чтобы перевернуть</div>
           </div>
           {/* Back */}
-          <div style={{ ...S.face, ...S.back }}>
+          <div className="glass-card" style={{ ...S.face, ...S.back }}>
             <div style={{ ...S.badge, background: typeBadgeColor }}>{typeBadge}</div>
-            <div style={{ fontSize: 15, color: 'var(--blue)', fontWeight: 600, marginBottom: 6 }}>{w.en}</div>
-            <div style={{ fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 700, color: 'var(--green)', marginBottom: 8, textAlign: 'center' }}>{w.ru}</div>
+            <div style={{ fontSize: 16, color: 'var(--accent)', fontWeight: 800, marginBottom: 8, letterSpacing: 0.5 }}>{w.en}</div>
+            <div style={{ fontFamily: 'var(--font-display)', fontSize: 28, fontWeight: 900, color: 'var(--green)', marginBottom: 12, textAlign: 'center', filter: 'drop-shadow(0 0 8px rgba(0, 255, 135, 0.3))' }}>{w.ru}</div>
             {w.hint && <div style={S.hint}>{w.hint}</div>}
-            {w.island && <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 6 }}>{w.islandIcon} {w.island}</div>}
+            {w.island && <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 12, fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase' }}>{w.islandIcon} {w.island}</div>}
           </div>
         </div>
       </div>
@@ -157,22 +157,22 @@ const S = {
   backBtn: { background: 'var(--bg-card)', color: 'var(--text)', borderRadius: 50, width: 38, height: 38, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, border: '1px solid #ffffff08' },
   bar: { height: 5, background: 'var(--bg-card)', borderRadius: 3, overflow: 'hidden', marginBottom: 20 },
   barIn: { height: '100%', borderRadius: 3, background: 'linear-gradient(90deg, var(--accent), var(--yellow))', transition: 'width 0.3s' },
-  cardArea: { flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', perspective: 800, cursor: 'pointer', marginBottom: 16, minHeight: 280 },
-  cardWrap: { width: '100%', maxWidth: 340, height: 280, position: 'relative', transformStyle: 'preserve-3d', transition: 'transform 0.45s ease' },
-  face: { position: 'absolute', inset: 0, backfaceVisibility: 'hidden', borderRadius: 'var(--radius)', padding: '22px 20px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', border: '1px solid #ffffff08', boxShadow: '0 10px 36px #00000044' },
-  front: { background: 'linear-gradient(145deg, var(--bg-card), var(--bg-elevated))' },
-  frontPhrase: { borderLeft: '3px solid var(--accent)' },
-  frontGlue: { borderLeft: '3px solid #a78bfa' },
-  back: { background: 'linear-gradient(145deg, #1a2435, #14202e)', transform: 'rotateY(180deg)' },
-  badge: { fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 20, marginBottom: 12, letterSpacing: 0.5 },
+  cardArea: { flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', perspective: 1000, cursor: 'pointer', marginBottom: 24, minHeight: 320 },
+  cardWrap: { width: '100%', maxWidth: 360, height: 320, position: 'relative', transformStyle: 'preserve-3d', transition: 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)' },
+  face: { position: 'absolute', inset: 0, backfaceVisibility: 'hidden', borderRadius: 'var(--radius)', padding: '32px 24px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' },
+  front: { },
+  frontPhrase: { borderLeft: '4px solid var(--pink)', boxShadow: 'inset 4px 0 15px rgba(255, 51, 102, 0.1), var(--glass-shadow)' },
+  frontGlue: { borderLeft: '4px solid var(--purple)', boxShadow: 'inset 4px 0 15px rgba(178, 36, 239, 0.1), var(--glass-shadow)' },
+  back: { transform: 'rotateY(180deg)', background: 'rgba(10, 13, 24, 0.7)' },
+  badge: { fontSize: 12, fontWeight: 800, padding: '4px 12px', borderRadius: 20, marginBottom: 16, letterSpacing: 1, textTransform: 'uppercase' },
   word: { fontFamily: 'var(--font-display)', fontSize: 28, fontWeight: 800, textAlign: 'center', marginBottom: 10, lineHeight: 1.3 },
   context: { fontSize: 13, color: 'var(--yellow)', textAlign: 'center', lineHeight: 1.5, fontWeight: 600 },
   hint: { fontSize: 13, color: 'var(--text-dim)', textAlign: 'center', lineHeight: 1.5 },
   tap: { fontSize: 12, color: 'var(--text-muted)', marginTop: 14 },
-  btns: { display: 'flex', gap: 10 },
-  btnPrimary: { flex: 1, padding: 15, background: 'linear-gradient(135deg, var(--accent), #ff8c5a)', color: 'white', borderRadius: 'var(--radius-sm)', fontSize: 15, fontWeight: 700, boxShadow: '0 4px 16px var(--accent-glow)' },
-  btnGhost: { flex: 1, padding: 15, background: 'var(--bg-card)', color: 'var(--text)', borderRadius: 'var(--radius-sm)', fontSize: 15, fontWeight: 700, border: '1px solid #ffffff08' },
-  center: { flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', gap: 12 },
-  doneTitle: { fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 800 },
-  dim: { color: 'var(--text-dim)', fontSize: 14 },
+  btns: { display: 'flex', gap: 12 },
+  btnPrimary: { flex: 1, padding: 18, background: 'var(--accent-gradient)', color: 'white', borderRadius: 'var(--radius-pill)', fontSize: 16, fontWeight: 800, boxShadow: '0 8px 24px rgba(0, 85, 255, 0.4)', letterSpacing: 0.5 },
+  btnGhost: { flex: 1, padding: 18, background: 'rgba(255, 255, 255, 0.05)', color: 'var(--text)', borderRadius: 'var(--radius-pill)', fontSize: 16, fontWeight: 700, border: '1px solid rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(10px)' },
+  center: { flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', gap: 16 },
+  doneTitle: { fontFamily: 'var(--font-display)', fontSize: 26, fontWeight: 900, filter: 'drop-shadow(0 0 10px rgba(255,255,255,0.2))' },
+  dim: { color: 'var(--text-dim)', fontSize: 15, fontWeight: 600 },
 };

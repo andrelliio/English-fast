@@ -48,7 +48,7 @@ export default function Home({ store, go }) {
       )}
 
       {/* Progress card */}
-      <div style={S.card}>
+      <div style={S.card} className="glass-card">
         <div style={S.label}>ПРОГРЕСС</div>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 10 }}>
           <span style={S.bigNum}>{learned}</span>
@@ -65,7 +65,7 @@ export default function Home({ store, go }) {
           { v: accuracy + '%', l: 'Точность', c: 'var(--green)' },
           { v: data.streak, l: 'Стрик', c: 'var(--yellow)' },
         ].map(s => (
-          <div key={s.l} style={S.stat}>
+          <div key={s.l} style={S.stat} className="glass-card">
             <div style={{ ...S.statVal, color: s.c }}>{s.v}</div>
             <div style={S.statLbl}>{s.l}</div>
           </div>
@@ -98,7 +98,7 @@ export default function Home({ store, go }) {
 
       {/* Continue button */}
       <button style={S.continueBtn} onClick={() => go('cards', nextLevel)}>
-        ▶ Продолжить обучение
+        START LEARNING 🚀
       </button>
       <div style={S.levelHint}>Уровень {nextLevel + 1}: {LEVEL_NAMES[nextLevel] || ''}</div>
 
@@ -115,7 +115,7 @@ export default function Home({ store, go }) {
           ...(!data.placementDone ? [{ icon: '🎯', title: 'Тест уровня', desc: 'Определи уровень', action: () => go('placement') }] : []),
           ...(showExamBanner ? [{ icon: '📝', title: 'Экзамен', desc: 'Сдай экзамен', action: () => go('levelExam') }] : []),
         ].map(n => (
-          <button key={n.title} style={S.navCard} onClick={n.action}
+          <button key={n.title} style={S.navCard} className="glass-card" onClick={n.action}
             onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-hover)'}
             onMouseLeave={e => e.currentTarget.style.background = 'var(--bg-card)'}>
             <span style={{ fontSize: 32 }}>{n.icon}</span>
@@ -129,30 +129,35 @@ export default function Home({ store, go }) {
 }
 
 const S = {
-  page: { minHeight: '100vh', padding: 20, maxWidth: 460, margin: '0 auto' },
-  header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, paddingTop: 8 },
-  greeting: { fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 600 },
-  headerR: { display: 'flex', gap: 10, alignItems: 'center' },
-  streak: { display: 'flex', alignItems: 'center', gap: 5, background: 'var(--bg-card)', borderRadius: 50, padding: '7px 13px', fontSize: 15, fontWeight: 700, border: '1px solid #ffffff08' },
-  streakFire: { fontSize: 18, animation: 'fireGlow 2s ease-in-out infinite' },
-  logoutBtn: { background: 'var(--bg-card)', color: 'var(--text-dim)', borderRadius: 50, width: 34, height: 34, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, border: '1px solid #ffffff08' },
-  card: { background: 'var(--bg-card)', borderRadius: 'var(--radius)', padding: 22, marginBottom: 16, border: '1px solid #ffffff08' },
-  label: { fontSize: 11, color: 'var(--text-dim)', fontWeight: 700, letterSpacing: 1, marginBottom: 6 },
-  bigNum: { fontFamily: 'var(--font-display)', fontSize: 28, fontWeight: 900, color: 'var(--text)' },
-  dimText: { fontSize: 13, color: 'var(--text-dim)' },
-  barOuter: { height: 10, background: 'var(--bg)', borderRadius: 5, overflow: 'hidden', marginBottom: 6 },
-  barInner: { height: '100%', borderRadius: 5, background: 'linear-gradient(90deg, var(--accent), var(--yellow))', transition: 'width 0.6s ease' },
-  statsRow: { display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginBottom: 16 },
-  stat: { background: 'var(--bg-card)', borderRadius: 'var(--radius-sm)', padding: '14px 10px', textAlign: 'center', border: '1px solid #ffffff08' },
-  statVal: { fontFamily: 'var(--font-display)', fontSize: 20, fontWeight: 800 },
-  statLbl: { fontSize: 10, color: 'var(--text-dim)', marginTop: 3, textTransform: 'uppercase', letterSpacing: 0.5 },
-  placementBanner: { width: '100%', background: 'var(--bg-card)', borderRadius: 'var(--radius-sm)', padding: '14px 16px', marginBottom: 14, border: '1px solid var(--blue)', display: 'flex', alignItems: 'center', gap: 10, color: 'var(--text)' },
-  examBanner: { width: '100%', background: 'var(--bg-card)', borderRadius: 'var(--radius-sm)', padding: '14px 16px', marginBottom: 14, border: '1px solid var(--accent)', display: 'flex', alignItems: 'center', gap: 10, color: 'var(--text)' },
-  reviewBanner: { width: '100%', background: 'var(--bg-card)', borderRadius: 'var(--radius-sm)', padding: '14px 16px', marginBottom: 14, border: '1px solid var(--yellow)', display: 'flex', alignItems: 'center', gap: 10, color: 'var(--text)' },
-  continueBtn: { width: '100%', padding: 16, background: 'linear-gradient(135deg, var(--accent), #ff8c5a)', color: 'white', borderRadius: 'var(--radius-sm)', fontSize: 16, fontWeight: 700, boxShadow: '0 4px 20px var(--accent-glow)', marginBottom: 6 },
-  levelHint: { fontSize: 12, color: 'var(--text-dim)', textAlign: 'center', marginBottom: 16 },
-  grid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 },
-  navCard: { background: 'var(--bg-card)', borderRadius: 'var(--radius)', padding: '20px 14px', textAlign: 'center', border: '1px solid #ffffff08', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, color: 'var(--text)', transition: 'background 0.2s' },
-  navTitle: { fontFamily: 'var(--font-display)', fontSize: 13, fontWeight: 600 },
-  navDesc: { fontSize: 11, color: 'var(--text-dim)' },
+  page: { minHeight: '100vh', padding: 20, maxWidth: 460, margin: '0 auto', zIndex: 1, position: 'relative' },
+  header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, paddingTop: 8 },
+  greeting: { fontFamily: 'var(--font-display)', fontSize: 20, fontWeight: 700, letterSpacing: 0.5 },
+  headerR: { display: 'flex', gap: 12, alignItems: 'center' },
+  streak: { display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', fontSize: 15, fontWeight: 800 },
+  streakFire: { fontSize: 18, filter: 'drop-shadow(0 0 10px rgba(255,107,53,0.6))' },
+  logoutBtn: { color: 'var(--text-dim)', borderRadius: '50%', width: 38, height: 38, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 },
+  
+  card: { padding: 24, marginBottom: 24 },
+  label: { fontSize: 12, color: 'var(--accent)', fontWeight: 800, letterSpacing: 1.5, marginBottom: 8, textTransform: 'uppercase' },
+  bigNum: { fontFamily: 'var(--font-display)', fontSize: 36, fontWeight: 900, color: 'var(--text)', filter: 'drop-shadow(0 0 10px rgba(255,255,255,0.2))' },
+  dimText: { fontSize: 14, color: 'var(--text-dim)', fontWeight: 600 },
+  barOuter: { height: 8, background: 'rgba(0,0,0,0.3)', borderRadius: 4, overflow: 'hidden', marginBottom: 8, marginTop: 4, boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' },
+  barInner: { height: '100%', borderRadius: 4, background: 'var(--accent-gradient)', transition: 'width 0.8s cubic-bezier(0.2, 0.8, 0.2, 1)', boxShadow: '0 0 10px var(--accent-glow)' },
+  
+  statsRow: { display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginBottom: 24 },
+  stat: { padding: '16px 10px', textAlign: 'center' },
+  statVal: { fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 800, marginBottom: 4 },
+  statLbl: { fontSize: 11, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: 1, fontWeight: 700 },
+  
+  placementBanner: { width: '100%', padding: '16px 20px', marginBottom: 16, border: '1px solid rgba(0, 240, 255, 0.3)', display: 'flex', alignItems: 'center', gap: 14, color: 'var(--text)', background: 'linear-gradient(90deg, rgba(0, 240, 255, 0.1), transparent)' },
+  examBanner: { width: '100%', padding: '16px 20px', marginBottom: 16, border: '1px solid rgba(255, 51, 102, 0.3)', display: 'flex', alignItems: 'center', gap: 14, color: 'var(--text)', background: 'linear-gradient(90deg, rgba(255, 51, 102, 0.1), transparent)' },
+  reviewBanner: { width: '100%', padding: '16px 20px', marginBottom: 16, border: '1px solid rgba(178, 36, 239, 0.3)', display: 'flex', alignItems: 'center', gap: 14, color: 'var(--text)', background: 'linear-gradient(90deg, rgba(178, 36, 239, 0.1), transparent)' },
+  
+  continueBtn: { width: '100%', padding: 18, background: 'var(--accent-gradient)', color: 'white', borderRadius: 'var(--radius-pill)', fontSize: 16, fontWeight: 800, boxShadow: '0 8px 24px rgba(0, 85, 255, 0.4)', marginBottom: 8, letterSpacing: 0.5 },
+  levelHint: { fontSize: 13, color: 'var(--text-dim)', textAlign: 'center', marginBottom: 24, fontWeight: 600 },
+  
+  grid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 },
+  navCard: { padding: '24px 16px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, color: 'var(--text)', transition: 'all 0.3s ease' },
+  navTitle: { fontFamily: 'var(--font-display)', fontSize: 14, fontWeight: 700, letterSpacing: 0.5 },
+  navDesc: { fontSize: 12, color: 'var(--text-muted)', fontWeight: 600 },
 };
