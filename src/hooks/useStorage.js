@@ -115,6 +115,7 @@ export function useStorage() {
 
       // Only unlock ONE more if user is under the 5-level cap
       // The user wants strictly no more than 5 untested levels open.
+      let newLastActive = prev.lastActiveLevel;
       if (untestedCount < 5) {
         const sortedUnlocked = [...newUnlocked].sort((a, b) => a - b);
         const maxUnlocked = sortedUnlocked[sortedUnlocked.length - 1];
@@ -123,10 +124,17 @@ export function useStorage() {
         // Ensure we don't skip levels and don't re-add
         if (!newUnlocked.includes(nextLvl)) {
            newUnlocked.push(nextLvl);
+           // Nudge user to the new level immediately
+           newLastActive = nextLvl;
         }
       }
 
-      return { ...prev, passedLessons: newPassedLessons, unlockedLevels: newUnlocked };
+      return { 
+        ...prev, 
+        passedLessons: newPassedLessons, 
+        unlockedLevels: newUnlocked,
+        lastActiveLevel: newLastActive
+      };
     });
   }, []);
 

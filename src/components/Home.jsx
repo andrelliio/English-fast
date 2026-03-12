@@ -7,21 +7,22 @@ export default function Home({ store, go }) {
     ? Math.round((data.totalCorrect / (data.totalCorrect + data.totalWrong)) * 100) : 0;
 
   // Next unfinished level (among unlocked)
-  // Next level to show on the main button
+  // Next level logic: Frontier Priority
   const nextLevel = (() => {
-    // 1. If user has a last active level and it's not yet passed (as lesson), stick with it
-    if (data.lastActiveLevel !== undefined && !data.passedLessons.includes(data.lastActiveLevel)) {
-      return data.lastActiveLevel;
-    }
-    
-    // 2. Otherwise find the first unlocked but not yet passed lesson
+    // 1. Prioritize the highest level that is unlocked but NOT yet passed
     const unlocked = [...data.unlockedLevels].sort((a, b) => a - b);
-    for (const l of unlocked) {
-      if (l >= LEVELS.length) continue;
-      if (!data.passedLessons.includes(l)) return l;
+    const unpassed = unlocked.filter(l => !data.passedLessons.includes(l));
+    
+    if (unpassed.length > 0) {
+      // If our "last active" is in the unpassed list, keep it
+      if (data.lastActiveLevel !== undefined && unpassed.includes(data.lastActiveLevel)) {
+        return data.lastActiveLevel;
+      }
+      // Otherwise go to the FIRST unpassed level (the frontier)
+      return unpassed[0];
     }
     
-    // 3. Fallback to the latest unlocked level
+    // 2. Fallback to the latest unlocked level if all are passed
     return unlocked.length > 0 ? unlocked[unlocked.length - 1] : 0;
   })();
 
