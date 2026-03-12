@@ -56,42 +56,17 @@ export default function Cards({ store, go, level }) {
 
   const next = () => {
     store.markSeen(allCards[idx].globalIdx);
-    if (idx + 1 >= allCards.length) setDone(true);
-    else { setIdx(idx + 1); setFlipped(false); }
-  };
-
-  // Find next available level
-  const getNextLevel = () => {
-    for (let l = level + 1; l < LEVELS.length; l++) {
-      if (store.data.unlockedLevels.includes(l)) return l;
+    if (idx + 1 >= allCards.length) {
+      // User finished all cards for this session
+      setDone(true); // Technically not needed if we route away immediately, but keeping for safety
+      go('quiz', level); // Immediately start the quiz to test knowledge
+    } else {
+      setIdx(idx + 1);
+      setFlipped(false);
     }
-    return null;
   };
 
-  const handleNextTask = () => {
-    // After Cards, the user should always go to the Quiz for this level to test their knowledge.
-    go('quiz', level);
-  };
-
-  if (done || !allCards.length) {
-    return (
-      <div style={S.page}>
-        <Header go={go} title={LEVEL_NAMES[level]} />
-        <div style={S.center} className="anim-up">
-          <div style={{ fontSize: 56 }}>🎉</div>
-          <div style={S.doneTitle}>Карточки пройдены!</div>
-          <div style={S.dim}>Закрепи слова в тесте или продолжай обучение</div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, width: '100%', maxWidth: 320 }}>
-            <button style={S.btnPrimary} onClick={handleNextTask}>Следующее задание ➡️</button>
-            <div style={{ display: 'flex', gap: 10 }}>
-              <button style={S.btnGhost} onClick={() => go('home')}>🏠 Домой</button>
-              <button style={S.btnGhost} onClick={() => { setIdx(0); setFlipped(false); setDone(false); }}>🔄 Ещё раз</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  if (!allCards.length) return null;
 
   const w = allCards[idx].word;
   const pct = ((idx + 1) / allCards.length) * 100;
