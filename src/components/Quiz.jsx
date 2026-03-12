@@ -44,17 +44,22 @@ export default function Quiz({ store, go, level }) {
   };
 
   const handleNextTask = () => {
-    // If the user has accumulated 5 unlocked but untested levels, force them to the exam
-    const untestedCount = store.data.unlockedLevels.filter(l => !store.data.passedExams.includes(l)).length;
-    if (untestedCount >= 5) {
-      go('levelExam');
+    const nextLvl = getNextLevel();
+    if (nextLvl !== null) {
+      go('cards', nextLvl);
     } else {
-      const nextLvl = getNextLevel();
-      if (nextLvl !== null) {
-        go('cards', nextLvl);
-      } else {
-        go('home');
-      }
+      go('home');
+    }
+  };
+
+  const next = () => {
+    if (cur + 1 >= qs.length) {
+      const acc = Math.round((ok / qs.length) * 100);
+      if (acc >= 50) store.completeLevel(level);
+      setDone(true);
+    } else {
+      setCur(c => c + 1);
+      setSel(null);
     }
   };
 
@@ -96,11 +101,6 @@ export default function Quiz({ store, go, level }) {
     store.recordResult(base + q.word.idx, correct);
     if (correct) { setOk(o => o + 1); setXp(x => x + 10); }
     else { setBad(b => b + 1); setXp(x => x + 2); }
-  };
-
-  const next = () => {
-    if (cur + 1 >= qs.length) setDone(true);
-    else { setCur(c => c + 1); setSel(null); }
   };
 
   return (

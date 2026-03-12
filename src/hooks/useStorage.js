@@ -80,34 +80,33 @@ export function useStorage() {
     });
   }, []);
 
-  // Mark a level as "touched" (user entered it). If this creates a trigger, unlock 2 more levels.
+  // Track that a user entered a level
   const touchLevel = useCallback((lvl) => {
     setData(prev => {
       if (prev.touchedLevels.includes(lvl)) return prev;
-      const newTouched = [...prev.touchedLevels, lvl];
+      return { ...prev, touchedLevels: [...prev.touchedLevels, lvl] };
+    });
+  }, []);
+
+  // Mark a level as completed (passed quiz). Unlock next levels if under cap.
+  const completeLevel = useCallback((lvl) => {
+    setData(prev => {
       let newUnlocked = [...prev.unlockedLevels];
 
       // Count how many unlocked levels haven't passed exam
       const untestedCount = newUnlocked.filter(l => !prev.passedExams.includes(l)).length;
 
-      // If under the cap of 5 untested, unlock 2 more
+      // Only unlock more if user is under the 5-level cap
       if (untestedCount < 5) {
         const maxUnlocked = Math.max(...newUnlocked);
-        const toAdd = [];
-        for (let i = 1; i <= 2; i++) {
-          const nextLvl = maxUnlocked + i;
-          if (!newUnlocked.includes(nextLvl)) toAdd.push(nextLvl);
-        }
-        // Only add if it wouldn't exceed 5 untested
-        for (const l of toAdd) {
-          const currentUntested = newUnlocked.filter(ul => !prev.passedExams.includes(ul)).length;
-          if (currentUntested < 5) {
-            newUnlocked.push(l);
-          }
-        }
+        const nextLvl1 = maxUnlocked + 1;
+        const nextLvl2 = maxUnlocked + 2;
+
+        if (!newUnlocked.includes(nextLvl1)) newUnlocked.push(nextLvl1);
+        if (!newUnlocked.includes(nextLvl2)) newUnlocked.push(nextLvl2);
       }
 
-      return { ...prev, touchedLevels: newTouched, unlockedLevels: newUnlocked };
+      return { ...prev, unlockedLevels: newUnlocked };
     });
   }, []);
 
@@ -172,6 +171,6 @@ export function useStorage() {
   return {
     data, update, register, checkStreak, markSeen, recordResult, logout,
     isLoggedIn: !!data.username, learned,
-    touchLevel, passExam, unlockUpToWithWords, untestedCount,
+    touchLevel, completeLevel, passExam, unlockUpToWithWords, untestedCount,
   };
 }
