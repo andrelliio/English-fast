@@ -16,16 +16,16 @@ export default function PlacementTest({ store, go }) {
   const [determinedLevel, setDeterminedLevel] = useState(-1);
 
   const startTest = () => {
-    // Build questions: 3 words from each category, going from easy to hard
+    // Build questions: 1 word from every other category (~19 questions)
     const questions = [];
-    for (let ci = 0; ci < categoryRanges.length; ci++) {
+    for (let ci = 0; ci < categoryRanges.length; ci += 2) {
       const cat = categoryRanges[ci];
       const catWords = [];
       for (let i = cat.start; i < cat.start + cat.count && i < allWords.length; i++) {
         catWords.push({ ...allWords[i], globalIdx: i, catIdx: ci });
       }
-      // Pick 3 random from this category
-      const picked = shuffle(catWords).slice(0, 3);
+      // Pick 1 random from this category
+      const picked = shuffle(catWords).slice(0, 1);
       for (const word of picked) {
         const wrongs = getSimilarWords(word.globalIdx, 4, word.ru);
         questions.push({
@@ -58,8 +58,8 @@ export default function PlacementTest({ store, go }) {
         <div style={S.center} className="anim-up">
           <div style={{ fontSize: 56 }}>🎯</div>
           <div style={S.doneTitle}>Определим твой уровень</div>
-          <div style={S.dim}>Мы покажем тебе слова из разных категорий.</div>
-          <div style={S.dim}>Выбирай правильный перевод. Как только блок будет сложным — мы определим твой уровень.</div>
+          <div style={S.dim}>Быстрый тест из ~20 слов разной сложности.</div>
+          <div style={S.dim}>Как только станет сложно — мы определим твой уровень.</div>
           <div style={{ display: 'flex', gap: 10, marginTop: 16, width: '100%', maxWidth: 320 }}>
             <button style={S.btnGhost} onClick={skip}>Пропустить</button>
             <button style={S.btnPrimary} onClick={startTest}>Начать тест 🚀</button>
@@ -71,9 +71,6 @@ export default function PlacementTest({ store, go }) {
 
   if (phase === 'result') {
     const lvlName = determinedLevel >= 0 ? `Уровень ${determinedLevel + 1}` : 'Начальный';
-    const catName = determinedLevel >= 0 && categoryRanges[Math.floor(determinedLevel * WORDS_PER_LEVEL / (categoryRanges[0]?.count || 10))]
-      ? categoryRanges[Math.min(currentCatIdx, categoryRanges.length - 1)]?.name
-      : '';
 
     return (
       <div style={S.page}>
@@ -122,21 +119,21 @@ export default function PlacementTest({ store, go }) {
     setBlockTotal(bt => bt + 1);
   };
 
+  const BLOCK_SIZE = 3; // Check every 3 questions
+
   const next = () => {
     const nextIdx = cur + 1;
+    const newBlockTotal = blockTotal; // already incremented in pick
 
-    // Check if we're moving to a new category
-    if (nextIdx < qs.length && qs[nextIdx].catIdx !== q.catIdx) {
-      // End of category block — check accuracy
-      const finalBlockOk = blockOk + (sel === q.answer ? 0 : 0); // already counted in pick
-      const finalBlockTotal = blockTotal; // already counted
-      const blockAcc = finalBlockTotal > 0 ? finalBlockOk / finalBlockTotal : 0;
+    // Check block accuracy every BLOCK_SIZE questions
+    if (newBlockTotal >= BLOCK_SIZE) {
+      const blockAcc = newBlockTotal > 0 ? blockOk / newBlockTotal : 0;
 
       if (blockAcc < 0.7) {
-        // Failed this category block — determine level
-        // The level corresponds to the START of the failed category
+        // Failed this block — determine level based on current category
         const failedCatIdx = q.catIdx;
-        const prevCat = failedCatIdx > 0 ? categoryRanges[failedCatIdx - 1] : null;
+        const prevCatIdx = failedCatIdx >= 2 ? failedCatIdx - 2 : (failedCatIdx > 0 ? failedCatIdx - 1 : -1);
+        const prevCat = prevCatIdx >= 0 ? categoryRanges[prevCatIdx] : null;
         const determinedWordIdx = prevCat ? prevCat.start + prevCat.count - 1 : -1;
         const detLevel = determinedWordIdx >= 0 ? Math.floor(determinedWordIdx / WORDS_PER_LEVEL) : -1;
 

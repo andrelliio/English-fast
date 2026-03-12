@@ -37,13 +37,9 @@ export default function Cards({ store, go, level }) {
   const handleNextTask = () => {
     const nextLvl = getNextLevel();
     if (nextLvl !== null) {
-      // Mix: 50% chance to go to quiz of current level, 50% to cards of next
       const goToQuiz = Math.random() > 0.5;
-      if (goToQuiz) {
-        go('quiz', level);
-      } else {
-        go('cards', nextLvl);
-      }
+      if (goToQuiz) go('quiz', level);
+      else go('cards', nextLvl);
     } else {
       go('quiz', level);
     }
@@ -71,6 +67,13 @@ export default function Cards({ store, go, level }) {
 
   const w = words[indices[idx]];
   const pct = ((idx + 1) / indices.length) * 100;
+  const isPhrase = w.type === 'phrase';
+  const isGlue = w.type === 'glue';
+  const isWord = w.type === 'word' || !w.type;
+
+  // Type badge
+  const typeBadge = isPhrase ? '🏝️ Фраза' : isGlue ? '🧩 Связка' : '📝 Слово';
+  const typeBadgeColor = isPhrase ? '#ff6b3540' : isGlue ? '#a78bfa40' : '#60a5fa40';
 
   return (
     <div style={S.page} className="anim-in">
@@ -80,16 +83,21 @@ export default function Cards({ store, go, level }) {
       <div style={S.cardArea} onClick={() => setFlipped(!flipped)}>
         <div style={{ ...S.cardWrap, transform: flipped ? 'rotateY(180deg)' : 'rotateY(0)' }}>
           {/* Front */}
-          <div style={{ ...S.face, ...S.front }}>
-            <div style={S.word}>{w.en}</div>
-            {w.hint && <div style={S.hint}>{w.hint}</div>}
+          <div style={{ ...S.face, ...S.front, ...(isPhrase ? S.frontPhrase : isGlue ? S.frontGlue : {}) }}>
+            {/* Type badge */}
+            <div style={{ ...S.badge, background: typeBadgeColor }}>{typeBadge}</div>
+            <div style={{ ...S.word, fontSize: isPhrase ? 24 : isGlue ? 22 : 28 }}>{w.en}</div>
+            {w.context && <div style={S.context}>💡 {w.context}</div>}
+            {w.hint && !w.context && <div style={S.hint}>{w.hint}</div>}
             <div style={S.tap}>нажми чтобы перевернуть</div>
           </div>
           {/* Back */}
           <div style={{ ...S.face, ...S.back }}>
+            <div style={{ ...S.badge, background: typeBadgeColor }}>{typeBadge}</div>
             <div style={{ fontSize: 15, color: 'var(--blue)', fontWeight: 600, marginBottom: 6 }}>{w.en}</div>
-            <div style={{ fontFamily: 'var(--font-display)', fontSize: 26, fontWeight: 700, color: 'var(--green)', marginBottom: 8 }}>{w.ru}</div>
+            <div style={{ fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 700, color: 'var(--green)', marginBottom: 8, textAlign: 'center' }}>{w.ru}</div>
             {w.hint && <div style={S.hint}>{w.hint}</div>}
+            {w.island && <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 6 }}>{w.islandIcon} {w.island}</div>}
           </div>
         </div>
       </div>
@@ -119,12 +127,16 @@ const S = {
   backBtn: { background: 'var(--bg-card)', color: 'var(--text)', borderRadius: 50, width: 38, height: 38, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, border: '1px solid #ffffff08' },
   bar: { height: 5, background: 'var(--bg-card)', borderRadius: 3, overflow: 'hidden', marginBottom: 20 },
   barIn: { height: '100%', borderRadius: 3, background: 'linear-gradient(90deg, var(--accent), var(--yellow))', transition: 'width 0.3s' },
-  cardArea: { flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', perspective: 800, cursor: 'pointer', marginBottom: 16, minHeight: 260 },
-  cardWrap: { width: '100%', maxWidth: 340, height: 250, position: 'relative', transformStyle: 'preserve-3d', transition: 'transform 0.45s ease' },
-  face: { position: 'absolute', inset: 0, backfaceVisibility: 'hidden', borderRadius: 'var(--radius)', padding: '28px 22px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', border: '1px solid #ffffff08', boxShadow: '0 10px 36px #00000044' },
+  cardArea: { flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', perspective: 800, cursor: 'pointer', marginBottom: 16, minHeight: 280 },
+  cardWrap: { width: '100%', maxWidth: 340, height: 280, position: 'relative', transformStyle: 'preserve-3d', transition: 'transform 0.45s ease' },
+  face: { position: 'absolute', inset: 0, backfaceVisibility: 'hidden', borderRadius: 'var(--radius)', padding: '22px 20px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', border: '1px solid #ffffff08', boxShadow: '0 10px 36px #00000044' },
   front: { background: 'linear-gradient(145deg, var(--bg-card), var(--bg-elevated))' },
+  frontPhrase: { borderLeft: '3px solid var(--accent)' },
+  frontGlue: { borderLeft: '3px solid #a78bfa' },
   back: { background: 'linear-gradient(145deg, #1a2435, #14202e)', transform: 'rotateY(180deg)' },
+  badge: { fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 20, marginBottom: 12, letterSpacing: 0.5 },
   word: { fontFamily: 'var(--font-display)', fontSize: 28, fontWeight: 800, textAlign: 'center', marginBottom: 10, lineHeight: 1.3 },
+  context: { fontSize: 13, color: 'var(--yellow)', textAlign: 'center', lineHeight: 1.5, fontWeight: 600 },
   hint: { fontSize: 13, color: 'var(--text-dim)', textAlign: 'center', lineHeight: 1.5 },
   tap: { fontSize: 12, color: 'var(--text-muted)', marginTop: 14 },
   btns: { display: 'flex', gap: 10 },
