@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
-import { LEVELS, LEVEL_NAMES, WORDS_PER_LEVEL } from '../data/words';
+import allWords, { LEVELS, LEVEL_NAMES, WORDS_PER_LEVEL } from '../data/words';
+
+function shuffle(a) { const b = [...a]; for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; }
 
 export default function Cards({ store, go, level }) {
   const words = LEVELS[level] || [];
@@ -8,21 +10,48 @@ export default function Cards({ store, go, level }) {
   const [flipped, setFlipped] = useState(false);
   const [done, setDone] = useState(false);
 
-  const [indices, setIndices] = useState([]);
+  // allCards: array of { globalIdx, word } — mix of new + review
+  const [allCards, setAllCards] = useState([]);
+  const [reviewCount, setReviewCount] = useState(0);
+
   useEffect(() => {
-    // Touch level to trigger unlock logic
     store.touchLevel(level);
 
-    const ids = words.map((_, i) => i).filter(i => {
-      const w = store.data.wordProgress[base + i];
-      return !w || !w.mastered;
-    });
-    setIndices(ids.length ? ids : words.map((_, i) => i));
+    // New cards from this level
+    const newCards = words.map((w, i) => ({ globalIdx: base + i, word: w }))
+      .filter(c => {
+        const wp = store.data.wordProgress[c.globalIdx];
+        return !wp || !wp.mastered;
+      });
+    const cardsToShow = newCards.length ? newCards : words.map((w, i) => ({ globalIdx: base + i, word: w }));
+
+    // Review cards from previous levels (3-5 random previously seen words)
+    const reviewPool = [];
+    for (let l = 0; l < level; l++) {
+      const lvlBase = l * WORDS_PER_LEVEL;
+      const lvlWords = LEVELS[l] || [];
+      lvlWords.forEach((w, i) => {
+        const wp = store.data.wordProgress[lvlBase + i];
+        if (wp && wp.seen) {
+          reviewPool.push({ globalIdx: lvlBase + i, word: w });
+        }
+      });
+    }
+    const reviewCards = shuffle(reviewPool).slice(0, Math.min(5, Math.max(3, Math.floor(reviewPool.length * 0.1))));
+    setReviewCount(reviewCards.length);
+
+    // Mix: new cards first, then insert review cards at random positions
+    const mixed = [...cardsToShow];
+    for (const rc of reviewCards) {
+      const pos = Math.floor(Math.random() * (mixed.length + 1));
+      mixed.splice(pos, 0, rc);
+    }
+    setAllCards(mixed);
   }, [level]);
 
   const next = () => {
-    store.markSeen(base + indices[idx]);
-    if (idx + 1 >= indices.length) setDone(true);
+    store.markSeen(allCards[idx].globalIdx);
+    if (idx + 1 >= allCards.length) setDone(true);
     else { setIdx(idx + 1); setFlipped(false); }
   };
 
@@ -37,15 +66,13 @@ export default function Cards({ store, go, level }) {
   const handleNextTask = () => {
     const nextLvl = getNextLevel();
     if (nextLvl !== null) {
-      const goToQuiz = Math.random() > 0.5;
-      if (goToQuiz) go('quiz', level);
-      else go('cards', nextLvl);
+      go('cards', nextLvl);
     } else {
       go('quiz', level);
     }
   };
 
-  if (done || !indices.length) {
+  if (done || !allCards.length) {
     return (
       <div style={S.page}>
         <Header go={go} title={LEVEL_NAMES[level]} />
@@ -65,19 +92,22 @@ export default function Cards({ store, go, level }) {
     );
   }
 
-  const w = words[indices[idx]];
-  const pct = ((idx + 1) / indices.length) * 100;
+  const w = allCards[idx].word;
+  const pct = ((idx + 1) / allCards.length) * 100;
   const isPhrase = w.type === 'phrase';
   const isGlue = w.type === 'glue';
   const isWord = w.type === 'word' || !w.type;
 
+  // Check if this card is from a previous level (review)
+  const isReview = allCards[idx].globalIdx < base || allCards[idx].globalIdx >= base + WORDS_PER_LEVEL;
+
   // Type badge
-  const typeBadge = isPhrase ? '🏝️ Фраза' : isGlue ? '🧩 Связка' : '📝 Слово';
-  const typeBadgeColor = isPhrase ? '#ff6b3540' : isGlue ? '#a78bfa40' : '#60a5fa40';
+  const typeBadge = isReview ? '🔄 Повторение' : isPhrase ? '🏝️ Фраза' : isGlue ? '🧩 Связка' : '📝 Слово';
+  const typeBadgeColor = isReview ? '#f59e0b40' : isPhrase ? '#ff6b3540' : isGlue ? '#a78bfa40' : '#60a5fa40';
 
   return (
     <div style={S.page} className="anim-in">
-      <Header go={go} title={LEVEL_NAMES[level]} right={`${idx + 1}/${indices.length}`} />
+      <Header go={go} title={LEVEL_NAMES[level]} right={`${idx + 1}/${allCards.length}`} />
       <div style={S.bar}><div style={{ ...S.barIn, width: `${pct}%` }} /></div>
 
       <div style={S.cardArea} onClick={() => setFlipped(!flipped)}>
