@@ -117,8 +117,8 @@ export default function Cards({ store, go, level }) {
             {/* Type badge */}
             <div style={{ ...S.badge, background: typeBadgeColor }}>{typeBadge}</div>
             <div style={{ ...S.word, fontSize: isPhrase ? 24 : isGlue ? 22 : 28 }}>{w.en}</div>
-            {w.context && <div style={S.context}>💡 {w.context}</div>}
-            {w.hint && !w.context && <div style={S.hint}>{w.hint}</div>}
+            {w.hint && <div style={S.hint}>{w.hint}</div>}
+            {w.context && <div style={{ ...S.context, marginTop: 12 }}>💡 {w.context}</div>}
             <div style={S.tap}>нажми чтобы перевернуть</div>
           </div>
           {/* Back */}
