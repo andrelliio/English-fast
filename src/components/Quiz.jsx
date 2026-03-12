@@ -44,12 +44,17 @@ export default function Quiz({ store, go, level }) {
   };
 
   const handleNextTask = () => {
-    const nextLvl = getNextLevel();
-    if (nextLvl !== null) {
-      // Mix: go to cards of next level or combine
-      go('cards', nextLvl);
+    // If the user has accumulated 5 unlocked but untested levels, force them to the exam
+    const untestedCount = store.data.unlockedLevels.filter(l => !store.data.passedExams.includes(l)).length;
+    if (untestedCount >= 5) {
+      go('levelExam');
     } else {
-      go('home');
+      const nextLvl = getNextLevel();
+      if (nextLvl !== null) {
+        go('cards', nextLvl);
+      } else {
+        go('home');
+      }
     }
   };
 

@@ -69,12 +69,8 @@ export default function Cards({ store, go, level }) {
   };
 
   const handleNextTask = () => {
-    const nextLvl = getNextLevel();
-    if (nextLvl !== null) {
-      go('cards', nextLvl);
-    } else {
-      go('quiz', level);
-    }
+    // After Cards, the user should always go to the Quiz for this level to test their knowledge.
+    go('quiz', level);
   };
 
   if (done || !allCards.length) {

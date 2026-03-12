@@ -189,7 +189,7 @@ export default function PlacementTest({ store, go }) {
         <span style={{ color: 'var(--red)' }}>❌ {bad}</span>
       </div>
 
-      <div style={S.questionBox} key={cur} className="anim-in">
+      <div style={S.questionBox} key={cur} className="glass-card anim-pop">
         <div style={S.enWord}>{q.word.en}</div>
       </div>
       <div style={{ fontSize: 13, color: 'var(--text-muted)', textAlign: 'center', marginBottom: 14 }}>Выбери правильный перевод</div>
@@ -205,8 +205,8 @@ export default function PlacementTest({ store, go }) {
           return (
             <button key={i} style={style} onClick={() => pick(opt)}
               className={answered && opt === sel && opt !== q.answer ? 'anim-shake' : ''}
-              onMouseEnter={e => { if (!answered) e.currentTarget.style.borderColor = 'var(--text-muted)'; }}
-              onMouseLeave={e => { if (!answered) e.currentTarget.style.borderColor = 'transparent'; }}>
+              onMouseEnter={e => { if (!answered) { e.currentTarget.style.background = 'var(--bg-hover)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'; } }}
+              onMouseLeave={e => { if (!answered) { e.currentTarget.style.background = 'var(--bg-card)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.05)'; } }}>
               {opt}
             </button>
           );
@@ -223,20 +223,20 @@ export default function PlacementTest({ store, go }) {
 }
 
 const S = {
-  page: { minHeight: '100vh', padding: 20, maxWidth: 460, margin: '0 auto', display: 'flex', flexDirection: 'column' },
-  backBtn: { background: 'var(--bg-card)', color: 'var(--text)', borderRadius: 50, width: 38, height: 38, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, border: '1px solid #ffffff08' },
-  bar: { height: 5, background: 'var(--bg-card)', borderRadius: 3, overflow: 'hidden', marginBottom: 14 },
-  barIn: { height: '100%', borderRadius: 3, background: 'linear-gradient(90deg, var(--blue), var(--accent))', transition: 'width 0.3s' },
-  score: { display: 'flex', justifyContent: 'center', gap: 20, marginBottom: 16, fontSize: 15, fontWeight: 700 },
-  questionBox: { background: 'var(--bg-card)', borderRadius: 'var(--radius)', padding: '26px 20px', textAlign: 'center', marginBottom: 8, border: '1px solid var(--blue)' },
-  enWord: { fontFamily: 'var(--font-display)', fontSize: 28, fontWeight: 800 },
-  opts: { display: 'flex', flexDirection: 'column', gap: 8, flex: 1 },
-  opt: { padding: '14px 18px', borderRadius: 'var(--radius-sm)', fontSize: 15, fontWeight: 600, background: 'var(--bg-card)', color: 'var(--text)', border: '2px solid transparent', textAlign: 'left', transition: 'all 0.15s' },
-  optOk: { background: '#34d39920', border: '2px solid var(--green)', color: 'var(--green)' },
-  optBad: { background: '#f8717120', border: '2px solid var(--red)', color: 'var(--red)' },
-  btnPrimary: { flex: 1, padding: 15, background: 'linear-gradient(135deg, var(--accent), #ff8c5a)', color: 'white', borderRadius: 'var(--radius-sm)', fontSize: 15, fontWeight: 700, boxShadow: '0 4px 16px var(--accent-glow)' },
-  btnGhost: { flex: 1, padding: 15, background: 'var(--bg-card)', color: 'var(--text)', borderRadius: 'var(--radius-sm)', fontSize: 15, fontWeight: 700, border: '1px solid #ffffff08' },
-  center: { flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', gap: 10 },
-  doneTitle: { fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 800 },
-  dim: { color: 'var(--text-dim)', fontSize: 14 },
+  page: { minHeight: '100vh', padding: 20, maxWidth: 460, margin: '0 auto', display: 'flex', flexDirection: 'column', zIndex: 1, position: 'relative' },
+  backBtn: { color: 'var(--text-dim)', borderRadius: '50%', width: 38, height: 38, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 },
+  bar: { height: 6, background: 'rgba(0,0,0,0.3)', borderRadius: 4, overflow: 'hidden', marginBottom: 14, boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' },
+  barIn: { height: '100%', borderRadius: 4, background: 'linear-gradient(90deg, var(--blue), var(--accent))', transition: 'width 0.4s cubic-bezier(0.2, 0.8, 0.2, 1)', boxShadow: '0 0 10px rgba(0, 240, 255, 0.6)' },
+  score: { display: 'flex', justifyContent: 'center', gap: 24, marginBottom: 20, fontSize: 16, fontWeight: 800 },
+  questionBox: { padding: '32px 20px', textAlign: 'center', marginBottom: 16, border: '1px solid rgba(0, 240, 255, 0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 140 },
+  enWord: { fontFamily: 'var(--font-display)', fontSize: 32, fontWeight: 900, textShadow: '0 2px 10px rgba(0,0,0,0.5)' },
+  opts: { display: 'flex', flexDirection: 'column', gap: 12, flex: 1 },
+  opt: { padding: '16px 20px', borderRadius: 'var(--radius)', fontSize: 16, fontWeight: 700, background: 'var(--bg-card)', color: 'var(--text)', border: '1px solid rgba(255,255,255,0.05)', textAlign: 'left', transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)', backdropFilter: 'blur(10px)' },
+  optOk: { background: 'rgba(0, 255, 135, 0.15)', border: '1px solid var(--green)', color: 'var(--green)', boxShadow: '0 0 15px rgba(0, 255, 135, 0.2)' },
+  optBad: { background: 'rgba(255, 51, 102, 0.15)', border: '1px solid var(--red)', color: 'var(--red)', boxShadow: '0 0 15px rgba(255, 51, 102, 0.2)' },
+  btnPrimary: { flex: 1, padding: 18, background: 'var(--accent-gradient)', color: 'white', borderRadius: 'var(--radius-pill)', fontSize: 16, fontWeight: 800, boxShadow: '0 8px 24px rgba(0, 85, 255, 0.4)', letterSpacing: 0.5 },
+  btnGhost: { flex: 1, padding: 18, background: 'rgba(255, 255, 255, 0.05)', color: 'var(--text)', borderRadius: 'var(--radius-pill)', fontSize: 16, fontWeight: 700, border: '1px solid rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(10px)' },
+  center: { flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', gap: 16 },
+  doneTitle: { fontFamily: 'var(--font-display)', fontSize: 26, fontWeight: 900, filter: 'drop-shadow(0 0 10px rgba(255,255,255,0.2))' },
+  dim: { color: 'var(--text-dim)', fontSize: 15, fontWeight: 600 },
 };
