@@ -16,9 +16,9 @@ export default function PlacementTest({ store, go }) {
   const [determinedLevel, setDeterminedLevel] = useState(-1);
 
   const startTest = () => {
-    // Build questions: 1 word from every other category (~19 questions)
+    // Build questions: 1 word from EVERY category (~38 questions)
     const questions = [];
-    for (let ci = 0; ci < categoryRanges.length; ci += 2) {
+    for (let ci = 0; ci < categoryRanges.length; ci++) {
       const cat = categoryRanges[ci];
       const catWords = [];
       for (let i = cat.start; i < cat.start + cat.count && i < allWords.length; i++) {
