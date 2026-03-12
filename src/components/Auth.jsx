@@ -8,7 +8,7 @@ import {
 } from 'firebase/auth';
 
 export default function Auth() {
-  const [method, setMethod] = useState('email'); // 'email' or 'phone'
+  const [method, setMethod] = useState('phone'); // 'phone' or 'email'
   const [isLogin, setIsLogin] = useState(true);
   
   // Email states
@@ -86,8 +86,8 @@ export default function Auth() {
         <h1 style={S.title}>VocabFlame</h1>
         
         <div style={S.tabs}>
-          <button style={method === 'email' ? S.tabActive : S.tab} onClick={() => { setMethod('email'); setErr(''); }}>Почта</button>
           <button style={method === 'phone' ? S.tabActive : S.tab} onClick={() => { setMethod('phone'); setErr(''); }}>Телефон</button>
+          <button style={method === 'email' ? S.tabActive : S.tab} onClick={() => { setMethod('email'); setErr(''); }}>Почта</button>
         </div>
 
         {method === 'email' ? (
