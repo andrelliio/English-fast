@@ -98,7 +98,7 @@ export default function Home({ store, go }) {
 
       {/* Continue button */}
       <button style={S.continueBtn} onClick={() => go('cards', nextLevel)}>
-        START LEARNING 🚀
+        НАЧАТЬ УРОК 🚀
       </button>
       <div style={S.levelHint}>Уровень {nextLevel + 1}: {LEVEL_NAMES[nextLevel] || ''}</div>
 
