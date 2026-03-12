@@ -8,6 +8,7 @@ import Quiz from './components/Quiz';
 import Review from './components/Review';
 import LevelExam from './components/LevelExam';
 import PlacementTest from './components/PlacementTest';
+import Onboarding from './components/Onboarding';
 
 export default function App() {
   const store = useStorage();
@@ -21,6 +22,11 @@ export default function App() {
   // After registration, if placement not done, offer it
   if (!store.data.placementDone && screen === 'home') {
     // Show home normally — placement test is offered as a button on Home
+  }
+
+  // Intercept normal home screen with onboarding if not done
+  if (!store.data.onboardingDone && screen === 'home') {
+    return <Onboarding store={store} />;
   }
 
   const go = (s, lvl) => { setScreen(s); if (lvl !== undefined) setLevel(lvl); };

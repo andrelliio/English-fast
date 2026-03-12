@@ -16,6 +16,7 @@ const defaults = () => ({
   touchedLevels: [],          // Levels the user has entered at least once
   passedExams: [],            // Levels that have been passed via exam
   placementDone: false,       // Whether placement test was completed
+  onboardingDone: false,      // Whether the welcome screen was seen
 });
 
 export function useStorage() {
@@ -29,6 +30,7 @@ export function useStorage() {
         if (!parsed.touchedLevels) parsed.touchedLevels = [];
         if (!parsed.passedExams) parsed.passedExams = [];
         if (parsed.placementDone === undefined) parsed.placementDone = false;
+        if (parsed.onboardingDone === undefined) parsed.onboardingDone = false;
         return parsed;
       }
     } catch {}
