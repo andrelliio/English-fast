@@ -125,12 +125,12 @@ export default function Home({ store, go }) {
 
 const S = {
   page: { minHeight: '100vh', padding: 20, maxWidth: 460, margin: '0 auto', zIndex: 1, position: 'relative' },
-  header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, paddingTop: 8 },
-  greeting: { fontFamily: 'var(--font-display)', fontSize: 20, fontWeight: 700, letterSpacing: 0.5 },
-  headerR: { display: 'flex', gap: 12, alignItems: 'center' },
-  streak: { display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', fontSize: 15, fontWeight: 800 },
-  streakFire: { fontSize: 18, filter: 'drop-shadow(0 0 10px rgba(255,107,53,0.6))' },
-  settingsBtn: { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '50%', width: 38, height: 38, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, cursor: 'pointer', transition: '0.2s' },
+  header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, paddingTop: 8, gap: 12 },
+  greeting: { fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 700, letterSpacing: 0.5, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', flex: 1 },
+  headerR: { display: 'flex', gap: 8, alignItems: 'center', flexShrink: 0 },
+  streak: { display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', fontSize: 14, fontWeight: 800, background: 'rgba(255,255,255,0.05)', borderRadius: 20 },
+  streakFire: { fontSize: 16, filter: 'drop-shadow(0 0 10px rgba(255,107,53,0.6))' },
+  settingsBtn: { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '50%', width: 36, height: 36, minWidth: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, cursor: 'pointer', transition: '0.2s', padding: 0 },
   
   card: { padding: 24, marginBottom: 24 },
   label: { fontSize: 12, color: 'var(--accent)', fontWeight: 800, letterSpacing: 1.5, marginBottom: 8, textTransform: 'uppercase' },
