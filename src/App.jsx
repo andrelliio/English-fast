@@ -8,6 +8,7 @@ import Quiz from './components/Quiz';
 import Review from './components/Review';
 import LevelExam from './components/LevelExam';
 import Onboarding from './components/Onboarding';
+import Settings from './components/Settings';
 import { auth } from './utils/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 
@@ -54,6 +55,7 @@ export default function App() {
     case 'quiz': return <Quiz {...props} />;
     case 'review': return <Review {...props} />;
     case 'levelExam': return <LevelExam {...props} />;
+    case 'settings': return <Settings {...props} />;
     default: return <Home {...props} />;
   }
 }

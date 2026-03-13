@@ -39,7 +39,7 @@ export default function Home({ store, go }) {
         <div style={S.greeting}>Привет, {data.username}!</div>
         <div style={S.headerR}>
           <div style={S.streak}><span style={S.streakFire}>🔥</span> {data.streak}</div>
-          <button style={S.logoutBtn} onClick={() => { if (confirm('Выйти? Прогресс удалится.')) logout(); }}>⏻</button>
+          <button style={S.settingsBtn} onClick={() => go('settings')}>⚙️</button>
         </div>
       </div>
 
@@ -130,7 +130,7 @@ const S = {
   headerR: { display: 'flex', gap: 12, alignItems: 'center' },
   streak: { display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', fontSize: 15, fontWeight: 800 },
   streakFire: { fontSize: 18, filter: 'drop-shadow(0 0 10px rgba(255,107,53,0.6))' },
-  logoutBtn: { color: 'var(--text-dim)', borderRadius: '50%', width: 38, height: 38, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 },
+  settingsBtn: { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '50%', width: 38, height: 38, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, cursor: 'pointer', transition: '0.2s' },
   
   card: { padding: 24, marginBottom: 24 },
   label: { fontSize: 12, color: 'var(--accent)', fontWeight: 800, letterSpacing: 1.5, marginBottom: 8, textTransform: 'uppercase' },
