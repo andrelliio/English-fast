@@ -180,8 +180,36 @@ export function useStorage() {
         const snap = await getDoc(userRef);
         if (snap.exists()) {
           const cloudData = snap.data();
-          // Simple merge: cloud data wins for progress
-          setData(prev => ({ ...prev, ...cloudData }));
+          
+          // Intelligent merge: take the "best" of both worlds
+          setData(prev => {
+            const merged = { ...prev, ...cloudData };
+            
+            // 1. Union of levels
+            merged.unlockedLevels = [...new Set([...(prev.unlockedLevels || []), ...(cloudData.unlockedLevels || [])])];
+            merged.touchedLevels = [...new Set([...(prev.touchedLevels || []), ...(cloudData.touchedLevels || [])])];
+            merged.passedLessons = [...new Set([...(prev.passedLessons || []), ...(cloudData.passedLessons || [])])];
+            merged.passedExams = [...new Set([...(prev.passedExams || []), ...(cloudData.passedExams || [])])];
+            
+            // 2. Max XP and stats
+            merged.xp = Math.max(prev.xp || 0, cloudData.xp || 0);
+            merged.totalCorrect = Math.max(prev.totalCorrect || 0, cloudData.totalCorrect || 0);
+            merged.streak = Math.max(prev.streak || 0, cloudData.streak || 0);
+            
+            // 3. Merged word progress
+            const mergedWP = { ...(prev.wordProgress || {}) };
+            Object.entries(cloudData.wordProgress || {}).forEach(([id, cWord]) => {
+              const pWord = mergedWP[id] || {};
+              mergedWP[id] = {
+                ...pWord, ...cWord,
+                correct: Math.max(pWord.correct || 0, cWord.correct || 0),
+                mastered: pWord.mastered || cWord.mastered
+              };
+            });
+            merged.wordProgress = mergedWP;
+            
+            return merged;
+          });
         } else {
           // New user or first time sync: push local data to cloud
           await setDoc(userRef, data);
