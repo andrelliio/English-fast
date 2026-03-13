@@ -21,9 +21,11 @@ export default function App() {
     const unsub = onAuthStateChanged(auth, (user) => {
       store.setUser(user);
       setLoading(false);
-      if (user && !store.data.username) {
-        // If logged in via Firebase but no local name, use email/phone as display name
-        store.update({ username: user.email || user.phoneNumber || 'User' });
+      if (user) {
+        const displayName = user.displayName || user.email || user.phoneNumber || 'User';
+        if (store.data.username !== displayName) {
+          store.update({ username: displayName });
+        }
       }
     });
     return unsub;

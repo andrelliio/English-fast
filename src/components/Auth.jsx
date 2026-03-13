@@ -5,7 +5,8 @@ import {
   createUserWithEmailAndPassword, 
   signInWithPhoneNumber,
   RecaptchaVerifier,
-  sendEmailVerification
+  sendEmailVerification,
+  updateProfile
 } from 'firebase/auth';
 
 export default function Auth() {
@@ -13,6 +14,7 @@ export default function Auth() {
   const [isLogin, setIsLogin] = useState(true);
   
   // Email states
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [pass, setPass] = useState('');
   
@@ -43,6 +45,8 @@ export default function Auth() {
         await signInWithEmailAndPassword(auth, email, pass);
       } else {
         const cred = await createUserWithEmailAndPassword(auth, email, pass);
+        // Save display name
+        await updateProfile(cred.user, { displayName: name });
         await sendEmailVerification(cred.user);
         setMsg('Письмо для подтверждения отправлено! Проверь почту 📧');
       }
@@ -99,6 +103,7 @@ export default function Auth() {
           <form onSubmit={handleEmailAuth} style={{ width: '100%' }}>
             {err && <div style={S.err}>{err}</div>}
             {msg && <div style={S.msg}>{msg}</div>}
+            {!isLogin && <input style={S.input} placeholder="Как тебя зовут?" value={name} onChange={e => setName(e.target.value)} required />}
             <input style={S.input} type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} required />
             <input style={S.input} type="password" placeholder="Пароль" value={pass} onChange={e => setPass(e.target.value)} required />
             <button className="btn-primary btn-full" type="submit" disabled={loading}>
