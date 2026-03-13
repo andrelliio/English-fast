@@ -1,5 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
-import { auth } from '../utils/firebase';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { auth, db } from '../utils/firebase';
+import { doc, getDoc, setDoc, enableIndexedDbPersistence } from 'firebase/firestore';
 
 const KEY = 'vocabflame_v1';
 
@@ -26,23 +27,32 @@ const defaults = () => ({
 
 export function useStorage() {
   const [user, setUser] = useState(null); // Firebase user
-  const [data, setData] = useState(() => {
+  const [data, setData] = useState(defaults());
+  const [initialized, setInitialized] = useState(false);
+  const isSyncing = useRef(false);
+
+  // Enable persistence once
+  useEffect(() => {
+    enableIndexedDbPersistence(db).catch((err) => {
+      if (err.code === 'failed-precondition') {
+        console.warn('Multiple tabs open, persistence can only be enabled in one tab at a time.');
+      } else if (err.code === 'unimplemented') {
+        console.warn('The current browser does not support all of the features required to enable persistence');
+      }
+    });
+  }, []);
+
+  // Load from LocalStorage initially (fast but local)
+  useEffect(() => {
     try {
       const s = localStorage.getItem(KEY);
       if (s) {
         const parsed = JSON.parse(s);
-        // Migrate old data: add new fields if missing
-        if (!parsed.unlockedLevels) parsed.unlockedLevels = [0];
-        if (!parsed.touchedLevels) parsed.touchedLevels = [];
-        if (!parsed.passedLessons) parsed.passedLessons = [];
-        if (!parsed.passedExams) parsed.passedExams = [];
-        if (parsed.onboardingDone === undefined) parsed.onboardingDone = false;
-        if (parsed.lastActiveLevel === undefined) parsed.lastActiveLevel = 0;
-        return parsed;
+        setData(prev => ({ ...prev, ...parsed }));
       }
     } catch {}
-    return defaults();
-  });
+    setInitialized(true);
+  }, []);
 
   useEffect(() => {
     try { localStorage.setItem(KEY, JSON.stringify(data)); } catch {}
@@ -157,6 +167,53 @@ export function useStorage() {
 
   // Get count of unlocked levels that haven't passed exam
   const untestedCount = data.unlockedLevels.filter(l => !data.passedExams.includes(l)).length;
+
+  // Sync with Firestore when user logs in or data changes
+  useEffect(() => {
+    if (!initialized || !user || isSyncing.current) return;
+
+    const syncWithCloud = async () => {
+      const userRef = doc(db, 'users', user.uid);
+      try {
+        isSyncing.current = true;
+        // 1. First time after login: try to fetch from cloud
+        const snap = await getDoc(userRef);
+        if (snap.exists()) {
+          const cloudData = snap.data();
+          // Simple merge: cloud data wins for progress
+          setData(prev => ({ ...prev, ...cloudData }));
+        } else {
+          // New user or first time sync: push local data to cloud
+          await setDoc(userRef, data);
+        }
+      } catch (e) {
+        console.error("Sync error:", e);
+      } finally {
+        isSyncing.current = false;
+      }
+    };
+
+    syncWithCloud();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
+
+  // Periodic push to cloud whenever data changes
+  useEffect(() => {
+    if (!initialized || !user || isSyncing.current) return;
+    
+    localStorage.setItem(KEY, JSON.stringify(data));
+
+    const timeout = setTimeout(async () => {
+      const userRef = doc(db, 'users', user.uid);
+      try {
+        await setDoc(userRef, data, { merge: true });
+      } catch (e) {
+        console.error("Cloud push error:", e);
+      }
+    }, 2000); // Debounce sync by 2 seconds
+
+    return () => clearTimeout(timeout);
+  }, [data, user, initialized]);
 
   const logout = useCallback(() => { 
     auth.signOut();
