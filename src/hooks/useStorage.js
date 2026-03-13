@@ -18,9 +18,6 @@ const defaults = () => ({
   touchedLevels: [],          // Levels the user has entered at least once
   passedLessons: [],          // Individual levels completed via quiz
   passedExams: [],            // Levels that have been passed via exam
-  touchedLevels: [],          // Levels the user has entered at least once
-  passedLessons: [],          // Individual levels completed via quiz
-  passedExams: [],            // Levels that have been passed via exam
   onboardingDone: false,      // Whether the welcome screen was seen
   lastActiveLevel: 0,         // The level the user was last looking at
 });

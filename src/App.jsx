@@ -23,9 +23,18 @@ export default function App() {
       store.setUser(user);
       setLoading(false);
       if (user) {
-        const displayName = user.displayName || user.email || user.phoneNumber || 'User';
-        if (store.data.username !== displayName) {
-          store.update({ username: displayName });
+        // Priority: 
+        // 1. Firebase displayName (if set)
+        // 2. Current store username (if already entered by user in Auth/Settings)
+        // 3. Fallback to Email/Phone
+        const currentStoredName = store.data.username;
+        const firebaseName = user.displayName;
+        const fallbackName = user.email || user.phoneNumber || 'User';
+
+        const finalName = firebaseName || currentStoredName || fallbackName;
+
+        if (store.data.username !== finalName) {
+          store.update({ username: finalName });
         }
       }
     });
@@ -43,7 +52,7 @@ export default function App() {
 
   // 2. Then show auth/registration if not logged in
   if (!store.isLoggedIn) {
-    return <Auth onRegister={store.register} />;
+    return <Auth store={store} />;
   }
 
   const go = (s, lvl) => { setScreen(s); if (lvl !== undefined) setLevel(lvl); };

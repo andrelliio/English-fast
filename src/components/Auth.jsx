@@ -9,7 +9,7 @@ import {
   updateProfile
 } from 'firebase/auth';
 
-export default function Auth() {
+export default function Auth({ store }) {
   const [method, setMethod] = useState('phone'); // 'phone' or 'email'
   const [isLogin, setIsLogin] = useState(true);
   
@@ -45,8 +45,11 @@ export default function Auth() {
         await signInWithEmailAndPassword(auth, email, pass);
       } else {
         const cred = await createUserWithEmailAndPassword(auth, email, pass);
-        // Save display name
+        // 1. Update Firebase Profile
         await updateProfile(cred.user, { displayName: name });
+        // 2. Explicitly update store so the name shows up everywhere immediately
+        if (store) store.update({ username: name });
+        // 3. Send verification
         await sendEmailVerification(cred.user);
         setMsg('Письмо для подтверждения отправлено! Проверь почту 📧');
       }
