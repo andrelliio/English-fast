@@ -98,6 +98,7 @@ export default function Auth() {
         {method === 'email' ? (
           <form onSubmit={handleEmailAuth} style={{ width: '100%' }}>
             {err && <div style={S.err}>{err}</div>}
+            {msg && <div style={S.msg}>{msg}</div>}
             <input style={S.input} type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} required />
             <input style={S.input} type="password" placeholder="Пароль" value={pass} onChange={e => setPass(e.target.value)} required />
             <button className="btn-primary btn-full" type="submit" disabled={loading}>
@@ -140,5 +141,6 @@ const S = {
   tabActive: { flex: 1, padding: '10px', background: 'var(--accent)', border: 'none', color: '#fff', cursor: 'pointer', borderRadius: 10, fontSize: 14, fontWeight: 700, boxShadow: '0 4px 15px rgba(255, 107, 53, 0.3)' },
   input: { width: '100%', padding: '16px 20px', background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 'var(--radius)', color: 'var(--text)', fontSize: 16, marginBottom: 16, transition: 'all 0.2s', backdropFilter: 'blur(10px)', fontWeight: 600 },
   err: { color: 'var(--red)', fontSize: 14, marginBottom: 12, fontWeight: 700, textAlign: 'center' },
+  msg: { color: 'var(--yellow)', fontSize: 14, marginBottom: 12, fontWeight: 700, textAlign: 'center', background: 'rgba(255, 191, 0, 0.1)', padding: '10px', borderRadius: 10 },
   toggle: { color: 'var(--text-dim)', fontSize: 13, marginTop: 16, cursor: 'pointer', fontWeight: 600, textDecoration: 'underline' },
 };
