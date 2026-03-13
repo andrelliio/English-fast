@@ -4,7 +4,8 @@ import {
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword, 
   signInWithPhoneNumber,
-  RecaptchaVerifier
+  RecaptchaVerifier,
+  sendEmailVerification
 } from 'firebase/auth';
 
 export default function Auth() {
@@ -21,6 +22,7 @@ export default function Auth() {
   const [confirmResult, setConfirmResult] = useState(null);
   
   const [err, setErr] = useState('');
+  const [msg, setMsg] = useState('');
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -34,12 +36,15 @@ export default function Auth() {
   const handleEmailAuth = async (e) => {
     e.preventDefault();
     setErr('');
+    setMsg('');
     setLoading(true);
     try {
       if (isLogin) {
         await signInWithEmailAndPassword(auth, email, pass);
       } else {
-        await createUserWithEmailAndPassword(auth, email, pass);
+        const cred = await createUserWithEmailAndPassword(auth, email, pass);
+        await sendEmailVerification(cred.user);
+        setMsg('Письмо для подтверждения отправлено! Проверь почту 📧');
       }
     } catch (error) {
       setErr(error.message.includes('auth/user-not-found') ? 'Пользователь не найден' : 
