@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import allWords, { LEVELS, WORDS_PER_LEVEL, getSimilarWords } from '../data/words';
+import { tts } from '../utils/tts';
 
 function shuffle(a) { const b = [...a]; for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; }
 
@@ -37,6 +38,12 @@ export default function LevelExam({ store, go }) {
 
     setQs(questions);
   }, []);
+
+  useEffect(() => {
+    if (qs.length > 0 && cur < qs.length && !done) {
+      tts.speak(qs[cur].word.en);
+    }
+  }, [cur, qs, done]);
 
   useEffect(() => {
     if (done) {

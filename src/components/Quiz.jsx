@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { LEVELS, LEVEL_NAMES, WORDS_PER_LEVEL, getSimilarWords } from '../data/words';
+import { tts } from '../utils/tts';
 import confetti from 'canvas-confetti';
 
 function shuffle(a) { const b = [...a]; for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; }
@@ -75,6 +76,12 @@ export default function Quiz({ store, go, level }) {
       go('home');
     }
   };
+
+  useEffect(() => {
+    if (qs.length > 0 && cur < qs.length && !done) {
+      tts.speak(qs[cur].word.en);
+    }
+  }, [cur, qs, done]);
 
   // Completion logic moved to useEffect to avoid stale closures
   useEffect(() => {

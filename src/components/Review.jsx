@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import allWords, { getSimilarWords } from '../data/words';
+import { tts } from '../utils/tts';
 import confetti from 'canvas-confetti';
 
 function shuffle(a) { const b = [...a]; for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; }
@@ -49,6 +50,12 @@ export default function Review({ store, go }) {
   }, []);
 
   const isDone = cur >= qs.length;
+
+  useEffect(() => {
+    if (qs.length > 0 && cur < qs.length && !isDone) {
+      tts.speak(qs[cur].word.en);
+    }
+  }, [cur, qs, isDone]);
 
   useEffect(() => {
     if (isDone) {
