@@ -207,8 +207,6 @@ export default function Review({ store, go }) {
           {cur + 1 >= qs.length ? 'Результаты →' : 'Далее →'}
         </button>
       )}
-
-      )}
     </div>
   );
 }
