@@ -171,8 +171,9 @@ export default function Quiz({ store, go, level }) {
         <span style={{ color: 'var(--red)' }}>❌ {bad}</span>
       </div>
 
-      <div style={S.questionBox} key={cur} className="glass-card anim-pop">
+      <div style={S.questionBox} key={cur} className="glass-card anim-pop" onClick={() => tts.speak(q.word.en)}>
         <div style={S.enWord}>{q.word.en}</div>
+        <div style={{ position: 'absolute', top: 12, right: 12, opacity: 0.5, fontSize: 18 }}>🔊</div>
       </div>
       <div style={{ fontSize: 13, color: 'var(--text-muted)', textAlign: 'center', marginBottom: 14 }}>Выбери правильный перевод</div>
 
