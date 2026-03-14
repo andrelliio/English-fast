@@ -127,7 +127,7 @@ export default function LevelExam({ store, go }) {
         <span style={{ color: 'var(--text-dim)', fontSize: 12 }}>нужно ≥90%</span>
       </div>
 
-      <div style={S.qBox} key={cur} className="glass-card anim-pop" onClick={() => tts.speak(q.word.en)}>
+      <div style={S.questionBox} key={cur} className="glass-card anim-pop" onClick={() => tts.speak(q.word.en)}>
         <div style={S.enWord}>{q.word.en}</div>
         <div style={{ position: 'absolute', top: 12, right: 12, opacity: 0.5, fontSize: 18 }}>🔊</div>
       </div>
