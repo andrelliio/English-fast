@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, setPersistence, browserSessionPersistence } from "firebase/auth";
+import { getAuth, setPersistence, inMemoryPersistence } from "firebase/auth";
 import { getFirestore, enableIndexedDbPersistence } from "firebase/firestore";
 
 const firebaseConfig = {
@@ -14,8 +14,8 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 
-// Set persistence to session only (clears when browser/tab is closed)
-setPersistence(auth, browserSessionPersistence).catch((err) => {
+// Use inMemoryPersistence so it clears on refresh/entry (requires re-login)
+setPersistence(auth, inMemoryPersistence).catch((err) => {
   console.error("Auth persistence error:", err);
 });
 

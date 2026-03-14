@@ -16,7 +16,7 @@ export default function App() {
   const store = useStorage();
   const { 
     user, data, initialized, setUser, update, 
-    isLoggedIn, 
+    isLoggedIn, isLoaded
   } = store;
 
   const [screen, setScreen] = useState('home');
@@ -61,8 +61,16 @@ export default function App() {
     }
   }, [data?.currentTheme]);
 
-
   if (loading || !initialized) return null;
+
+  // Wait for initial load if user exists
+  if (user && !isLoaded) {
+    return (
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-dim)', fontWeight: 600 }}>
+        Загрузка данных...
+      </div>
+    );
+  }
 
   // 1. Show onboarding first if not done
   if (!data?.onboardingDone) {

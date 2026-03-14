@@ -32,6 +32,7 @@ export function useStorage() {
   const [user, setUser] = useState(null); // Firebase user
   const [data, setData] = useState(defaults());
   const [initialized, setInitialized] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
   const isSyncing = useRef(false);
 
   // Persistence is now handled in utils/firebase.js
@@ -326,6 +327,7 @@ export function useStorage() {
     auth.signOut();
     localStorage.removeItem(KEY); 
     setData(defaults()); 
+    setIsLoaded(false);
   }, []);
 
   // Get count of unlocked levels that haven't passed exam
@@ -432,10 +434,9 @@ export function useStorage() {
           // New user or first time sync: push local data to cloud
           await setDoc(userRef, data);
         }
-      } catch (e) {
-        console.error("Sync error:", e);
       } finally {
         isSyncing.current = false;
+        setIsLoaded(true);
       }
     };
 
@@ -445,7 +446,7 @@ export function useStorage() {
 
   // Periodic push to cloud whenever data changes
   useEffect(() => {
-    if (!initialized || !user || isSyncing.current) return;
+    if (!initialized || !user || !isLoaded || isSyncing.current) return;
     
     localStorage.setItem(KEY, JSON.stringify(data));
 
@@ -475,10 +476,10 @@ export function useStorage() {
     user, setUser,
     checkAchievements, checkLevelUp, getRankInfo,
     level: rankInfo.level, rankTitle: rankInfo.title,
-    initialized
+    initialized, isLoaded
   }), [
     data, user, update, register, markSeen, recordResult, logout, 
     touchLevel, completeLevel, passExam, untestedCount, setUser, 
-    checkAchievements, checkLevelUp, getRankInfo, rankInfo, learnedCountRaw, initialized
+    checkAchievements, checkLevelUp, getRankInfo, rankInfo, learnedCountRaw, initialized, isLoaded
   ]);
 }
