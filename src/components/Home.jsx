@@ -1,3 +1,4 @@
+import { useState, useMemo } from 'react';
 import { LEVELS, TOTAL_WORDS, LEVEL_NAMES, WORDS_PER_LEVEL } from '../data/words';
 
 function MarketModal({ store, onClose }) {
