@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { auth, db } from '../utils/firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { LEVELS } from '../data/words';
 
 const KEY = 'vocabflame_v1';
 const STREAK_RESET_VERSION = 2; // Increment this to force-reset everyone's streak
