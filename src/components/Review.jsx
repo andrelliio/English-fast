@@ -85,7 +85,12 @@ export default function Review({ store, go }) {
           <div style={S.dim}>✅ {ok}  ❌ {bad}</div>
           <div className="btn-row" style={{ marginTop: 20, maxWidth: 320 }}>
             <button className="btn-ghost btn-flex" onClick={() => go('home')}>🏠 Домой</button>
-            <button className="btn-primary btn-flex" onClick={() => { setCur(0); setSel(null); setOk(0); setBad(0); setQs(shuffle(qs)); }}>🔄 Ещё раз</button>
+            <button className="btn-primary btn-flex" onClick={() => { 
+              setCur(0); setSel(null); setOk(0); setBad(0); 
+              // Reshuffle questions AND their internal options
+              const reshuffled = shuffle(qs.map(q => ({ ...q, options: shuffle(q.options) })));
+              setQs(reshuffled); 
+            }}>🔄 Ещё раз</button>
           </div>
         </div>
       </div>

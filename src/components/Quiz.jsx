@@ -118,7 +118,12 @@ export default function Quiz({ store, go, level }) {
             <button className="btn-primary btn-full" onClick={handleNextTask}>Следующее задание ➡️</button>
             <div className="btn-row">
               <button className="btn-ghost btn-flex" onClick={() => go('home')}>🏠 Домой</button>
-              <button className="btn-ghost btn-flex" onClick={() => { setCur(0); setSel(null); setOk(0); setBad(0); setDone(false); setXp(0); setQs(shuffle(qs)); }}>🔄 Ещё раз</button>
+              <button className="btn-primary btn-flex" onClick={() => { 
+                setCur(0); setSel(null); setOk(0); setBad(0); setDone(false); 
+                // Reshuffle questions AND their internal options
+                const reshuffled = shuffle(qs.map(q => ({ ...q, options: shuffle(q.options) })));
+                setQs(reshuffled); 
+              }}>🔄 Ещё раз</button>
             </div>
           </div>
         </div>

@@ -1017,8 +1017,8 @@ export function getSimilarWords(wordIndex, count, excludeRu) {
     // Difficulty match
     if (w.difficulty === target.difficulty) score += 20;
 
-    // Add a tiny bit of randomness to break ties naturally
-    score += Math.random() * 5;
+    // Add more randomness to break ties and provide variety
+    score += Math.random() * 80; 
     
     return { ru: w.ru, score };
   }).filter(Boolean);
@@ -1026,8 +1026,8 @@ export function getSimilarWords(wordIndex, count, excludeRu) {
   // Sort by score descending and take top candidates
   candidates.sort((a, b) => b.score - a.score);
   
-  // Take a larger pool and shuffle it for variety
-  const topPool = candidates.slice(0, count * 2);
+  // Take a larger pool (increased from count*2 to count*5) for more variety
+  const topPool = candidates.slice(0, count * 5);
   for (let i = topPool.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [topPool[i], topPool[j]] = [topPool[j], topPool[i]];

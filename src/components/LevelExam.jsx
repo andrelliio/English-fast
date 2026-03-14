@@ -67,7 +67,12 @@ export default function LevelExam({ store, go }) {
           {!passed && <div style={{ color: 'var(--text-dim)', fontSize: 13 }}>Повтори материал и попробуй снова</div>}
           <div className="btn-row" style={{ marginTop: 20, maxWidth: 320, padding: '0 20px' }}>
             <button className="btn-ghost btn-flex" onClick={() => go('home')}>🏠 Домой</button>
-            {!passed && <button className="btn-primary btn-flex" onClick={() => { setCur(0); setSel(null); setOk(0); setBad(0); setDone(false); setQs(shuffle(qs)); }}>🔄 Ещё раз</button>}
+            {!passed && <button className="btn-primary btn-flex" onClick={() => { 
+              setCur(0); setSel(null); setOk(0); setBad(0); setDone(false); 
+              // Reshuffle questions AND their internal options
+              const reshuffled = shuffle(qs.map(q => ({ ...q, options: shuffle(q.options) })));
+              setQs(reshuffled); 
+            }}>🔄 Ещё раз</button>}
             {passed && <button className="btn-primary btn-flex" onClick={() => go('levels')}>📋 Уровни</button>}
           </div>
         </div>
