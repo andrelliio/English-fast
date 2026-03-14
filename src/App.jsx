@@ -14,44 +14,63 @@ import { onAuthStateChanged } from 'firebase/auth';
 
 export default function App() {
   const store = useStorage();
+  const { 
+    user, data, initialized, setUser, update, 
+    isLoggedIn, 
+  } = store;
+
   const [screen, setScreen] = useState('home');
   const [level, setLevel] = useState(0);
   const [loading, setLoading] = useState(true);
 
+  // 1. Auth listener - only run once
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (user) => {
-      store.setUser(user);
+    const unsub = onAuthStateChanged(auth, (u) => {
+      setUser(u);
       setLoading(false);
-      if (user) {
-        // Priority: 
-        // 1. Firebase displayName (if set)
-        // 2. Current store username (if already entered by user in Auth/Settings)
-        // 3. Fallback to Email/Phone
-        const currentStoredName = store.data.username;
-        const firebaseName = user.displayName;
-        const fallbackName = user.email || user.phoneNumber || 'User';
-
-        const finalName = firebaseName || currentStoredName || fallbackName;
-
-        if (store.data.username !== finalName) {
-          store.update({ username: finalName });
-        }
-      }
     });
     return unsub;
-  }, []);
+  }, [setUser]);
 
-  useEffect(() => { if (store.isLoggedIn) store.checkStreak(); }, [store.isLoggedIn]);
+  // 2. Sync Firebase name with local DB
+  useEffect(() => {
+    try {
+      if (user && data?.username !== undefined) {
+        const firebaseName = user.displayName;
+        const currentName = data.username;
+        
+        const fallback = user.email || user.phoneNumber || 'User';
+        const finalName = firebaseName || currentName || fallback;
 
-  if (loading) return null; // Or a spinner
+        if (currentName !== finalName) {
+          update({ username: finalName });
+        }
+      }
+    } catch (err) {
+      console.error("Sync effect error:", err);
+    }
+  }, [user, data?.username, update]);
+
+  // 3. Apply theme to body
+  useEffect(() => {
+    const theme = data?.currentTheme || 'default';
+    const body = document.body;
+    body.className = body.className.replace(/\btheme-\S+/g, '');
+    if (theme !== 'default') {
+      body.classList.add(`theme-${theme}`);
+    }
+  }, [data?.currentTheme]);
+
+
+  if (loading || !initialized) return null;
 
   // 1. Show onboarding first if not done
-  if (!store.data.onboardingDone) {
+  if (!data?.onboardingDone) {
     return <Onboarding store={store} />;
   }
 
   // 2. Then show auth/registration if not logged in
-  if (!store.isLoggedIn) {
+  if (!isLoggedIn) {
     return <Auth store={store} />;
   }
 

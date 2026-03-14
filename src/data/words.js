@@ -21,16 +21,16 @@ const islands = [
     icon: "👋",
     items: [
       // === Уровень 1: Базовые приветствия ===
-      { type: "phrase", en: "Hi, I'm...", ru: "Привет, я...", hint: "Хай, Айм...", difficulty: 1, context: "Представиться" },
-      { type: "phrase", en: "Nice to meet you", ru: "Приятно познакомиться", hint: "Найс ту мит ю", difficulty: 1, context: "Представиться" },
-      { type: "phrase", en: "How are you?", ru: "Как дела?", hint: "Хау ар ю?", difficulty: 1, context: "Начать разговор" },
-      { type: "phrase", en: "I'm fine, thanks", ru: "Хорошо, спасибо", hint: "Айм файн, сэнкс", difficulty: 1, context: "Ответить на 'как дела'" },
-      { type: "phrase", en: "Not bad", ru: "Неплохо", hint: "Нот бэд", difficulty: 1, context: "Ответить на 'как дела'" },
-      { type: "phrase", en: "See you later", ru: "Увидимся позже", hint: "Си ю лэйтер", difficulty: 1, context: "Попрощаться" },
-      { type: "phrase", en: "Have a nice day", ru: "Хорошего дня", hint: "Хэв э найс дэй", difficulty: 1, context: "Попрощаться" },
-      { type: "phrase", en: "Take care", ru: "Береги себя", hint: "Тэйк кэр", difficulty: 1, context: "Попрощаться" },
-      { type: "phrase", en: "Where are you from?", ru: "Откуда ты?", hint: "Вэр ар ю фром?", difficulty: 1, context: "Узнать о человеке" },
-      { type: "phrase", en: "I'm from Russia", ru: "Я из России", hint: "Айм фром Раша", difficulty: 1, context: "Рассказать о себе" },
+      { type: "phrase", en: "Hi, I'm...", ru: "Привет, я...", hint: "Хай, Айм...", difficulty: 1, context: "Представиться", example: "Hi, I'm Alex. Nice to meet you! (Привет, я Алекс. Приятно познакомиться!)" },
+      { type: "phrase", en: "Nice to meet you", ru: "Приятно познакомиться", hint: "Найс ту мит ю", difficulty: 1, context: "Представиться", example: "It's a pleasure to be here. Nice to meet you all! (Рад быть здесь. Приятно познакомиться со всеми вами!)" },
+      { type: "phrase", en: "How are you?", ru: "Как дела?", hint: "Хау ар ю?", difficulty: 1, context: "Начать разговор", example: "Hey man, how are you? - I'm doing great! (Эй, чувак, как дела? - У меня все отлично!)" },
+      { type: "phrase", en: "I'm fine, thanks", ru: "Хорошо, спасибо", hint: "Айм файн, сэнкс", difficulty: 1, context: "Ответить на 'как дела'", example: "How is your day? - I'm fine, thanks. (Как твой день? - Хорошо, спасибо.)" },
+      { type: "phrase", en: "Not bad", ru: "Неплохо", hint: "Нот бэд", difficulty: 1, context: "Ответить на 'как дела'", example: "How was the movie? - Not bad, actually. (Как был фильм? - На самом деле, неплохо.)" },
+      { type: "phrase", en: "See you later", ru: "Увидимся позже", hint: "Си ю лэйтер", difficulty: 1, context: "Попрощаться", example: "I have to go now. See you later! (Мне пора идти. Увидимся позже!)" },
+      { type: "phrase", en: "Have a nice day", ru: "Хорошего дня", hint: "Хэв э найс дэй", difficulty: 1, context: "Попрощаться", example: "Thanks for the help. Have a nice day! (Спасибо за помощь. Хорошего дня!)" },
+      { type: "phrase", en: "Take care", ru: "Береги себя", hint: "Тэйк кэр", difficulty: 1, context: "Попрощаться", example: "Goodbye, and take care of yourself. (До свидания, и береги себя.)" },
+      { type: "phrase", en: "Where are you from?", ru: "Откуда ты?", hint: "Вэр ар ю фром?", difficulty: 1, context: "Узнать о человеке", example: "Your accent is interesting. Where are you from? (Твой акцент интересен. Откуда ты?)" },
+      { type: "phrase", en: "I'm from Russia", ru: "Я из России", hint: "Айм фром Раша", difficulty: 1, context: "Рассказать о себе", example: "I'm from Russia, but I live in London now. (Я из России, но сейчас живу в Лондоне.)" },
 
       // === Уровень 2: Расширенное знакомство ===
       { type: "phrase", en: "What do you do?", ru: "Чем занимаешься?", hint: "Вот ду ю ду?", difficulty: 2, context: "Узнать о работе" },
@@ -986,40 +986,54 @@ export const LEVEL_NAMES = LEVELS.map((_, i) => {
 });
 
 export function getSimilarWords(wordIndex, count, excludeRu) {
-  const catIdx = categoryRanges.findIndex(c => wordIndex >= c.start && wordIndex < c.start + c.count);
-  let pool = [];
-  if (catIdx >= 0) {
-    const cat = categoryRanges[catIdx];
-    for (let i = cat.start; i < cat.start + cat.count; i++) {
-      if (i !== wordIndex && words[i] && words[i].ru !== excludeRu) pool.push(words[i]);
-    }
-  }
-  if (pool.length < count) {
-    const neighbors = [catIdx - 1, catIdx + 1, catIdx - 2, catIdx + 2];
-    for (const ni of neighbors) {
-      if (ni >= 0 && ni < categoryRanges.length) {
-        const cat = categoryRanges[ni];
-        for (let i = cat.start; i < cat.start + cat.count; i++) {
-          if (words[i] && words[i].ru !== excludeRu && !pool.find(p => p.ru === words[i].ru)) {
-            pool.push(words[i]);
-          }
-        }
-      }
-      if (pool.length >= count * 3) break;
-    }
-  }
-  if (pool.length < count) {
-    for (let i = 0; i < words.length && pool.length < count * 3; i++) {
-      if (i !== wordIndex && words[i].ru !== excludeRu && !pool.find(p => p.ru === words[i].ru)) {
-        pool.push(words[i]);
-      }
-    }
-  }
-  for (let i = pool.length - 1; i > 0; i--) {
+  const target = words[wordIndex];
+  if (!target) return [];
+
+  const getPunctuation = (str) => {
+    if (str.endsWith('?')) return '?';
+    if (str.endsWith('...')) return '...';
+    if (str.endsWith('!')) return '!';
+    return '';
+  };
+
+  const targetPunct = getPunctuation(target.ru);
+  
+  // Calculate scores for all other words
+  const candidates = words.map((w, idx) => {
+    if (idx === wordIndex || w.ru === excludeRu) return null;
+    
+    let score = 0;
+    
+    // Type match is very important (phrase vs word)
+    if (w.type === target.type) score += 200;
+    
+    // Punctuation match (questions, ellipsis)
+    if (getPunctuation(w.ru) === targetPunct) score += 150;
+    
+    // Island/Context match
+    if (w.island === target.island) score += 50;
+    if (w.context && target.context && w.context === target.context) score += 30;
+    
+    // Difficulty match
+    if (w.difficulty === target.difficulty) score += 20;
+
+    // Add a tiny bit of randomness to break ties naturally
+    score += Math.random() * 5;
+    
+    return { ru: w.ru, score };
+  }).filter(Boolean);
+
+  // Sort by score descending and take top candidates
+  candidates.sort((a, b) => b.score - a.score);
+  
+  // Take a larger pool and shuffle it for variety
+  const topPool = candidates.slice(0, count * 2);
+  for (let i = topPool.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [pool[i], pool[j]] = [pool[j], pool[i]];
+    [topPool[i], topPool[j]] = [topPool[j], topPool[i]];
   }
-  return pool.slice(0, count).map(w => w.ru);
+
+  return topPool.slice(0, count).map(c => c.ru);
 }
 
 export const TOTAL_WORDS = words.length;

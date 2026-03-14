@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import allWords, { getSimilarWords } from '../data/words';
+import confetti from 'canvas-confetti';
 
 function shuffle(a) { const b = [...a]; for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; }
 
@@ -11,30 +12,52 @@ export default function Review({ store, go }) {
   const [bad, setBad] = useState(0);
 
   useEffect(() => {
-    // Get ALL learned/seen words (mastered OR seen) for random review
-    const allLearned = Object.entries(store.data.wordProgress)
-      .filter(([_, w]) => w.seen || w.mastered)
+    const now = Date.now();
+    const wp = store.data.wordProgress;
+    
+    // 1. Get words DUE for review (nextReview <= now)
+    const due = Object.entries(wp)
+      .filter(([_, w]) => (w.seen || w.mastered) && (w.nextReview || 0) <= now)
       .map(([idx]) => parseInt(idx));
 
-    if (allLearned.length === 0) {
+    // 2. Fallback: if nothing is due, allow reviewing any seen word that isn't mastered, 
+    // or just any randomized seen words if all are mastered.
+    let selectedIndices = [];
+    if (due.length > 0) {
+      selectedIndices = shuffle(due).slice(0, 30);
+    } else {
+      // If nothing is due, pick 15 random seen words to keep the habit
+      const allSeen = Object.entries(wp)
+        .filter(([_, w]) => w.seen || w.mastered)
+        .map(([idx]) => parseInt(idx));
+      selectedIndices = shuffle(allSeen).slice(0, 15);
+    }
+
+    if (selectedIndices.length === 0) {
       setQs([]);
       return;
     }
 
-    // Pick 20-30 random words from all learned
-    const count = Math.min(Math.floor(Math.random() * 11) + 20, allLearned.length); // 20-30
-    const selected = shuffle(allLearned).slice(0, count);
-
-    const toReview = selected.map(i => {
+    const toReview = selectedIndices.map(i => {
       const word = allWords[i];
       if (!word) return null;
-      // Use semantically similar distractors
       const wrongs = getSimilarWords(i, 4, word.ru);
       return { word, wordIdx: i, options: shuffle([...wrongs, word.ru]), answer: word.ru };
     }).filter(Boolean);
 
     setQs(shuffle(toReview));
   }, []);
+
+  const isDone = cur >= qs.length;
+
+  useEffect(() => {
+    if (isDone) {
+      const acc = ok + bad > 0 ? Math.round((ok / (ok + bad)) * 100) : 0;
+      if (acc >= 70) {
+        confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#00F0FF', '#00FF87', '#FFD700'] });
+      }
+    }
+  }, [isDone, ok, bad]);
 
   if (!qs.length) {
     return (
@@ -50,7 +73,6 @@ export default function Review({ store, go }) {
     );
   }
 
-  const isDone = cur >= qs.length;
   if (isDone) {
     const acc = ok + bad > 0 ? Math.round((ok / (ok + bad)) * 100) : 0;
     return (
@@ -59,7 +81,7 @@ export default function Review({ store, go }) {
         <div style={S.center} className="anim-up">
           <div style={{ fontSize: 56, filter: 'drop-shadow(0 0 15px rgba(255,215,0,0.4))' }}>{acc >= 80 ? '🌟' : '💪'}</div>
           <div style={S.t}>{acc >= 80 ? 'Отличная память!' : 'Хороший старт!'}</div>
-          <div style={{ fontFamily: 'var(--font-display)', fontSize: 52, fontWeight: 900, color: acc >= 70 ? 'var(--green)' : 'var(--yellow)', filter: `drop-shadow(0 0 15px \${acc >= 70 ? 'var(--green-glow)' : 'var(--yellow-glow)'})` }}>{acc}%</div>
+          <div style={{ fontFamily: 'var(--font-display)', fontSize: 52, fontWeight: 900, color: acc >= 70 ? 'var(--green)' : 'var(--yellow)', filter: `drop-shadow(0 0 15px ${acc >= 70 ? 'var(--green-glow)' : 'var(--yellow-glow)'})` }}>{acc}%</div>
           <div style={S.dim}>✅ {ok}  ❌ {bad}</div>
           <div className="btn-row" style={{ marginTop: 20, maxWidth: 320 }}>
             <button className="btn-ghost btn-flex" onClick={() => go('home')}>🏠 Домой</button>
@@ -73,12 +95,32 @@ export default function Review({ store, go }) {
   const q = qs[cur];
   const answered = sel !== null;
 
+  const next = () => {
+    if (sel === null) return; // Prevent manual skip without answer
+    setCur(c => c + 1);
+    setSel(null);
+  };
+
   const pick = (opt) => {
     if (answered) return;
     setSel(opt);
     const correct = opt === q.answer;
+
+    if (navigator.vibrate) {
+      navigator.vibrate(correct ? 20 : 100);
+    }
+
     store.recordResult(q.wordIdx, correct);
-    if (correct) setOk(o => o + 1); else setBad(b => b + 1);
+    if (correct) {
+      setOk(o => o + 1);
+      // Auto-next on correct - faster
+      setTimeout(() => {
+        setCur(c => c + 1);
+        setSel(null);
+      }, 400);
+    } else {
+      setBad(b => b + 1);
+    }
   };
 
   return (
@@ -110,7 +152,11 @@ export default function Review({ store, go }) {
           );
         })}
       </div>
-      {answered && <button className="btn-primary btn-full anim-in" style={{ marginTop: 16 }} onClick={() => { setCur(c => c + 1); setSel(null); }}>Далее →</button>}
+      {answered && sel !== q.answer && (
+        <button className="btn-primary btn-full anim-in" style={{ marginTop: 16 }} onClick={next}>
+          {cur + 1 >= qs.length ? 'Результаты →' : 'Далее →'}
+        </button>
+      )}
     </div>
   );
 }

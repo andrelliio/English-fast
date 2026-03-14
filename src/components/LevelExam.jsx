@@ -46,7 +46,7 @@ export default function LevelExam({ store, go }) {
         store.passExam(examLevels);
       }
     }
-  }, [done]); // Run once when exam is done
+  }, [done, ok, bad, examLevels, store]);
 
   if (!qs.length) return null;
 

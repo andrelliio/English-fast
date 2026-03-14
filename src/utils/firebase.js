@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+import { getAuth, setPersistence, browserSessionPersistence } from "firebase/auth";
+import { getFirestore, enableIndexedDbPersistence } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBrz0u4vEgTutg_nNPp2w6jlK7BHnP2q2Q",
@@ -13,4 +13,19 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
+
+// Set persistence to session only (clears when browser/tab is closed)
+setPersistence(auth, browserSessionPersistence).catch((err) => {
+  console.error("Auth persistence error:", err);
+});
+
 export const db = getFirestore(app);
+
+// Enable persistence once globaly
+enableIndexedDbPersistence(db).catch((err) => {
+  if (err.code === 'failed-precondition') {
+    console.warn('Multiple tabs open, persistence enabled in only one.');
+  } else if (err.code === 'unimplemented') {
+    console.warn('Browser does not support persistence.');
+  }
+});

@@ -111,6 +111,14 @@ export default function Cards({ store, go, level }) {
             <div style={{ fontSize: 16, color: 'var(--accent)', fontWeight: 800, marginBottom: 8, letterSpacing: 0.5 }}>{w.en}</div>
             <div style={{ fontFamily: 'var(--font-display)', fontSize: 28, fontWeight: 900, color: 'var(--green)', marginBottom: 12, textAlign: 'center', filter: 'drop-shadow(0 0 8px rgba(0, 255, 135, 0.3))' }}>{w.ru}</div>
             {w.hint && <div style={S.hint}>{w.hint}</div>}
+            
+            {w.example && (
+              <div style={S.exContainer}>
+                <div style={S.exTitle}>CONTEXT CHUNK:</div>
+                <div style={S.exText}>{w.example}</div>
+              </div>
+            )}
+
             {w.island && <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 12, fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase' }}>{w.islandIcon} {w.island}</div>}
           </div>
         </div>
@@ -152,10 +160,12 @@ const S = {
   word: { fontFamily: 'var(--font-display)', fontSize: 28, fontWeight: 800, textAlign: 'center', marginBottom: 10, lineHeight: 1.3 },
   context: { fontSize: 13, color: 'var(--yellow)', textAlign: 'center', lineHeight: 1.5, fontWeight: 600 },
   hint: { fontSize: 13, color: 'var(--text-dim)', textAlign: 'center', lineHeight: 1.5 },
-  word: { fontFamily: 'var(--font-display)', fontSize: 28, fontWeight: 800, textAlign: 'center', marginBottom: 10, lineHeight: 1.3 },
-  context: { fontSize: 13, color: 'var(--yellow)', textAlign: 'center', lineHeight: 1.5, fontWeight: 600 },
-  hint: { fontSize: 13, color: 'var(--text-dim)', textAlign: 'center', lineHeight: 1.5 },
   tap: { fontSize: 12, color: 'var(--text-muted)', marginTop: 14 },
+  
+  exContainer: { marginTop: 16, padding: '12px 16px', background: 'rgba(255, 255, 255, 0.03)', border: '1px dashed rgba(255, 255, 255, 0.1)', borderRadius: 12, width: '100%' },
+  exTitle: { fontSize: 9, fontWeight: 900, color: 'var(--accent)', letterSpacing: 1, marginBottom: 6, textTransform: 'uppercase' },
+  exText: { fontSize: 13, color: 'var(--text)', lineHeight: 1.4, fontWeight: 500, fontStyle: 'italic' },
+
   center: { flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', gap: 16 },
   doneTitle: { fontFamily: 'var(--font-display)', fontSize: 26, fontWeight: 900, filter: 'drop-shadow(0 0 10px rgba(255,255,255,0.2))' },
   dim: { color: 'var(--text-dim)', fontSize: 15, fontWeight: 600 },

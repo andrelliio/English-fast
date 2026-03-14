@@ -1,10 +1,19 @@
 import { LEVELS, TOTAL_WORDS, LEVEL_NAMES, WORDS_PER_LEVEL } from '../data/words';
 
 export default function Home({ store, go }) {
-  const { data, learned, logout, untestedCount } = store;
-  const pct = Math.round((learned / TOTAL_WORDS) * 100);
+  const { data, learned, logout, untestedCount, level, rankTitle } = store;
   const accuracy = data.totalCorrect + data.totalWrong > 0
     ? Math.round((data.totalCorrect / (data.totalCorrect + data.totalWrong)) * 100) : 0;
+
+  const learnedCount = Object.values(data.wordProgress).filter(w => w.seen || w.mastered).length;
+  const masteredCount = Object.values(data.wordProgress).filter(w => w.mastered).length;
+  const pct = Math.round((learnedCount / TOTAL_WORDS) * 100);
+
+  const lvlStartXP = 50 * (level - 1) * (level - 1);
+  const lvlEndXP = 50 * level * level;
+  const xpInLvl = data.xp - lvlStartXP;
+  const xpToNext = lvlEndXP - lvlStartXP;
+  const xpPct = Math.min(Math.round((xpInLvl / xpToNext) * 100), 100);
 
   // Next unfinished level (among unlocked)
   // Next level logic: Frontier Priority
@@ -26,8 +35,9 @@ export default function Home({ store, go }) {
     return unlocked.length > 0 ? unlocked[unlocked.length - 1] : 0;
   })();
 
-  // Count of learned words (for review availability)
-  const learnedCount = Object.values(data.wordProgress).filter(w => w.seen || w.mastered).length;
+  // Count of words DUE for review (SRS)
+  const now = Date.now();
+  const dueCount = Object.values(data.wordProgress).filter(w => (w.seen || w.mastered) && (w.nextReview || 0) <= now).length;
 
   // Show exam banner when 5+ untested levels
   const showExamBanner = untestedCount >= 5;
@@ -36,33 +46,64 @@ export default function Home({ store, go }) {
     <div style={S.page} className="anim-in">
       {/* Header */}
       <div style={S.header}>
-        <div style={S.greeting}>Привет, {data.username}!</div>
+        <div style={S.greeting}>
+          <div style={S.rankText}>{rankTitle} / Lvl {level}</div>
+          <div style={S.userName}>{data.username}</div>
+        </div>
         <div style={S.headerR}>
-          <div style={S.streak}><span style={S.streakFire}>🔥</span> {data.streak}</div>
+          <div style={S.coins}><span style={S.coinIcon}>💰</span> {data.coins}</div>
+          <div style={S.streak}>
+            <span style={{ 
+              ...S.streakFire, 
+              filter: data.streak <= 1 ? 'grayscale(1) opacity(0.5)' : S.streakFire.filter,
+              textShadow: data.streak > 7 ? '0 0 15px #ff6b35' : 'none'
+            }}>🔥</span> {data.streak}
+          </div>
           <button style={S.settingsBtn} onClick={() => go('settings')}>⚙️</button>
         </div>
+      </div>
+
+      {/* Level Card */}
+      <div style={{ ...S.card, marginBottom: 16, padding: '16px 20px' }} className="glass-card">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+          <div style={S.label}>УРОВЕНЬ {level}</div>
+          <div style={S.xpText}>{data.xp} / {lvlEndXP} XP</div>
+        </div>
+        <div style={S.barOuter}><div style={{ ...S.barInner, width: `${xpPct}%`, background: 'linear-gradient(90deg, #00f0ff, #00ff87)' }} /></div>
       </div>
 
       {/* Progress card */}
       <div style={S.card} className="glass-card">
         <div style={S.label}>ПРОГРЕСС</div>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 10 }}>
-          <span style={S.bigNum}>{learned}</span>
+          <span style={S.bigNum}>{learnedCount}</span>
           <span style={S.dimText}>из {TOTAL_WORDS} слов</span>
         </div>
         <div style={S.barOuter}><div style={{ ...S.barInner, width: `${Math.max(pct, 1)}%` }} /></div>
-        <div style={S.dimText}>{pct}%</div>
+        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <div style={S.dimText}>{pct}% слов в изучении</div>
+          <div style={S.dimText}>🌟 {masteredCount} выучено</div>
+        </div>
       </div>
 
       {/* Stats row */}
       <div style={S.statsRow}>
         {[
-          { v: data.xp, l: 'XP', c: 'var(--accent)' },
-          { v: accuracy + '%', l: 'Точность', c: 'var(--green)' },
-          { v: data.streak, l: 'Стрик', c: 'var(--yellow)' },
+          { v: data.xp, l: 'XP', i: '💎', c: 'var(--accent)' },
+          { v: accuracy + '%', l: 'Точность', i: '🎯', c: 'var(--green)' },
+          { v: data.streak, l: 'Дней подряд', i: '🔥', c: 'var(--yellow)' },
         ].map(s => (
           <div key={s.l} style={S.stat} className="glass-card">
-            <div style={{ ...S.statVal, color: s.c }}>{s.v}</div>
+            <div style={{ ...S.statVal, color: s.c }}>
+              {s.l === 'Дней подряд' && (
+                <span style={{ 
+                  marginRight: 4,
+                  filter: data.streak <= 1 ? 'grayscale(1) opacity(0.5)' : 'none',
+                  textShadow: data.streak > 7 ? '0 0 10px #ff6b35' : 'none'
+                }}>🔥</span>
+              )}
+              {s.v}
+            </div>
             <div style={S.statLbl}>{s.l}</div>
           </div>
         ))}
@@ -80,13 +121,17 @@ export default function Home({ store, go }) {
         </button>
       )}
 
-      {/* Review banner — always available if there are learned words */}
+      {/* Review banner — prioritized by SRS dueCount */}
       {learnedCount > 0 && (
         <button style={S.reviewBanner} onClick={() => go('review')}>
-          <span style={{ fontSize: 24 }}>🔄</span>
+          <span style={{ fontSize: 24 }}>{dueCount > 0 ? '🧠' : '🔄'}</span>
           <div style={{ flex: 1, textAlign: 'left' }}>
-            <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--yellow)' }}>Повторить материал</div>
-            <div style={{ fontSize: 12, color: 'var(--text-dim)' }}>{learnedCount} слов для повторения</div>
+            <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--yellow)' }}>
+              {dueCount > 0 ? 'Пора повторить!' : 'Повторить материал'}
+            </div>
+            <div style={{ fontSize: 12, color: 'var(--text-dim)' }}>
+              {dueCount > 0 ? `🔥 ${dueCount} слов ждут тебя` : `Всего ${learnedCount} слов выучено`}
+            </div>
           </div>
           <span style={{ color: 'var(--yellow)' }}>→</span>
         </button>
@@ -126,14 +171,19 @@ export default function Home({ store, go }) {
 const S = {
   page: { minHeight: '100vh', padding: 20, maxWidth: 460, margin: '0 auto', zIndex: 1, position: 'relative' },
   header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, paddingTop: 8, gap: 12 },
-  greeting: { fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 700, letterSpacing: 0.5, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', flex: 1 },
+  greeting: { flex: 1, display: 'flex', flexDirection: 'column', gap: 2, overflow: 'hidden' },
+  rankText: { fontSize: 11, fontWeight: 900, color: 'var(--yellow)', letterSpacing: 1, textTransform: 'uppercase', opacity: 0.9 },
+  userName: { fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 700, letterSpacing: 0.5, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' },
   headerR: { display: 'flex', gap: 8, alignItems: 'center', flexShrink: 0 },
-  streak: { display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', fontSize: 14, fontWeight: 800, background: 'rgba(255,255,255,0.05)', borderRadius: 20 },
-  streakFire: { fontSize: 16, filter: 'drop-shadow(0 0 10px rgba(255,107,53,0.6))' },
+  coins: { display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', fontSize: 13, fontWeight: 800, background: 'rgba(255,215,0,0.1)', borderRadius: 20, color: '#ffd700' },
+  coinIcon: { fontSize: 14, filter: 'drop-shadow(0 0 5px rgba(255,215,0,0.5))' },
+  streak: { display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', fontSize: 13, fontWeight: 800, background: 'rgba(255,255,255,0.05)', borderRadius: 20 },
+  streakFire: { fontSize: 15, filter: 'drop-shadow(0 0 10px rgba(255,107,53,0.6))' },
   settingsBtn: { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '50%', width: 36, height: 36, minWidth: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, cursor: 'pointer', transition: '0.2s', padding: 0 },
   
   card: { padding: 24, marginBottom: 24 },
-  label: { fontSize: 12, color: 'var(--accent)', fontWeight: 800, letterSpacing: 1.5, marginBottom: 8, textTransform: 'uppercase' },
+  label: { fontSize: 11, color: 'var(--accent)', fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase' },
+  xpText: { fontSize: 11, color: 'var(--text-dim)', fontWeight: 700, letterSpacing: 0.5 },
   bigNum: { fontFamily: 'var(--font-display)', fontSize: 36, fontWeight: 900, color: 'var(--text)', filter: 'drop-shadow(0 0 10px rgba(255,255,255,0.2))' },
   dimText: { fontSize: 14, color: 'var(--text-dim)', fontWeight: 600 },
   barOuter: { height: 8, background: 'rgba(0,0,0,0.3)', borderRadius: 4, overflow: 'hidden', marginBottom: 8, marginTop: 4, boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' },
@@ -141,7 +191,6 @@ const S = {
   
   statsRow: { display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginBottom: 24 },
   stat: { padding: '16px 10px', textAlign: 'center' },
-  statVal: { fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 800, marginBottom: 4 },
   statVal: { fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 800, marginBottom: 4 },
   statLbl: { fontSize: 11, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: 1, fontWeight: 700 },
   

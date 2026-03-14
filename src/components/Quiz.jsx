@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { LEVELS, LEVEL_NAMES, WORDS_PER_LEVEL, getSimilarWords } from '../data/words';
+import confetti from 'canvas-confetti';
 
 function shuffle(a) { const b = [...a]; for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; }
 
@@ -76,9 +77,13 @@ export default function Quiz({ store, go, level }) {
   };
 
   const next = () => {
+    if (sel === null) return; // Prevent manual skip without answer
     if (cur + 1 >= qs.length) {
       const acc = Math.round((ok / qs.length) * 100);
       if (acc >= 50) store.completeLevel(level);
+      if (acc >= 70) {
+        confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#00F0FF', '#00FF87', '#FFD700'] });
+      }
       setDone(true);
     } else {
       setCur(c => c + 1);
@@ -98,7 +103,7 @@ export default function Quiz({ store, go, level }) {
         <div style={S.center} className="anim-up">
           <div style={{ fontSize: 56 }}>{emoji}</div>
           <div style={S.doneTitle}>{acc >= 90 ? 'Превосходно!' : acc >= 70 ? 'Отлично!' : acc >= 50 ? 'Хорошо!' : 'Нужна практика'}</div>
-          <div style={{ fontFamily: 'var(--font-display)', fontSize: 52, fontWeight: 900, color: acc >= 70 ? 'var(--green)' : acc >= 50 ? 'var(--yellow)' : 'var(--red)', filter: `drop-shadow(0 0 15px \${acc >= 70 ? 'var(--green-glow)' : acc >= 50 ? 'var(--yellow-glow)' : 'var(--pink-glow)'})` }}>{acc}%</div>
+          <div style={{ fontFamily: 'var(--font-display)', fontSize: 52, fontWeight: 900, color: acc >= 70 ? 'var(--green)' : acc >= 50 ? 'var(--yellow)' : 'var(--red)', filter: `drop-shadow(0 0 15px ${acc >= 70 ? 'var(--green-glow)' : acc >= 50 ? 'var(--yellow-glow)' : 'var(--pink-glow)'})` }}>{acc}%</div>
           <div style={S.dim}>✅ {ok}  ❌ {bad}</div>
           <div style={{ color: 'var(--yellow)', fontWeight: 700, marginBottom: 16 }}>+{xp} XP</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12, width: '100%', maxWidth: 320 }}>
@@ -121,8 +126,18 @@ export default function Quiz({ store, go, level }) {
     if (answered) return;
     setSel(opt);
     const correct = opt === q.answer;
+
+    if (navigator.vibrate) {
+      navigator.vibrate(correct ? 20 : 100);
+    }
+
     store.recordResult(q.globalIdx, correct);
-    if (correct) { setOk(o => o + 1); setXp(x => x + 10); }
+    if (correct) { 
+      setOk(o => o + 1); 
+      setXp(x => x + 10);
+      // Auto-next on correct - faster
+      setTimeout(next, 400);
+    }
     else { setBad(b => b + 1); setXp(x => x + 2); }
   };
 
@@ -160,7 +175,7 @@ export default function Quiz({ store, go, level }) {
         })}
       </div>
 
-      {answered && (
+      {answered && sel !== q.answer && (
         <button className="btn-primary btn-full anim-in" style={{ marginTop: 14 }} onClick={next}>
           {cur + 1 >= qs.length ? 'Результаты →' : 'Далее →'}
         </button>

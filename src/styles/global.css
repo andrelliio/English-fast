@@ -207,3 +207,64 @@ input { font-family: var(--font-body); outline: none; border: none; }
   color: var(--text-dim);
   font-weight: 600;
 }
+/* --- Theme Overrides --- */
+
+/* Default is already in :root */
+
+.theme-dark {
+  --accent: #BB86FC;
+  --accent-glow: rgba(187, 134, 252, 0.4);
+  --accent-gradient: linear-gradient(135deg, #BB86FC, #6200EE);
+  --bg-card: rgba(30, 30, 30, 0.6);
+  --yellow: #CF6679; /* Soft red for contrast */
+}
+
+.theme-steel {
+  --accent: #E0E0E0;
+  --accent-glow: rgba(224, 224, 224, 0.3);
+  --accent-gradient: linear-gradient(135deg, #E0E0E0, #757575);
+  --bg-card: rgba(40, 44, 52, 0.6);
+  --bg-gradient: radial-gradient(circle at 0% 0%, #2c3e50 0%, #000000 70%);
+  --green: #81A1C1;
+}
+
+.theme-gold {
+  --accent: #FFD700;
+  --accent-glow: rgba(255, 215, 0, 0.4);
+  --accent-gradient: linear-gradient(135deg, #FFD700, #B8860B);
+  --bg-card: rgba(45, 35, 10, 0.6);
+  --bg-gradient: radial-gradient(circle at 100% 0%, #3d2b1f 0%, #0a0805 100%);
+  --yellow: #FFFFFF;
+}
+
+.theme-emerald {
+  --accent: #00FF87;
+  --accent-glow: rgba(0, 255, 135, 0.4);
+  --accent-gradient: linear-gradient(135deg, #00FF87, #00A36C);
+  --bg-card: rgba(10, 45, 30, 0.6);
+  --green: #FFFFFF;
+}
+
+.theme-neon {
+  --accent: #FF00FF;
+  --accent-glow: rgba(255, 0, 255, 0.4);
+  --accent-gradient: linear-gradient(135deg, #FF00FF, #00FFFF);
+  --bg-card: rgba(30, 0, 60, 0.6);
+  --bg-gradient: radial-gradient(circle at 50% 50%, #1a0033 0%, #050010 100%);
+}
+
+.theme-sunset {
+  --accent: #FF4E50;
+  --accent-glow: rgba(255, 78, 80, 0.4);
+  --accent-gradient: linear-gradient(135deg, #FF4E50, #F9D423);
+  --bg-card: rgba(60, 20, 20, 0.6);
+  --bg-gradient: radial-gradient(circle at 50% 0%, #4a1f1f 0%, #0f0a0a 100%);
+}
+
+.theme-ocean {
+  --accent: #00B4DB;
+  --accent-glow: rgba(0, 180, 219, 0.4);
+  --accent-gradient: linear-gradient(135deg, #00B4DB, #0083B0);
+  --bg-card: rgba(10, 30, 60, 0.6);
+  --bg-gradient: radial-gradient(circle at 50% 100%, #002B49 0%, #050A18 100%);
+}
