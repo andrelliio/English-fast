@@ -16,7 +16,7 @@ export default function App() {
   const store = useStorage();
   const { 
     user, data, initialized, setUser, update, 
-    isLoggedIn, isLoaded
+    isLoggedIn, isLoaded, isAuthUnknown
   } = store;
 
   const [screen, setScreen] = useState('home');
@@ -25,7 +25,9 @@ export default function App() {
 
   // 1. Auth listener - only run once
   useEffect(() => {
+    console.log("App: Setting up auth listener...");
     const unsub = onAuthStateChanged(auth, (u) => {
+      console.log("App: Auth state changed ->", u ? `User: ${u.email}` : "No user");
       setUser(u);
       setLoading(false);
     });
@@ -61,13 +63,20 @@ export default function App() {
     }
   }, [data?.currentTheme]);
 
-  if (loading || !initialized) return null;
+  // Wait for critical initialization
+  if (loading || !initialized || isAuthUnknown) {
+    return (
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-dim)', fontWeight: 600 }}>
+        Загрузка...
+      </div>
+    );
+  }
 
-  // Wait for initial load if user exists
+  // Wait for initial data load from Firestore if user exists
   if (user && !isLoaded) {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-dim)', fontWeight: 600 }}>
-        Загрузка данных...
+        Синхронизация...
       </div>
     );
   }

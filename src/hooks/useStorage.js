@@ -29,7 +29,7 @@ const defaults = () => ({
 });
 
 export function useStorage() {
-  const [user, setUser] = useState(null); // Firebase user
+  const [user, setUser] = useState(undefined); // undefined = loading, null = guest
   const [data, setData] = useState(defaults());
   const [initialized, setInitialized] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -338,16 +338,19 @@ export function useStorage() {
     if (!initialized || !user || isSyncing.current) return;
 
     const syncWithCloud = async () => {
+      console.log("useStorage: Starting cloud sync for UID:", user.uid);
       const userRef = doc(db, 'users', user.uid);
       try {
         isSyncing.current = true;
         // 1. First time after login: try to fetch from cloud
         const snap = await getDoc(userRef);
+        console.log("useStorage: Cloud snap exists?", snap.exists());
         if (snap.exists()) {
           const cloudData = snap.data();
           
           // Intelligent merge: take the "best" of both worlds
           setData(prev => {
+            console.log("useStorage: Merging cloud data...");
             const merged = { ...prev, ...cloudData };
             
             // 1. Union of levels
@@ -432,11 +435,13 @@ export function useStorage() {
           });
         } else {
           // New user or first time sync: push local data to cloud
+          console.log("useStorage: No cloud data found, pushing local data...");
           await setDoc(userRef, data);
         }
       } finally {
         isSyncing.current = false;
         setIsLoaded(true);
+        console.log("useStorage: Sync complete, isLoaded = true");
       }
     };
 
@@ -471,7 +476,9 @@ export function useStorage() {
   return useMemo(() => ({
     data: data || defaults(), 
     update, register, markSeen, recordResult, logout, resetProgress,
-    isLoggedIn: !!user, learned: learnedCountRaw,
+    isLoggedIn: !!user && user !== undefined, // explicit check
+    isAuthUnknown: user === undefined,
+    learned: learnedCountRaw,
     touchLevel, completeLevel, passExam, untestedCount,
     user, setUser,
     checkAchievements, checkLevelUp, getRankInfo,

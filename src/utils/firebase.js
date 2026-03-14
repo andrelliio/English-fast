@@ -13,15 +13,13 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
-
-console.log("Говорю свободно Init: v1.0.6 - Persistence.LOCAL");
-
-// Use browserLocalPersistence so it survives refresh
-// Top-level await ensures this is set before App imports auth
-try {
-  await setPersistence(auth, browserLocalPersistence);
-} catch (err) {
-  console.error("Auth persistence error:", err);
-}
-
 export const db = getFirestore(app);
+
+console.log("Говорю свободно Init: v1.0.7 - Persistence Auto");
+
+// We don't need top-level await for setPersistence because 
+// browserLocalPersistence is the default and it can be handled 
+// asynchronously without blocking the entire app's import tree.
+setPersistence(auth, browserLocalPersistence).catch(err => {
+  console.error("Auth persistence error:", err);
+});
