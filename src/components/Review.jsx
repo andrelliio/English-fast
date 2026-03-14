@@ -137,13 +137,20 @@ export default function Review({ store, go }) {
 
   return (
     <div style={S.page} className="anim-in">
-      <Hdr go={go} right={`${cur + 1}/${qs.length}`} />
-      <div style={S.bar}><div style={{ ...S.barIn, width: `${((cur + 1) / qs.length) * 100}%` }} /></div>
-      <div style={{ display: 'flex', justifyContent: 'center', gap: 20, marginBottom: 14, fontSize: 15, fontWeight: 700 }}>
-        <span style={{ color: 'var(--green)' }}>✅ {ok}</span>
-        <span style={{ color: 'var(--red)' }}>❌ {bad}</span>
+      <Hdr go={go} title="Повторение слов" />
+      <div style={S.bar}><div style={{ ...S.barIn, width: `${pct}%` }} /></div>
+
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+        <div style={S.score}>
+          <span style={{ color: 'var(--green)' }}>✅ {ok}</span>
+          <span style={{ color: 'var(--red)' }}>❌ {bad}</span>
+        </div>
+        <div style={S.livesDisplay}>
+          {'❤️'.repeat(store.data.lives)}{'🖤'.repeat(3 - store.data.lives)}
+        </div>
       </div>
-      <div style={S.qBox} key={cur} className="glass-card anim-pop" onClick={() => tts.speak(q.word.en)}>
+
+      <div style={S.questionBox} key={cur} className="glass-card anim-pop" onClick={() => tts.speak(q.word.en)}>
         <div style={S.enWord}>{q.word.en}</div>
         <div style={{ position: 'absolute', top: 12, right: 12, opacity: 0.5, fontSize: 18 }}>🔊</div>
       </div>
@@ -170,16 +177,32 @@ export default function Review({ store, go }) {
           {cur + 1 >= qs.length ? 'Результаты →' : 'Далее →'}
         </button>
       )}
+
+      {showRefillOverlay && (
+        <div style={S.overlay}>
+          <div style={S.overlayContent} className="anim-pop">
+            <div style={{ fontSize: 48 }}>💔</div>
+            <div style={S.t}>Жизни закончились!</div>
+            <div style={S.dim}>Подожди немного или посмотри рекламу, чтобы продолжить.</div>
+            <button className="btn-primary" style={{ marginTop: 20, minWidth: 200 }} onClick={refillLives}>
+              Получить 3 жизни
+            </button>
+            <button className="btn-ghost" style={{ marginTop: 10 }} onClick={() => go('home')}>
+              На главную
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
-function Hdr({ go, right }) {
+function Hdr({ go, title }) {
   return (
     <div className="app-header">
       <button className="back-btn-round" onClick={() => go('home')}>←</button>
-      <div className="header-title">🔄 Повторение</div>
-      {right && <div className="header-right">{right}</div>}
+      <div className="header-title">{title}</div>
+      {/* {right && <div className="header-right">{right}</div>} */}
     </div>
   );
 }
@@ -188,8 +211,10 @@ const S = {
   page: { minHeight: '100vh', padding: 20, maxWidth: 460, margin: '0 auto', display: 'flex', flexDirection: 'column', zIndex: 1, position: 'relative' },
   back: { color: 'var(--text-dim)', borderRadius: '50%', width: 38, height: 38, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 },
   bar: { height: 6, background: 'rgba(0,0,0,0.3)', borderRadius: 4, overflow: 'hidden', marginBottom: 14, boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' },
-  barIn: { height: '100%', borderRadius: 4, background: 'linear-gradient(90deg, var(--yellow), var(--accent))', transition: 'width 0.4s cubic-bezier(0.2, 0.8, 0.2, 1)', boxShadow: '0 0 10px rgba(255, 215, 0, 0.6)' },
-  qBox: { padding: '32px 20px', textAlign: 'center', marginBottom: 16, border: '1px solid rgba(178, 36, 239, 0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 140 },
+  barIn: { height: '100%', borderRadius: 4, background: 'var(--purple)', transition: 'width 0.4s cubic-bezier(0.2, 0.8, 0.2, 1)', boxShadow: '0 0 10px rgba(178, 36, 239, 0.6)' },
+  score: { display: 'flex', gap: 16, fontSize: 16, fontWeight: 800 },
+  livesDisplay: { fontSize: 18, background: 'rgba(255,255,255,0.05)', padding: '4px 12px', borderRadius: 20 },
+  questionBox: { padding: '32px 20px', textAlign: 'center', marginBottom: 16, border: '1px solid rgba(178, 36, 239, 0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 140 },
   enWord: { fontFamily: 'var(--font-display)', fontSize: 32, fontWeight: 900, textShadow: '0 2px 10px rgba(0,0,0,0.5)' },
   opts: { display: 'flex', flexDirection: 'column', gap: 12, flex: 1 },
   opt: { padding: '16px 20px', borderRadius: 'var(--radius)', fontSize: 16, fontWeight: 700, background: 'var(--bg-card)', color: 'var(--text)', border: '1px solid rgba(255,255,255,0.05)', textAlign: 'left', transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)', backdropFilter: 'blur(10px)', cursor: 'pointer' },

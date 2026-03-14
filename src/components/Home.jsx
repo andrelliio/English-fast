@@ -51,6 +51,11 @@ export default function Home({ store, go }) {
           <div style={S.userName}>{data.username}</div>
         </div>
         <div style={S.headerR}>
+          <div style={S.lives}>
+            <span style={{ color: data.lives > 0 ? '#ff3366' : 'var(--text-dim)', transition: '0.3s' }}>
+              {'❤️'.repeat(data.lives)}{'🖤'.repeat(3 - data.lives)}
+            </span>
+          </div>
           <div style={S.coins}><span style={S.coinIcon}>💰</span> {data.coins}</div>
           <div style={S.streak}>
             <span style={{ 
@@ -111,7 +116,10 @@ export default function Home({ store, go }) {
 
       {/* Exam banner */}
       {showExamBanner && (
-        <button style={S.examBanner} onClick={() => go('levelExam')}>
+        <button 
+          style={{ ...S.examBanner, opacity: data.lives === 0 ? 0.5 : 1, pointerEvents: data.lives === 0 ? 'none' : 'auto' }} 
+          onClick={() => go('levelExam')}
+        >
           <span style={{ fontSize: 24 }}>📝</span>
           <div style={{ flex: 1, textAlign: 'left' }}>
             <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--yellow)' }}>Пора сдать экзамен!</div>
@@ -138,8 +146,12 @@ export default function Home({ store, go }) {
       )}
 
       {/* Continue button */}
-      <button className="btn-primary btn-full" onClick={() => go('cards', nextLevel)}>
-        НАЧАТЬ УРОК 🚀
+      <button 
+        className={`btn-primary btn-full ${data.lives === 0 ? 'btn-disabled' : ''}`}
+        disabled={data.lives === 0}
+        onClick={() => go('cards', nextLevel)}
+      >
+        {data.lives === 0 ? 'НЕТ ЖИЗНЕЙ 💔' : 'НАЧАТЬ УРОК 🚀'}
       </button>
       <div style={S.levelHint}>Уровень {nextLevel + 1}: {LEVEL_NAMES[nextLevel] || ''}</div>
 
@@ -147,17 +159,19 @@ export default function Home({ store, go }) {
       <div style={S.grid}>
         {[
           { icon: '📋', title: 'Уровни', desc: 'Выбери уровень', action: () => go('levels') },
-          { icon: '🔄', title: 'Повторение', desc: 'Рандомные слова', action: () => go('review') },
+          { icon: '🔄', title: 'Повторение', desc: 'Рандомные слова', action: () => data.lives > 0 ? go('review') : null, disabled: data.lives === 0 },
           { icon: '⚡', title: 'Быстрый тест', desc: 'Случайный уровень', action: () => {
+            if (data.lives === 0) return;
             const unlocked = data.unlockedLevels.filter(l => l < LEVELS.length);
             go('quiz', unlocked[Math.floor(Math.random() * unlocked.length)] || 0);
-          }},
+          }, disabled: data.lives === 0 },
           { icon: '🃏', title: 'Карточки', desc: 'Смотри и учи', action: () => go('cards', nextLevel) },
-          ...(showExamBanner ? [{ icon: '📝', title: 'Экзамен', desc: 'Сдай экзамен', action: () => go('levelExam') }] : []),
+          ...(showExamBanner ? [{ icon: '📝', title: 'Экзамен', desc: 'Сдай экзамен', action: () => data.lives > 0 ? go('levelExam') : null, disabled: data.lives === 0 }] : []),
         ].map(n => (
-          <button key={n.title} style={S.navCard} className="glass-card" onClick={n.action}
-            onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-hover)'}
-            onMouseLeave={e => e.currentTarget.style.background = 'var(--bg-card)'}>
+          <button key={n.title} style={{ ...S.navCard, opacity: n.disabled ? 0.5 : 1 }} className="glass-card" onClick={n.action}
+            disabled={n.disabled}
+            onMouseEnter={e => { if (!n.disabled) e.currentTarget.style.background = 'var(--bg-hover)'; }}
+            onMouseLeave={e => { if (!n.disabled) e.currentTarget.style.background = 'var(--bg-card)'; }}>
             <span style={{ fontSize: 32 }}>{n.icon}</span>
             <span style={S.navTitle}>{n.title}</span>
             <span style={S.navDesc}>{n.desc}</span>
@@ -179,6 +193,7 @@ const S = {
   coinIcon: { fontSize: 14, filter: 'drop-shadow(0 0 5px rgba(255,215,0,0.5))' },
   streak: { display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', fontSize: 13, fontWeight: 800, background: 'rgba(255,255,255,0.05)', borderRadius: 20 },
   streakFire: { fontSize: 15, filter: 'drop-shadow(0 0 10px rgba(255,107,53,0.6))' },
+  lives: { display: 'flex', alignItems: 'center', padding: '6px 10px', fontSize: 14, background: 'rgba(255,51,102,0.05)', borderRadius: 20, marginRight: 4 },
   settingsBtn: { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '50%', width: 36, height: 36, minWidth: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, cursor: 'pointer', transition: '0.2s', padding: 0 },
   
   card: { padding: 24, marginBottom: 24 },

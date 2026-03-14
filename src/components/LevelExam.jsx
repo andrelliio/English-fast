@@ -57,6 +57,36 @@ export default function LevelExam({ store, go }) {
 
   if (!qs.length) return null;
 
+  if (store.data.lives === 0 && !done) {
+    return (
+      <div style={S.page}>
+        <Hdr go={go} title="Жизни кончились" />
+        <div style={S.center}>
+          <div style={{ fontSize: 64, marginBottom: 20 }}>💔</div>
+          <div style={S.doneTitle}>Упс! Жизни закончились</div>
+          <div style={{ color: 'var(--text-dim)', marginBottom: 30, textAlign: 'center' }}>
+            Ты совершил слишком много ошибок. <br/>
+            Восстанови жизни, чтобы продолжить!
+          </div>
+          
+          <button 
+            className="btn-primary btn-full" 
+            style={{ marginBottom: 12, background: 'linear-gradient(135deg, #FFD700, #FFA500)', color: '#000' }}
+            disabled={store.data.coins < 100}
+            onClick={() => store.refillLives()}
+          >
+            Восстановить за 💰 100
+          </button>
+          <button className="btn-ghost btn-full" onClick={() => go('home')}>Вернуться домой</button>
+          
+          {store.data.coins < 100 && (
+            <div style={{ color: 'var(--red)', fontSize: 12, marginTop: 10 }}>Недостаточно монет 💰</div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   if (done) {
     const total = ok + bad;
     const acc = total ? Math.round((ok / total) * 100) : 0;
@@ -121,10 +151,15 @@ export default function LevelExam({ store, go }) {
       <Hdr go={go} title="📝 Экзамен" right={`${cur + 1}/${qs.length}`} />
       <div style={S.bar}><div style={{ ...S.barIn, width: `${pct}%` }} /></div>
 
-      <div style={S.score}>
-        <span style={{ color: 'var(--green)' }}>✅ {ok}</span>
-        <span style={{ color: 'var(--red)' }}>❌ {bad}</span>
-        <span style={{ color: 'var(--text-dim)', fontSize: 12 }}>нужно ≥90%</span>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+        <div style={S.score}>
+          <span style={{ color: 'var(--green)' }}>✅ {ok}</span>
+          <span style={{ color: 'var(--red)' }}>❌ {bad}</span>
+          <span style={{ color: 'var(--text-dim)', fontSize: 12, marginLeft: 8 }}>нужно ≥90%</span>
+        </div>
+        <div style={S.livesDisplay}>
+          {'❤️'.repeat(store.data.lives)}{'🖤'.repeat(3 - store.data.lives)}
+        </div>
       </div>
 
       <div style={S.questionBox} key={cur} className="glass-card anim-pop" onClick={() => tts.speak(q.word.en)}>
@@ -176,7 +211,8 @@ const S = {
   backBtn: { color: 'var(--text-dim)', borderRadius: '50%', width: 38, height: 38, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 },
   bar: { height: 6, background: 'rgba(0,0,0,0.3)', borderRadius: 4, overflow: 'hidden', marginBottom: 20, boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' },
   barIn: { height: '100%', borderRadius: 4, background: 'var(--yellow)', transition: 'width 0.4s cubic-bezier(0.2, 0.8, 0.2, 1)', boxShadow: '0 0 10px rgba(255, 215, 0, 0.6)' },
-  score: { display: 'flex', justifyContent: 'center', gap: 24, marginBottom: 20, fontSize: 16, fontWeight: 800, alignItems: 'center' },
+  score: { display: 'flex', gap: 16, fontSize: 16, fontWeight: 800, alignItems: 'center' },
+  livesDisplay: { fontSize: 18, background: 'rgba(255,255,255,0.05)', padding: '4px 12px', borderRadius: 20 },
   questionBox: { padding: '32px 20px', textAlign: 'center', marginBottom: 16, border: '1px solid rgba(255, 215, 0, 0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 140 },
   enWord: { fontFamily: 'var(--font-display)', fontSize: 32, fontWeight: 900, textShadow: '0 2px 10px rgba(0,0,0,0.5)' },
   opts: { display: 'flex', flexDirection: 'column', gap: 12, flex: 1 },
