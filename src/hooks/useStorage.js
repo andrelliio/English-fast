@@ -499,6 +499,7 @@ export function useStorage() {
     isAuthUnknown: user === undefined,
     learned: learnedCountRaw,
     touchLevel, completeLevel, passExam, untestedCount,
+    refillLives,
     user, setUser,
     checkAchievements, checkLevelUp, getRankInfo,
     level: rankInfo.level, rankTitle: rankInfo.title,

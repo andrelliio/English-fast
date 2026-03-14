@@ -80,6 +80,36 @@ export default function Review({ store, go }) {
     );
   }
 
+  if (store.data.lives === 0 && !isDone) {
+    return (
+      <div style={S.page}>
+        <Hdr go={go} title="Жизни кончились" />
+        <div style={S.center}>
+          <div style={{ fontSize: 64, marginBottom: 20 }}>💔</div>
+          <div style={S.doneTitle}>Упс! Жизни закончились</div>
+          <div style={{ color: 'var(--text-dim)', marginBottom: 30, textAlign: 'center' }}>
+            Ты совершил слишком много ошибок. <br/>
+            Восстанови жизни, чтобы продолжить!
+          </div>
+          
+          <button 
+            className="btn-primary btn-full" 
+            style={{ marginBottom: 12, background: 'linear-gradient(135deg, #FFD700, #FFA500)', color: '#000' }}
+            disabled={store.data.coins < 100}
+            onClick={() => store.refillLives()}
+          >
+            Восстановить за 💰 100
+          </button>
+          <button className="btn-ghost btn-full" onClick={() => go('home')}>Вернуться домой</button>
+          
+          {store.data.coins < 100 && (
+            <div style={{ color: 'var(--red)', fontSize: 12, marginTop: 10 }}>Недостаточно монет 💰</div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   if (isDone) {
     const acc = ok + bad > 0 ? Math.round((ok / (ok + bad)) * 100) : 0;
     return (
@@ -178,20 +208,6 @@ export default function Review({ store, go }) {
         </button>
       )}
 
-      {showRefillOverlay && (
-        <div style={S.overlay}>
-          <div style={S.overlayContent} className="anim-pop">
-            <div style={{ fontSize: 48 }}>💔</div>
-            <div style={S.t}>Жизни закончились!</div>
-            <div style={S.dim}>Подожди немного или посмотри рекламу, чтобы продолжить.</div>
-            <button className="btn-primary" style={{ marginTop: 20, minWidth: 200 }} onClick={refillLives}>
-              Получить 3 жизни
-            </button>
-            <button className="btn-ghost" style={{ marginTop: 10 }} onClick={() => go('home')}>
-              На главную
-            </button>
-          </div>
-        </div>
       )}
     </div>
   );
