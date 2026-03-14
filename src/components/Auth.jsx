@@ -49,8 +49,8 @@ export default function Auth({ store }) {
   return (
     <div style={S.wrap} className="anim-in">
       <div style={S.card} className="glass-card anim-up">
-        <div style={S.fire}>🔥</div>
-        <h1 style={S.title}>VocabFlame</h1>
+        <div style={S.fire}>🗣️</div>
+        <h1 style={S.title}>Говорю свободно</h1>
         
         <form onSubmit={handleEmailAuth} style={{ width: '100%' }}>
           {err && <div style={S.err}>{err}</div>}

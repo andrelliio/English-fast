@@ -14,7 +14,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 
-console.log("VocabFlame Firebase Init: v1.0.4 - Persistence.NONE");
+console.log("Говорю свободно Init: v1.0.5 - Persistence.NONE");
 
 // Use inMemoryPersistence so it clears on refresh/entry (requires re-login)
 // Top-level await ensures this is set before App imports auth

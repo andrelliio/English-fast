@@ -136,7 +136,7 @@ export default function Settings({ store, go }) {
         >
           Выйти из аккаунта ⏻
         </button>
-        <div style={S.version}>VocabFlame v1.0.0</div>
+        <div style={S.version}>Говорю свободно v1.0.5</div>
       </div>
     </div>
   );
