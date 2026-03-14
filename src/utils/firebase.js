@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, setPersistence, inMemoryPersistence } from "firebase/auth";
-import { getFirestore, enableIndexedDbPersistence } from "firebase/firestore";
+import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBrz0u4vEgTutg_nNPp2w6jlK7BHnP2q2Q",
@@ -14,18 +14,14 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 
+console.log("VocabFlame Firebase Init: v1.0.4 - Persistence.NONE");
+
 // Use inMemoryPersistence so it clears on refresh/entry (requires re-login)
-setPersistence(auth, inMemoryPersistence).catch((err) => {
+// Top-level await ensures this is set before App imports auth
+try {
+  await setPersistence(auth, inMemoryPersistence);
+} catch (err) {
   console.error("Auth persistence error:", err);
-});
+}
 
 export const db = getFirestore(app);
-
-// Enable persistence once globaly
-enableIndexedDbPersistence(db).catch((err) => {
-  if (err.code === 'failed-precondition') {
-    console.warn('Multiple tabs open, persistence enabled in only one.');
-  } else if (err.code === 'unimplemented') {
-    console.warn('Browser does not support persistence.');
-  }
-});
