@@ -76,19 +76,27 @@ export default function Quiz({ store, go, level }) {
     }
   };
 
-  const next = () => {
-    if (sel === null) return; // Prevent manual skip without answer
-    if (cur + 1 >= qs.length) {
+  // Completion logic moved to useEffect to avoid stale closures
+  useEffect(() => {
+    if (done) {
       const acc = Math.round((ok / qs.length) * 100);
       if (acc >= 50) store.completeLevel(level);
       if (acc >= 70) {
         confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#00F0FF', '#00FF87', '#FFD700'] });
       }
-      setDone(true);
-    } else {
-      setCur(c => c + 1);
-      setSel(null);
     }
+  }, [done]);
+
+  const next = (force = false) => {
+    if (!force && sel === null) return; 
+    setCur(prev => {
+      if (prev + 1 >= qs.length) {
+        setDone(true);
+        return prev;
+      }
+      setSel(null); // This is fine here, it will trigger after render
+      return prev + 1;
+    });
   };
 
   if (!qs.length) return null;
@@ -135,8 +143,8 @@ export default function Quiz({ store, go, level }) {
     if (correct) { 
       setOk(o => o + 1); 
       setXp(x => x + 10);
-      // Auto-next on correct - faster
-      setTimeout(next, 400);
+      // Auto-next on correct - lightning fast
+      setTimeout(() => next(true), 50);
     }
     else { setBad(b => b + 1); setXp(x => x + 2); }
   };

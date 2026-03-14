@@ -84,12 +84,24 @@ export default function LevelExam({ store, go }) {
     setSel(opt);
     const correct = opt === q.answer;
     store.recordResult(q.word.globalIdx, correct);
-    if (correct) setOk(o => o + 1); else setBad(b => b + 1);
+    if (correct) {
+      setOk(o => o + 1);
+      // Auto-next on correct - lightning fast
+      setTimeout(() => next(), 50);
+    } else {
+      setBad(b => b + 1);
+    }
   };
 
   const next = () => {
-    if (cur + 1 >= qs.length) setDone(true);
-    else { setCur(c => c + 1); setSel(null); }
+    setCur(prev => {
+      if (prev + 1 >= qs.length) {
+        setDone(true);
+        return prev;
+      }
+      setSel(null);
+      return prev + 1;
+    });
   };
 
   return (
