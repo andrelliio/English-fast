@@ -55,7 +55,7 @@ export default function Levels({ store, go }) {
 
               <div style={{ flex: 1 }}>
                 <div style={S.name}>{LEVEL_NAMES[l] || `Уровень ${l + 1}`}</div>
-                <div style={S.sub}>{p.mastered}/{p.total} • {pct}%</div>
+                <div style={S.sub}>{pct}% пройдено</div>
                 <div style={S.miniBar}><div style={{ ...S.miniBarIn, width: `${pct}%` }} /></div>
               </div>
 

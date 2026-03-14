@@ -77,11 +77,11 @@ export default function Home({ store, go }) {
         <div style={S.label}>ПРОГРЕСС</div>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 10 }}>
           <span style={S.bigNum}>{learnedCount}</span>
-          <span style={S.dimText}>из {TOTAL_WORDS} слов</span>
+          <span style={S.dimText}>слов в изучении</span>
         </div>
         <div style={S.barOuter}><div style={{ ...S.barInner, width: `${Math.max(pct, 1)}%` }} /></div>
         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-          <div style={S.dimText}>{pct}% слов в изучении</div>
+          <div style={S.dimText}>Личный прогресс: {pct}%</div>
           <div style={S.dimText}>🌟 {masteredCount} выучено</div>
         </div>
       </div>
@@ -130,7 +130,7 @@ export default function Home({ store, go }) {
               {dueCount > 0 ? 'Пора повторить!' : 'Повторить материал'}
             </div>
             <div style={{ fontSize: 12, color: 'var(--text-dim)' }}>
-              {dueCount > 0 ? `🔥 ${dueCount} слов ждут тебя` : `Всего ${learnedCount} слов выучено`}
+              {dueCount > 0 ? `🔥 ${dueCount} слов ждут тебя` : `Твой личный словарь расширяется!`}
             </div>
           </div>
           <span style={{ color: 'var(--yellow)' }}>→</span>
