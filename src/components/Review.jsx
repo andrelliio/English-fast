@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import allWords, { getSimilarWords } from '../data/words';
 import { tts } from '../utils/tts';
 import confetti from 'canvas-confetti';
@@ -15,29 +15,17 @@ export default function Review({ store, go }) {
   useEffect(() => {
     const now = Date.now();
     const wp = store.data.wordProgress;
+    const due = Object.entries(wp).filter(([_, w]) => (w.seen || w.mastered) && (w.nextReview || 0) <= now).map(([idx]) => parseInt(idx));
     
-    // 1. Get words DUE for review (nextReview <= now)
-    const due = Object.entries(wp)
-      .filter(([_, w]) => (w.seen || w.mastered) && (w.nextReview || 0) <= now)
-      .map(([idx]) => parseInt(idx));
-
-    // 2. Fallback: if nothing is due, allow reviewing any seen word that isn't mastered, 
-    // or just any randomized seen words if all are mastered.
     let selectedIndices = [];
     if (due.length > 0) {
       selectedIndices = shuffle(due).slice(0, 30);
     } else {
-      // If nothing is due, pick 15 random seen words to keep the habit
-      const allSeen = Object.entries(wp)
-        .filter(([_, w]) => w.seen || w.mastered)
-        .map(([idx]) => parseInt(idx));
+      const allSeen = Object.entries(wp).filter(([_, w]) => w.seen || w.mastered).map(([idx]) => parseInt(idx));
       selectedIndices = shuffle(allSeen).slice(0, 15);
     }
 
-    if (selectedIndices.length === 0) {
-      setQs([]);
-      return;
-    }
+    if (selectedIndices.length === 0) { setQs([]); return; }
 
     const toReview = selectedIndices.map(i => {
       const word = allWords[i];
@@ -52,29 +40,30 @@ export default function Review({ store, go }) {
   const isDone = cur >= qs.length;
 
   useEffect(() => {
-    if (qs.length > 0 && cur < qs.length && !isDone) {
-      tts.speak(qs[cur].word.en);
-    }
+    if (qs.length > 0 && cur < qs.length && !isDone) { tts.speak(qs[cur].word.en); }
   }, [cur, qs, isDone]);
 
   useEffect(() => {
-    if (isDone) {
+    if (isDone && qs.length > 0) {
       const acc = ok + bad > 0 ? Math.round((ok / (ok + bad)) * 100) : 0;
       if (acc >= 70) {
-        confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#00F0FF', '#00FF87', '#FFD700'] });
+        confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#6A5AE0', '#00FF87', '#FFD700'] });
       }
     }
-  }, [isDone, ok, bad]);
+  }, [isDone, ok, bad, qs.length]);
 
   if (!qs.length) {
     return (
       <div style={S.page}>
-        <Hdr go={go} />
-        <div style={S.center} className="anim-up">
-          <div style={{ fontSize: 48 }}>✨</div>
-          <div style={S.t}>Нет слов для повторения</div>
-          <div style={S.dim}>Сначала выучи слова в карточках!</div>
-          <button className="btn-primary" style={{ marginTop: 16, minWidth: 200 }} onClick={() => go('home')}>На главную</button>
+        <div className="app-header">
+           <button className="back-btn-round" onClick={() => go('home')}>✕</button>
+           <div className="header-title">Повторение</div>
+        </div>
+        <div style={S.center}>
+          <div style={{ fontSize: 80, marginBottom: 20 }}>✨</div>
+          <div style={S.doneTitle}>Все слова выучены!</div>
+          <div style={S.dim}>Пока нет слов, которые нужно повторить. Возвращайся позже!</div>
+          <button className="btn-primary btn-full" style={{ marginTop: 32 }} onClick={() => go('home')}>Вернуться домой</button>
         </div>
       </div>
     );
@@ -83,158 +72,113 @@ export default function Review({ store, go }) {
   if (store.data.lives === 0 && !isDone) {
     return (
       <div style={S.page}>
-        <Hdr go={go} title="Жизни кончились" />
+        <div className="app-header">
+           <button className="back-btn-round" onClick={() => go('home')}>✕</button>
+           <div className="header-title">Ошибки!</div>
+        </div>
         <div style={S.center}>
-          <div style={{ fontSize: 64, marginBottom: 20 }}>💔</div>
-          <div style={S.doneTitle}>Упс! Жизни закончились</div>
-          <div style={{ color: 'var(--text-dim)', marginBottom: 30, textAlign: 'center' }}>
-            Ты совершил слишком много ошибок. <br/>
-            Восстанови жизни, чтобы продолжить!
-          </div>
-          
-          <button 
-            className="btn-primary btn-full" 
-            style={{ marginBottom: 12, background: 'linear-gradient(135deg, #FFD700, #FFA500)', color: '#000' }}
-            disabled={store.data.coins < 100}
-            onClick={() => store.refillLives()}
-          >
-            Восстановить за 💰 100
-          </button>
-          <button className="btn-ghost btn-full" onClick={() => go('home')}>Вернуться домой</button>
-          
-          {store.data.coins < 100 && (
-            <div style={{ color: 'var(--red)', fontSize: 12, marginTop: 10 }}>Недостаточно монет 💰</div>
-          )}
+          <div style={{ fontSize: 80, marginBottom: 20 }}>💔</div>
+          <div style={S.doneTitle}>Жизни закончились</div>
+          <div style={S.dim}>Восстанови жизни за монетки, чтобы продолжить практику.</div>
+          <button className="btn-primary btn-full" style={{ marginTop: 32 }} disabled={store.data.coins < 100} onClick={() => store.refillLives()}>Восстановить за 💰 100</button>
+          <button className="btn-ghost btn-full" style={{ marginTop: 12 }} onClick={() => go('home')}>Домой</button>
         </div>
       </div>
     );
   }
 
   if (isDone) {
-    const acc = ok + bad > 0 ? Math.round((ok / (ok + bad)) * 100) : 0;
+    const total = ok + bad;
+    const acc = total ? Math.round((ok / total) * 100) : 0;
     return (
       <div style={S.page}>
-        <Hdr go={go} />
-        <div style={S.center} className="anim-up">
-          <div style={{ fontSize: 56, filter: 'drop-shadow(0 0 15px rgba(255,215,0,0.4))' }}>{acc >= 80 ? '🌟' : '💪'}</div>
-          <div style={S.t}>{acc >= 80 ? 'Отличная память!' : 'Хороший старт!'}</div>
-          <div style={{ fontFamily: 'var(--font-display)', fontSize: 52, fontWeight: 900, color: acc >= 70 ? 'var(--green)' : 'var(--yellow)', filter: `drop-shadow(0 0 15px ${acc >= 70 ? 'var(--green-glow)' : 'var(--yellow-glow)'})` }}>{acc}%</div>
-          <div style={S.dim}>✅ {ok}  ❌ {bad}</div>
-          <div className="btn-row" style={{ marginTop: 20, maxWidth: 320 }}>
-            <button className="btn-ghost btn-flex" onClick={() => go('home')}>🏠 Домой</button>
-            <button className="btn-primary btn-flex" onClick={() => { 
-              setCur(0); setSel(null); setOk(0); setBad(0); 
-              // Reshuffle questions AND their internal options
-              const reshuffled = shuffle(qs.map(q => ({ ...q, options: shuffle(q.options) })));
-              setQs(reshuffled); 
-            }}>🔄 Ещё раз</button>
-          </div>
+        <div className="app-header">
+           <button className="back-btn-round" onClick={() => go('home')}>✕</button>
+           <div className="header-title">Сессия завершена</div>
+        </div>
+        <div style={S.center} className="anim-pop">
+          <div style={{ fontSize: 80 }}>{acc >= 80 ? '🌟' : '💪'}</div>
+          <div style={S.doneTitle}>{acc >= 80 ? 'Отличная память!' : 'Хорошая тренировка!'}</div>
+          <div style={S.accText}>{acc}%</div>
+          <div style={S.dim}>Повторено слов: {total}</div>
+          <button className="btn-primary btn-full" style={{ marginTop: 40, maxWidth: 320 }} onClick={() => go('home')}>Вернуться к обучению</button>
         </div>
       </div>
     );
   }
 
   const q = qs[cur];
+  const pct = ((cur + 1) / qs.length) * 100;
   const answered = sel !== null;
-
-  const next = () => {
-    if (sel === null) return; // Prevent manual skip without answer
-    setCur(c => c + 1);
-    setSel(null);
-  };
 
   const pick = (opt) => {
     if (answered) return;
     setSel(opt);
     const correct = opt === q.answer;
-
-    if (navigator.vibrate) {
-      navigator.vibrate(correct ? 20 : 100);
-    }
-
     store.recordResult(q.wordIdx, correct);
-    if (correct) {
-      setOk(o => o + 1);
-      // Auto-next on correct - faster
-      setTimeout(() => {
-        setCur(c => c + 1);
-        setSel(null);
-      }, 400);
-    } else {
-      setBad(b => b + 1);
-    }
+    if (correct) { setOk(o => o + 1); setTimeout(() => next(), 500); }
+    else { setBad(b => b + 1); }
+  };
+
+  const next = () => {
+    if (sel === null) return;
+    setCur(c => c + 1);
+    setSel(null);
   };
 
   return (
     <div style={S.page} className="anim-in">
-      <Hdr go={go} title="Повторение слов" />
-      <div style={S.bar}><div style={{ ...S.barIn, width: `${pct}%` }} /></div>
-
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-        <div style={S.score}>
-          <span style={{ color: 'var(--green)' }}>✅ {ok}</span>
-          <span style={{ color: 'var(--red)' }}>❌ {bad}</span>
-        </div>
-        <div style={S.livesDisplay}>
-          {'❤️'.repeat(store.data.lives)}{'🖤'.repeat(3 - store.data.lives)}
-        </div>
+      <div className="app-header" style={{ border: 'none' }}>
+        <button className="back-btn-round" onClick={() => go('home')}>✕</button>
+        <div style={S.bar}><div style={{ ...S.barIn, width: `${pct}%`, background: 'var(--brand-purple-light)' }} /></div>
+        <div style={S.lives}>❤️ {store.data.lives}</div>
       </div>
 
-      <div style={S.questionBox} key={cur} className="glass-card anim-pop" onClick={() => tts.speak(q.word.en)}>
-        <div style={S.enWord}>{q.word.en}</div>
-        <div style={{ position: 'absolute', top: 12, right: 12, opacity: 0.5, fontSize: 18 }}>🔊</div>
+      <div style={S.content}>
+        <div style={S.questionLabel}>Вспомни перевод</div>
+        <div style={S.qCard} className="anim-pop" onClick={() => tts.speak(q.word.en)}>
+          <div style={S.enWord}>{q.word.en}</div>
+          <div style={S.speaker}>🔊</div>
+        </div>
+
+        <div style={S.opts}>
+          {q.options.map((opt, i) => {
+             let className = 'opt-btn';
+             return (
+               <button key={i} className={className} style={{...S.opt, border: answered ? (opt === q.answer ? '2px solid var(--green)' : opt === sel ? '2px solid var(--red)' : '2px solid var(--brand-gray)') : '2px solid var(--brand-gray)'}} onClick={() => pick(opt)}>{opt}</button>
+             );
+          })}
+        </div>
       </div>
-      <div style={{ fontSize: 13, color: 'var(--text-muted)', textAlign: 'center', marginBottom: 12 }}>Вспомни перевод</div>
-      <div style={S.opts}>
-        {q.options.map((opt, i) => {
-          let style = { ...S.opt };
-          if (answered) {
-            if (opt === q.answer) style = { ...style, ...S.optOk };
-            else if (opt === sel) style = { ...style, ...S.optBad };
-            else style = { ...style, opacity: 0.35 };
-          }
-          return (
-            <button key={i} style={style} onClick={() => pick(opt)} className={answered && opt === sel && opt !== q.answer ? 'anim-shake' : ''}
-              onMouseEnter={e => { if (!answered) { e.currentTarget.style.background = 'var(--bg-hover)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'; } }}
-              onMouseLeave={e => { if (!answered) { e.currentTarget.style.background = 'var(--bg-card)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.05)'; } }}>
-              {opt}
-            </button>
-          );
-        })}
-      </div>
+
       {answered && sel !== q.answer && (
-        <button className="btn-primary btn-full anim-in" style={{ marginTop: 16 }} onClick={next}>
-          {cur + 1 >= qs.length ? 'Результаты →' : 'Далее →'}
-        </button>
+        <div style={S.footer}>
+           <button className="btn-primary btn-full" onClick={next}>Далее</button>
+        </div>
       )}
     </div>
   );
 }
 
-function Hdr({ go, title }) {
-  return (
-    <div className="app-header">
-      <button className="back-btn-round" onClick={() => go('home')}>←</button>
-      <div className="header-title">{title}</div>
-      {/* {right && <div className="header-right">{right}</div>} */}
-    </div>
-  );
-}
-
 const S = {
-  page: { minHeight: '100vh', padding: 20, maxWidth: 460, margin: '0 auto', display: 'flex', flexDirection: 'column', zIndex: 1, position: 'relative' },
-  back: { color: 'var(--text-dim)', borderRadius: '50%', width: 38, height: 38, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 },
-  bar: { height: 6, background: 'rgba(0,0,0,0.3)', borderRadius: 4, overflow: 'hidden', marginBottom: 14, boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' },
-  barIn: { height: '100%', borderRadius: 4, background: 'var(--purple)', transition: 'width 0.4s cubic-bezier(0.2, 0.8, 0.2, 1)', boxShadow: '0 0 10px rgba(178, 36, 239, 0.6)' },
-  score: { display: 'flex', gap: 16, fontSize: 16, fontWeight: 800 },
-  livesDisplay: { fontSize: 18, background: 'rgba(255,255,255,0.05)', padding: '4px 12px', borderRadius: 20 },
-  questionBox: { padding: '32px 20px', textAlign: 'center', marginBottom: 16, border: '1px solid rgba(178, 36, 239, 0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 140 },
-  enWord: { fontFamily: 'var(--font-display)', fontSize: 32, fontWeight: 900, textShadow: '0 2px 10px rgba(0,0,0,0.5)' },
-  opts: { display: 'flex', flexDirection: 'column', gap: 12, flex: 1 },
-  opt: { padding: '16px 20px', borderRadius: 'var(--radius)', fontSize: 16, fontWeight: 700, background: 'var(--bg-card)', color: 'var(--text)', border: '1px solid rgba(255,255,255,0.05)', textAlign: 'left', transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)', backdropFilter: 'blur(10px)', cursor: 'pointer' },
-  optOk: { background: 'rgba(0, 255, 135, 0.15)', border: '1px solid var(--green)', color: 'var(--green)', boxShadow: '0 0 15px rgba(0, 255, 135, 0.2)' },
-  optBad: { background: 'rgba(255, 51, 102, 0.15)', border: '1px solid var(--red)', color: 'var(--red)', boxShadow: '0 0 15px rgba(255, 51, 102, 0.2)' },
-  center: { flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', gap: 16 },
-  t: { fontFamily: 'var(--font-display)', fontSize: 26, fontWeight: 900, filter: 'drop-shadow(0 0 10px rgba(255,255,255,0.2))' },
-  dim: { color: 'var(--text-dim)', fontSize: 15, fontWeight: 600 },
+  page: { minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--bg)' },
+  content: { flex: 1, padding: '20px 24px', display: 'flex', flexDirection: 'column', alignItems: 'center' },
+  bar: { flex: 1, height: 8, background: 'var(--brand-gray)', borderRadius: 10, margin: '0 16px', overflow: 'hidden' },
+  barIn: { height: '100%', background: 'var(--brand-purple)', borderRadius: 10, transition: 'width 0.3s ease' },
+  lives: { fontSize: 16, fontWeight: 800, color: 'var(--red)' },
+  
+  questionLabel: { fontSize: 15, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 24, alignSelf: 'flex-start' },
+  qCard: { width: '100%', minHeight: 180, background: 'var(--brand-white)', border: '2px solid var(--brand-gray)', borderRadius: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', cursor: 'pointer', marginBottom: 32 },
+  enWord: { fontSize: 36, fontWeight: 800, fontFamily: 'var(--font-display)', color: 'var(--brand-purple)' },
+  speaker: { position: 'absolute', bottom: 16, right: 16, fontSize: 20, opacity: 0.3 },
+
+  opts: { width: '100%', display: 'flex', flexDirection: 'column', gap: 12 },
+  opt: { width: '100%', padding: '20px', borderRadius: 20, background: 'var(--brand-white)', border: '2px solid var(--brand-gray)', fontSize: 16, fontWeight: 700, textAlign: 'left', transition: '0.2s' },
+  
+  footer: { padding: 24, background: 'var(--brand-white)', borderTop: '1px solid var(--brand-gray-dark)' },
+
+  center: { flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: 24 },
+  doneTitle: { fontSize: 28, fontWeight: 800, fontFamily: 'var(--font-display)', marginBottom: 12 },
+  accText: { fontSize: 64, fontWeight: 900, color: 'var(--brand-purple)', marginBottom: 8 },
+  dim: { color: 'var(--text-dim)', fontSize: 16, lineHeight: 1.5 },
 };
