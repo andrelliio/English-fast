@@ -53,7 +53,7 @@ export default function LevelExam({ store, go }) {
         store.passExam(examLevels);
       }
     }
-  }, [done, ok, bad, examLevels, store]);
+  }, [done]);
 
   if (!qs.length) return null;
 

@@ -88,6 +88,13 @@ export function useStorage() {
               }
             }
 
+            // Data Repair Migration: Limit levels to actual content
+            const actualMax = (LEVELS.length || 0);
+            if (next.unlockedLevels.some(l => l >= actualMax)) {
+              next.unlockedLevels = next.unlockedLevels.filter(l => l < actualMax);
+              if (next.lastActiveLevel >= actualMax) next.lastActiveLevel = 0;
+            }
+
             return syncRewards(next);
           });
         }
@@ -292,7 +299,7 @@ export function useStorage() {
         const maxUnlocked = sortedUnlocked[sortedUnlocked.length - 1];
         const nextLvl = maxUnlocked + 1;
         
-        if (!newUnlocked.includes(nextLvl)) {
+        if (!newUnlocked.includes(nextLvl) && nextLvl < LEVELS.length) {
            newUnlocked.push(nextLvl);
            newLastActive = nextLvl;
         }
@@ -314,9 +321,9 @@ export function useStorage() {
       const newPassed = [...new Set([...prev.passedExams, ...levels])];
       let newUnlocked = [...prev.unlockedLevels];
 
-      const maxUnlocked = Math.max(...newUnlocked);
+      const maxUnlocked = Math.max(...newUnlocked, -1);
       const nextLvl = maxUnlocked + 1;
-      if (!newUnlocked.includes(nextLvl)) newUnlocked.push(nextLvl);
+      if (!newUnlocked.includes(nextLvl) && nextLvl < LEVELS.length) newUnlocked.push(nextLvl);
 
       const nextData = { ...prev, passedExams: newPassed, unlockedLevels: newUnlocked };
       return { ...nextData, achievements: checkAchievements(nextData) };
@@ -354,10 +361,10 @@ export function useStorage() {
             const merged = { ...prev, ...cloudData };
             
             // 1. Union of levels
-            merged.unlockedLevels = [...new Set([...(prev.unlockedLevels || []), ...(cloudData.unlockedLevels || [])])];
-            merged.touchedLevels = [...new Set([...(prev.touchedLevels || []), ...(cloudData.touchedLevels || [])])];
-            merged.passedLessons = [...new Set([...(prev.passedLessons || []), ...(cloudData.passedLessons || [])])];
-            merged.passedExams = [...new Set([...(prev.passedExams || []), ...(cloudData.passedExams || [])])];
+            merged.unlockedLevels = [...new Set([...(prev.unlockedLevels || []), ...(cloudData.unlockedLevels || [])])].filter(l => l < LEVELS.length);
+            merged.touchedLevels = [...new Set([...(prev.touchedLevels || []), ...(cloudData.touchedLevels || [])])].filter(l => l < LEVELS.length);
+            merged.passedLessons = [...new Set([...(prev.passedLessons || []), ...(cloudData.passedLessons || [])])].filter(l => l < LEVELS.length);
+            merged.passedExams = [...new Set([...(prev.passedExams || []), ...(cloudData.passedExams || [])])].filter(l => l < LEVELS.length);
             
             // 2. Max XP and stats
             merged.xp = Math.max(prev.xp || 0, cloudData.xp || 0);
