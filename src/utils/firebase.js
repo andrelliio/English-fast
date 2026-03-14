@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, setPersistence, inMemoryPersistence } from "firebase/auth";
+import { getAuth, setPersistence, browserLocalPersistence } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
@@ -14,12 +14,12 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 
-console.log("Говорю свободно Init: v1.0.5 - Persistence.NONE");
+console.log("Говорю свободно Init: v1.0.6 - Persistence.LOCAL");
 
-// Use inMemoryPersistence so it clears on refresh/entry (requires re-login)
+// Use browserLocalPersistence so it survives refresh
 // Top-level await ensures this is set before App imports auth
 try {
-  await setPersistence(auth, inMemoryPersistence);
+  await setPersistence(auth, browserLocalPersistence);
 } catch (err) {
   console.error("Auth persistence error:", err);
 }
