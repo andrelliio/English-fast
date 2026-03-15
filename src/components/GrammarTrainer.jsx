@@ -71,8 +71,15 @@ export default function GrammarTrainer({ store, go, level }) {
 
   const onWordClick = (word, idx) => {
     if (status !== 'idle') return;
-    setSelected(prev => [...prev, word]);
-    setShuffled(prev => prev.filter((_, i) => i !== idx));
+    const newSelected = [...selected, word];
+    setSelected(newSelected);
+    const remaining = shuffled.filter((_, i) => i !== idx);
+    setShuffled(remaining);
+
+    // Auto-check if all words are selected
+    if (remaining.length === 0) {
+      handleValidate(newSelected);
+    }
   };
 
   const onRemoveWord = (word, idx) => {
@@ -81,11 +88,9 @@ export default function GrammarTrainer({ store, go, level }) {
     setShuffled(prev => [...prev, word]);
   };
 
-  const handleCheck = () => {
-    if (status !== 'idle') return;
-    
+  const handleValidate = (finalSelected) => {
     const ex = exercises[currentIdx];
-    const userSentence = selected.map(w => w.toLowerCase()).join(' ');
+    const userSentence = finalSelected.map(w => w.toLowerCase()).join(' ');
     const targetSentence = ex.en.map(w => w.toLowerCase()).join(' ');
 
     if (userSentence === targetSentence) {
@@ -388,17 +393,6 @@ export default function GrammarTrainer({ store, go, level }) {
             </button>
           ))}
         </div>
-
-        {/* Check Button */}
-        {selected.length === (currentEx?.en.length || 0) && status === 'idle' && (
-          <button 
-            style={S.checkBtn} 
-            onClick={handleCheck}
-            className="anim-pop"
-          >
-            ПРОВЕРИТЬ 🔍
-          </button>
-        )}
       </div>
 
       <div style={S.footer}>
