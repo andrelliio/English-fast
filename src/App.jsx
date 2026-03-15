@@ -102,7 +102,8 @@ export default function App() {
     case 'review': return <Review {...props} />;
     case 'levelExam': return <LevelExam {...props} />;
     case 'settings': return <Settings {...props} />;
-    case 'grammarTrainer': return <GrammarTrainer {...props} />;
+    case 'grammarTrainer': 
+      return <GrammarTrainer key={`gt-${level?.islandId}-${level?.lessonId}`} {...props} />;
     default: return <Home {...props} />;
   }
 }
