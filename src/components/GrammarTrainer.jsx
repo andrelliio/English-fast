@@ -369,6 +369,12 @@ export default function GrammarTrainer({ store, go, level }) {
           {status === 'idle' && selected.length < (currentEx?.en.length || 0) && <div style={S.cursor} />}
         </div>
 
+        {selected.length > 0 && status === 'idle' && (
+          <div style={S.removalHint}>
+            Нажми на слово, чтобы убрать его
+          </div>
+        )}
+
         {/* Shuffled Words */}
         <div style={S.chipsArea}>
           {shuffled.map((w, i) => (
@@ -528,6 +534,14 @@ const S = {
     cursor: 'pointer',
     width: '100%',
     boxShadow: '0 8px 30px rgba(0,240,255,0.3)'
+  },
+  removalHint: {
+    fontSize: 11,
+    color: 'var(--text-dim)',
+    marginTop: 8,
+    opacity: 0.6,
+    fontWeight: 600,
+    textAlign: 'center'
   },
 
   reviewList: { width: '100%', display: 'flex', flexDirection: 'column', gap: 12, textAlign: 'left' },
