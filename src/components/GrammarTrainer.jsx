@@ -239,7 +239,7 @@ export default function GrammarTrainer({ store, go, level }) {
 
   if (step === 'finished') {
     return (
-      <div style={S.page} className="anim-in">
+      <div style={{ ...S.page, justifyContent: 'center' }} className="anim-in">
         <div style={S.finishCard} className="glass-card">
           <div style={{ fontSize: 64, marginBottom: 20 }}>🏆</div>
           <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 24, marginBottom: 10 }}>Остров завершен!</h2>
@@ -342,7 +342,7 @@ export default function GrammarTrainer({ store, go, level }) {
 
 
   return (
-    <div style={S.page}>
+    <div style={{ ...S.page, height: '100dvh', overflow: 'hidden' }}>
       {/* Header with Progress */}
       <div style={S.lessonHeader}>
         <button style={S.closeBtn} onClick={() => go('levels')}>✕</button>
@@ -374,11 +374,9 @@ export default function GrammarTrainer({ store, go, level }) {
           {status === 'idle' && selected.length < (currentEx?.en.length || 0) && <div style={S.cursor} />}
         </div>
 
-        {selected.length > 0 && status === 'idle' && (
-          <div style={S.removalHint}>
-            Нажми на слово, чтобы убрать его
-          </div>
-        )}
+        <div style={S.removalHint}>
+          {selected.length > 0 && status === 'idle' && "Нажми на слово, чтобы убрать его"}
+        </div>
 
         {/* Shuffled Words */}
         <div style={S.chipsArea}>
@@ -426,7 +424,7 @@ export default function GrammarTrainer({ store, go, level }) {
 }
 
 const S = {
-  page: { minHeight: '100dvh', padding: '16px 16px 40px', maxWidth: 460, margin: '0 auto', display: 'flex', flexDirection: 'column', overflowY: 'auto', overflowX: 'hidden', WebkitOverflowScrolling: 'touch' },
+  page: { minHeight: '100dvh', padding: '16px 16px 40px', maxWidth: 460, margin: '0 auto', display: 'flex', flexDirection: 'column', overflowY: 'auto', overflowX: 'hidden', WebkitOverflowScrolling: 'touch', position: 'relative' },
   header: { display: 'flex', alignItems: 'center', gap: 16, marginBottom: 32 },
   back: { background: 'none', border: 'none', color: 'var(--text)', fontSize: 24, cursor: 'pointer' },
   headerTitle: { fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 700 },
@@ -454,7 +452,7 @@ const S = {
   barOuter: { height: 6, background: 'rgba(0,0,0,0.3)', borderRadius: 3, overflow: 'hidden' },
   barInner: { height: '100%', background: 'var(--accent-gradient)', transition: 'width 0.3s ease' },
 
-  content: { flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', paddingBottom: 100 },
+  content: { flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', paddingTop: 40, paddingBottom: 100 },
   targetRu: { fontSize: 24, fontWeight: 800, textAlign: 'center', marginBottom: 12, lineHeight: 1.3 },
   smallHint: { fontSize: 12, color: 'var(--accent)', opacity: 0.6, marginBottom: 40 },
   
@@ -535,7 +533,8 @@ const S = {
     marginTop: 8,
     opacity: 0.6,
     fontWeight: 600,
-    textAlign: 'center'
+    textAlign: 'center',
+    height: 14 // Stability: keep height even if empty
   },
 
   reviewList: { width: '100%', display: 'flex', flexDirection: 'column', gap: 12, textAlign: 'left' },
