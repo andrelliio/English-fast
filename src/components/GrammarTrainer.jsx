@@ -21,6 +21,7 @@ export default function GrammarTrainer({ store, go, level }) {
   const [mistakes, setMistakes] = useState({}); // { category: count }
   const [errorFeedback, setErrorFeedback] = useState("");
   const [reviewCategories, setReviewCategories] = useState([]);
+  const [showRuleHint, setShowRuleHint] = useState(false);
 
   const progress = exercises.length > 0 ? (currentIdx / exercises.length) * 100 : 0;
   const currentEx = exercises[currentIdx];
@@ -177,11 +178,14 @@ export default function GrammarTrainer({ store, go, level }) {
   };
 
   const useHint = () => {
-    if (status !== 'idle' || shuffled.length === 0) return;
-    const ex = exercises[currentIdx];
-    const nextTarget = ex.en[selected.length];
-    setShowHint(nextTarget);
-    // Penalty could be applied here
+    if (status !== 'idle') return;
+    if ((store.data?.coins || 0) < 5) {
+      alert("Недостаточно монет! 💰");
+      return;
+    }
+    
+    store.update(prev => ({ ...prev, coins: (prev.coins || 0) - 5 }));
+    setShowRuleHint(true);
   };
 
   const finishLesson = () => {
@@ -440,8 +444,28 @@ export default function GrammarTrainer({ store, go, level }) {
       </div>
 
       <div style={S.footer}>
-        <button style={S.hintBtn} onClick={useHint}>💡 Подсказка (-5 XP)</button>
+        <button style={S.hintBtn} onClick={useHint}>💡 Подсказка (-5 💰)</button>
       </div>
+
+      {/* Rule Hint Overlay */}
+      {showRuleHint && initialLesson && (
+        <div style={S.hintOverlay} className="anim-pop">
+          <div style={S.hintOverlayHeader}>
+            <span style={{ fontSize: 24 }}>💡</span>
+            <div style={{ fontWeight: 800 }}>ПРАВИЛО</div>
+            <button style={S.hintClose} onClick={() => setShowRuleHint(false)}>✕</button>
+          </div>
+          <div style={S.hintOverlayText}>{initialLesson.explanation}</div>
+          {initialLesson.formulas && (
+            <div style={{ marginTop: 12 }}>
+              {initialLesson.formulas.map((f, i) => (
+                <div key={i} style={S.hintFormula}>{f}</div>
+              ))}
+            </div>
+          )}
+          <button style={S.hintProceed} onClick={() => setShowRuleHint(false)}>ПОНЯТНО 👌</button>
+        </div>
+      )}
 
       {/* Error feedback overlay */}
       {status === 'wrong' && errorFeedback && (
@@ -583,6 +607,65 @@ const S = {
     fontWeight: 600,
     textAlign: 'center',
     height: 14 // Stability: keep height even if empty
+  },
+
+  hintOverlay: {
+    position: 'absolute',
+    top: '50%',
+    left: 20,
+    right: 20,
+    transform: 'translateY(-50%)',
+    background: 'rgba(30, 30, 45, 0.98)',
+    backdropFilter: 'blur(20px)',
+    padding: 24,
+    borderRadius: 32,
+    border: '1px solid rgba(0,240,255,0.2)',
+    boxShadow: '0 20px 50px rgba(0,0,0,0.5)',
+    zIndex: 200,
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 16
+  },
+  hintOverlayHeader: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    color: 'var(--accent)',
+    fontSize: 12,
+    letterSpacing: 2
+  },
+  hintOverlayText: {
+    fontSize: 16,
+    lineHeight: 1.5,
+    color: '#fff',
+    fontWeight: 500
+  },
+  hintFormula: {
+    background: 'rgba(0,240,255,0.1)',
+    color: 'var(--accent)',
+    padding: '8px 12px',
+    borderRadius: 12,
+    fontSize: 13,
+    fontFamily: 'monospace',
+    marginBottom: 6
+  },
+  hintClose: {
+    background: 'none',
+    border: 'none',
+    color: 'var(--text-dim)',
+    fontSize: 20,
+    cursor: 'pointer'
+  },
+  hintProceed: {
+    background: 'var(--accent-gradient)',
+    color: '#000',
+    border: 'none',
+    padding: '14px',
+    borderRadius: 16,
+    fontSize: 14,
+    fontWeight: 900,
+    marginTop: 8,
+    cursor: 'pointer'
   },
 
   reviewList: { width: '100%', display: 'flex', flexDirection: 'column', gap: 12, textAlign: 'left' },
