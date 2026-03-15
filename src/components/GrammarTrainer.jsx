@@ -60,14 +60,54 @@ export default function GrammarTrainer({ store, go, level }) {
   useEffect(() => {
     if (exercises.length > 0 && currentIdx < exercises.length) {
       const ex = exercises[currentIdx];
+      const correctWords = [...ex.en].map(w => w.toLowerCase());
+      
+      // Inject distractors
+      const trapsCount = (initialLesson.isExam || initialLesson.isSuper) ? 7 : 2;
+      const traps = getDistractors(ex, trapsCount, correctWords);
+      
       setSelected([]);
-      setShuffled([...ex.en].map(w => w.toLowerCase()).sort(() => Math.random() - 0.5));
+      setShuffled([...correctWords, ...traps].sort(() => Math.random() - 0.5));
       setStatus('idle');
       setShowHint(false);
-    } else if (exercises.length > 0 && currentIdx >= exercises.length) {
-      // Small delay before finishing to show last correct answer
     }
-  }, [currentIdx, exercises]);
+  }, [currentIdx, exercises, initialLesson]);
+
+  function getDistractors(ex, count, correctWords) {
+    const category = ex.category || "";
+    const pool = new Set();
+    
+    // Core grammar traps
+    if (category.includes('present')) {
+      ['do', 'does', 'don\'t', 'doesn\'t', 'is', 'am', 'are'].forEach(w => pool.add(w));
+    }
+    if (category.includes('past')) {
+      ['did', 'do', 'didn\'t', 'don\'t', 'was', 'were'].forEach(w => pool.add(w));
+    }
+    if (category.includes('future')) {
+      ['will', 'won\'t', 'do', 'does', 'did'].forEach(w => pool.add(w));
+    }
+    
+    // Pronoun traps
+    if (correctWords.some(w => ['i', 'you', 'we', 'they', 'he', 'she', 'it'].includes(w))) {
+      ['i', 'you', 'we', 'they', 'he', 'she', 'it'].forEach(w => pool.add(w));
+    }
+
+    // Verb form traps (simple heuristic: if we have "works", add "work")
+    correctWords.forEach(w => {
+      if (w.endsWith('s') && w.length > 3) pool.add(w.slice(0, -1));
+      if (!w.endsWith('s') && w.length > 3 && !['they', 'this', 'does'].includes(w)) pool.add(w + 's');
+      if (w.endsWith('ed')) pool.add(w.slice(0, -2));
+      if (w === 'go') pool.add('goes');
+      if (w === 'went') pool.add('go');
+    });
+
+    // Remove actual correct words from the traps pool
+    correctWords.forEach(w => pool.delete(w.toLowerCase()));
+
+    // Randomize and limit
+    return [...pool].sort(() => Math.random() - 0.5).slice(0, count);
+  }
 
   const onWordClick = (word, idx) => {
     if (status !== 'idle') return;
