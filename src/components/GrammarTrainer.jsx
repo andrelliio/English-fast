@@ -116,8 +116,7 @@ export default function GrammarTrainer({ store, go, level }) {
         future_question: "Ставь Will в начало для вопроса."
       };
       setErrorFeedback(feedbackMap[ex.category] || "Попробуй еще раз!");
-
-      setTimeout(() => setStatus('idle'), 1500);
+      // Removed automatic timeout - user must click "Got it"
     }
   };
 
@@ -375,7 +374,21 @@ export default function GrammarTrainer({ store, go, level }) {
       {/* Error feedback overlay */}
       {status === 'wrong' && errorFeedback && (
         <div style={S.errorOverlay} className="anim-pop">
+          <div style={{ fontSize: 32, marginBottom: 12 }}>❌</div>
+          <div style={{ fontSize: 18, fontWeight: 900, marginBottom: 8, color: '#fff' }}>ОШИБКА!</div>
           <div style={S.errorText}>{errorFeedback}</div>
+          
+          <div style={S.correctBlock}>
+            <div style={S.correctLabel}>КАК НАДО БЫЛО:</div>
+            <div style={S.correctWord}>{exercises[currentIdx]?.en[selected.length]}</div>
+          </div>
+
+          <button 
+            style={S.dismissBtn}
+            onClick={() => setStatus('idle')}
+          >
+            ПОНЯТНО 👌
+          </button>
         </div>
       )}
 
@@ -446,9 +459,35 @@ const S = {
     borderRadius: 20, 
     boxShadow: '0 10px 30px rgba(255, 51, 102, 0.3)',
     zIndex: 100,
-    textAlign: 'center'
+    textAlign: 'center',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center'
   },
-  errorText: { color: '#fff', fontSize: 14, fontWeight: 700, lineHeight: 1.4 },
+  errorText: { color: 'rgba(255,255,255,0.9)', fontSize: 15, fontWeight: 600, lineHeight: 1.4, marginBottom: 20 },
+  correctBlock: {
+    background: 'rgba(0,0,0,0.2)',
+    padding: '12px 20px',
+    borderRadius: 16,
+    width: '100%',
+    marginBottom: 24,
+    border: '1px solid rgba(255,255,255,0.1)'
+  },
+  correctLabel: { fontSize: 10, fontWeight: 800, color: 'rgba(255,255,255,0.5)', marginBottom: 4, letterSpacing: 1 },
+  correctWord: { fontSize: 20, fontWeight: 900, color: '#fff' },
+  dismissBtn: {
+    background: '#fff',
+    color: '#ff3366',
+    border: 'none',
+    padding: '12px 32px',
+    borderRadius: 12,
+    fontSize: 14,
+    fontWeight: 900,
+    cursor: 'pointer',
+    width: '100%',
+    boxShadow: '0 4px 15px rgba(0,0,0,0.1)'
+  },
 
   reviewList: { width: '100%', display: 'flex', flexDirection: 'column', gap: 12, textAlign: 'left' },
   reviewItem: { background: 'rgba(255,255,255,0.03)', borderRadius: 16, padding: 16, border: '1px solid rgba(255,255,255,0.05)' },
