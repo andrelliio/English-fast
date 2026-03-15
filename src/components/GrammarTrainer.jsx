@@ -115,17 +115,17 @@ export default function GrammarTrainer({ store, go, level }) {
     setSelected(newSelected);
     const remaining = shuffled.filter((_, i) => i !== idx);
     setShuffled(remaining);
-
-    // Auto-check if all words are selected
-    if (remaining.length === 0) {
-      handleValidate(newSelected);
-    }
   };
 
   const onRemoveWord = (word, idx) => {
     if (status !== 'idle') return;
     setSelected(prev => prev.filter((_, i) => i !== idx));
     setShuffled(prev => [...prev, word]);
+  };
+
+  const handleCheck = () => {
+    if (status !== 'idle') return;
+    handleValidate(selected);
   };
 
   const handleValidate = (finalSelected) => {
@@ -136,13 +136,7 @@ export default function GrammarTrainer({ store, go, level }) {
     if (userSentence === targetSentence) {
       setStatus('correct');
       setScore(s => s + 1);
-      setTimeout(() => {
-        if (currentIdx + 1 < exercises.length) {
-          setCurrentIdx(i => i + 1);
-        } else {
-          finishLesson();
-        }
-      }, 600);
+      // No auto-advance, user will click "NEXT" button
     } else {
       setStatus('wrong');
       setWrongCount(w => w + 1);
@@ -418,7 +412,6 @@ export default function GrammarTrainer({ store, go, level }) {
           {selected.length > 0 && status === 'idle' && "Нажми на слово, чтобы убрать его"}
         </div>
 
-        {/* Shuffled Words */}
         <div style={S.chipsArea}>
           {shuffled.map((w, i) => (
             <button 
@@ -431,6 +424,29 @@ export default function GrammarTrainer({ store, go, level }) {
             </button>
           ))}
         </div>
+
+        {/* Action Button */}
+        {selected.length === currentEx?.en.length && status === 'idle' && (
+          <button style={S.checkBtn} onClick={handleCheck} className="anim-pop">
+            ПРОВЕРИТЬ 🔍
+          </button>
+        )}
+
+        {status === 'correct' && (
+          <button 
+            style={{ ...S.checkBtn, background: 'var(--success-gradient)' }} 
+            onClick={() => {
+              if (currentIdx + 1 < exercises.length) {
+                setCurrentIdx(i => i + 1);
+              } else {
+                finishLesson();
+              }
+            }} 
+            className="anim-pop"
+          >
+            ДАЛЬШЕ →
+          </button>
+        )}
       </div>
 
       <div style={S.footer}>
@@ -555,17 +571,19 @@ const S = {
     boxShadow: '0 4px 15px rgba(0,0,0,0.1)'
   },
   checkBtn: {
-    marginTop: 40,
+    width: '100%',
+    padding: '18px',
+    borderRadius: 24,
+    border: 'none',
     background: 'var(--accent-gradient)',
     color: '#000',
-    border: 'none',
-    padding: '16px 40px',
-    borderRadius: 20,
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 900,
     cursor: 'pointer',
-    width: '100%',
-    boxShadow: '0 8px 30px rgba(0,240,255,0.3)'
+    marginTop: 40,
+    boxShadow: '0 8px 30px rgba(0,240,255,0.3)',
+    textTransform: 'uppercase',
+    letterSpacing: 1
   },
   removalHint: {
     fontSize: 11,
