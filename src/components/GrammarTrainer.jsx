@@ -105,11 +105,20 @@ export default function GrammarTrainer({ store, go, level }) {
 
     // Verb form traps (simple heuristic: if we have "works", add "work")
     correctWords.forEach(w => {
-      if (w.endsWith('s') && w.length > 3) pool.add(w.slice(0, -1));
-      if (!w.endsWith('s') && w.length > 3 && !['they', 'this', 'does'].includes(w)) pool.add(w + 's');
-      if (w.endsWith('ed')) pool.add(w.slice(0, -2));
-      if (w === 'go') pool.add('goes');
-      if (w === 'went') pool.add('go');
+      const clean = w.replace(/[?!.,]$/g, ''); // Strip punctuation
+      if (clean.length <= 3) return;
+
+      if (clean.endsWith('s')) {
+        pool.add(clean.slice(0, -1));
+      } else {
+        if (!['they', 'this', 'does', 'news'].includes(clean)) {
+          pool.add(clean + 's');
+        }
+      }
+      
+      if (clean.endsWith('ed')) pool.add(clean.slice(0, -2));
+      if (clean === 'go') pool.add('goes');
+      if (clean === 'went') pool.add('go');
     });
 
     // Remove actual correct words from the traps pool
