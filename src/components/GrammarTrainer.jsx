@@ -432,15 +432,15 @@ export default function GrammarTrainer({ store, go, level }) {
 }
 
 const S = {
-  page: { minHeight: '100vh', padding: 20, maxWidth: 460, margin: '0 auto', display: 'flex', flexDirection: 'column' },
+  page: { minHeight: '100dvh', padding: '20px 20px 60px', maxWidth: 460, margin: '0 auto', display: 'flex', flexDirection: 'column', overflowX: 'hidden' },
   header: { display: 'flex', alignItems: 'center', gap: 16, marginBottom: 32 },
   back: { background: 'none', border: 'none', color: 'var(--text)', fontSize: 24, cursor: 'pointer' },
   headerTitle: { fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 700 },
   
-  introCard: { padding: 32, textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' },
-  introIcon: { fontSize: 64, marginBottom: 16 },
-  introTitle: { fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 900, marginBottom: 12 },
-  introText: { color: 'var(--text-dim)', lineHeight: 1.5, marginBottom: 24, fontSize: 14 },
+  introCard: { padding: '24px 20px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 20 },
+  introIcon: { fontSize: 48, marginBottom: 12 },
+  introTitle: { fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 900, marginBottom: 8 },
+  introText: { color: 'var(--text-dim)', lineHeight: 1.4, marginBottom: 20, fontSize: 13 },
   
   introDetailed: { width: '100%', display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 20 },
   introBox: { background: 'rgba(255,255,255,0.03)', borderRadius: 16, padding: '16px 20px', textAlign: 'left', border: '1px solid rgba(255,255,255,0.05)' },
