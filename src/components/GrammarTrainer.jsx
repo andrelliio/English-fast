@@ -432,20 +432,20 @@ export default function GrammarTrainer({ store, go, level }) {
 }
 
 const S = {
-  page: { minHeight: '100dvh', padding: '20px 20px 60px', maxWidth: 460, margin: '0 auto', display: 'flex', flexDirection: 'column', overflowX: 'hidden' },
+  page: { minHeight: '100dvh', padding: '16px 16px 40px', maxWidth: 460, margin: '0 auto', display: 'flex', flexDirection: 'column', overflowY: 'auto', overflowX: 'hidden', WebkitOverflowScrolling: 'touch' },
   header: { display: 'flex', alignItems: 'center', gap: 16, marginBottom: 32 },
   back: { background: 'none', border: 'none', color: 'var(--text)', fontSize: 24, cursor: 'pointer' },
   headerTitle: { fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 700 },
   
-  introCard: { padding: '24px 20px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 20 },
-  introIcon: { fontSize: 48, marginBottom: 12 },
-  introTitle: { fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 900, marginBottom: 8 },
-  introText: { color: 'var(--text-dim)', lineHeight: 1.4, marginBottom: 20, fontSize: 13 },
+  introCard: { padding: '20px 16px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 16 },
+  introIcon: { fontSize: 40, marginBottom: 8 },
+  introTitle: { fontFamily: 'var(--font-display)', fontSize: 20, fontWeight: 900, marginBottom: 6 },
+  introText: { color: 'var(--text-dim)', lineHeight: 1.4, marginBottom: 16, fontSize: 13 },
   
-  introDetailed: { width: '100%', display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 20 },
-  introBox: { background: 'rgba(255,255,255,0.03)', borderRadius: 16, padding: '16px 20px', textAlign: 'left', border: '1px solid rgba(255,255,255,0.05)' },
-  introBoxHeader: { fontSize: 13, fontWeight: 800, color: 'var(--accent)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.5 },
-  introBoxText: { fontSize: 15, color: 'var(--text)', lineHeight: 1.4 },
+  introDetailed: { width: '100%', display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 16 },
+  introBox: { background: 'rgba(255,255,255,0.03)', borderRadius: 14, padding: '12px 16px', textAlign: 'left', border: '1px solid rgba(255,255,255,0.05)' },
+  introBoxHeader: { fontSize: 11, fontWeight: 800, color: 'var(--accent)', marginBottom: 4, textTransform: 'uppercase', letterSpacing: 0.5 },
+  introBoxText: { fontSize: 14, color: 'var(--text)', lineHeight: 1.3 },
 
   formulaBox: { background: 'rgba(0,240,255,0.03)', borderRadius: 16, border: '1px dashed rgba(0,240,255,0.3)', padding: 16, width: '100%', marginBottom: 16 },
   formulaLabel: { fontSize: 10, color: 'var(--text-dim)', textTransform: 'uppercase', marginBottom: 8, fontWeight: 700 },
