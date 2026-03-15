@@ -71,37 +71,41 @@ export default function GrammarTrainer({ store, go, level }) {
 
   const onWordClick = (word, idx) => {
     if (status !== 'idle') return;
+    setSelected(prev => [...prev, word]);
+    setShuffled(prev => prev.filter((_, i) => i !== idx));
+  };
 
+  const onRemoveWord = (word, idx) => {
+    if (status !== 'idle') return;
+    setSelected(prev => prev.filter((_, i) => i !== idx));
+    setShuffled(prev => [...prev, word]);
+  };
+
+  const handleCheck = () => {
+    if (status !== 'idle') return;
+    
     const ex = exercises[currentIdx];
-    const nextTarget = ex.en[selected.length].toLowerCase(); // Normalize target
+    const userSentence = selected.map(w => w.toLowerCase()).join(' ');
+    const targetSentence = ex.en.map(w => w.toLowerCase()).join(' ');
 
-    if (word.toLowerCase() === nextTarget) {
-      const newSelected = [...selected, word];
-      setSelected(newSelected);
-      setShuffled(prev => prev.filter((_, i) => i !== idx));
-      setErrorFeedback("");
-      
-      if (newSelected.length === ex.en.length) {
-        setStatus('correct');
-        setScore(s => s + 1);
-        setTimeout(() => {
-          if (currentIdx + 1 < exercises.length) {
-            setCurrentIdx(i => i + 1);
-          } else {
-            finishLesson();
-          }
-        }, 600);
-      }
+    if (userSentence === targetSentence) {
+      setStatus('correct');
+      setScore(s => s + 1);
+      setTimeout(() => {
+        if (currentIdx + 1 < exercises.length) {
+          setCurrentIdx(i => i + 1);
+        } else {
+          finishLesson();
+        }
+      }, 600);
     } else {
       setStatus('wrong');
       setWrongCount(w => w + 1);
       
-      // Track mistake category
       if (ex.category) {
         setMistakes(prev => ({ ...prev, [ex.category]: (prev[ex.category] || 0) + 1 }));
       }
 
-      // Live feedback mapping
       const feedbackMap = {
         present_affirmative_3rd: "Для He / She / It в настоящем времени нужно окончание -s.",
         present_negative: "Используй don't для утверждения 'не делаю'.",
@@ -116,8 +120,15 @@ export default function GrammarTrainer({ store, go, level }) {
         future_question: "Ставь Will в начало для вопроса."
       };
       setErrorFeedback(feedbackMap[ex.category] || "Попробуй еще раз!");
-      // Removed automatic timeout - user must click "Got it"
     }
+  };
+
+  const dismissError = () => {
+    setStatus('idle');
+    // Reset selection for this exercise so user can try again
+    const ex = exercises[currentIdx];
+    setSelected([]);
+    setShuffled([...ex.en].map(w => w.toLowerCase()).sort(() => Math.random() - 0.5));
   };
 
   const useHint = () => {
@@ -347,9 +358,15 @@ export default function GrammarTrainer({ store, go, level }) {
         {/* Selected Words */}
         <div style={{ ...S.selectedArea, borderColor: status === 'correct' ? 'var(--green)' : status === 'wrong' ? '#ff3366' : 'rgba(255,255,255,0.1)' }} className={status === 'wrong' ? 'shake' : ''}>
           {selected.map((w, i) => (
-            <div key={i} style={S.wordChipFixed}>{w}</div>
+            <div 
+              key={i} 
+              style={{ ...S.wordChipFixed, cursor: status === 'idle' ? 'pointer' : 'default' }} 
+              onClick={() => onRemoveWord(w, i)}
+            >
+              {w}
+            </div>
           ))}
-          {status === 'idle' && <div style={S.cursor} />}
+          {status === 'idle' && selected.length < (currentEx?.en.length || 0) && <div style={S.cursor} />}
         </div>
 
         {/* Shuffled Words */}
@@ -365,6 +382,17 @@ export default function GrammarTrainer({ store, go, level }) {
             </button>
           ))}
         </div>
+
+        {/* Check Button */}
+        {selected.length === (currentEx?.en.length || 0) && status === 'idle' && (
+          <button 
+            style={S.checkBtn} 
+            onClick={handleCheck}
+            className="anim-pop"
+          >
+            ПРОВЕРИТЬ 🔍
+          </button>
+        )}
       </div>
 
       <div style={S.footer}>
@@ -380,12 +408,12 @@ export default function GrammarTrainer({ store, go, level }) {
           
           <div style={S.correctBlock}>
             <div style={S.correctLabel}>КАК НАДО БЫЛО:</div>
-            <div style={S.correctWord}>{exercises[currentIdx]?.en[selected.length]}</div>
+            <div style={S.correctWord}>{exercises[currentIdx]?.en.join(' ')}</div>
           </div>
 
           <button 
             style={S.dismissBtn}
-            onClick={() => setStatus('idle')}
+            onClick={dismissError}
           >
             ПОНЯТНО 👌
           </button>
@@ -487,6 +515,19 @@ const S = {
     cursor: 'pointer',
     width: '100%',
     boxShadow: '0 4px 15px rgba(0,0,0,0.1)'
+  },
+  checkBtn: {
+    marginTop: 40,
+    background: 'var(--accent-gradient)',
+    color: '#000',
+    border: 'none',
+    padding: '16px 40px',
+    borderRadius: 20,
+    fontSize: 18,
+    fontWeight: 900,
+    cursor: 'pointer',
+    width: '100%',
+    boxShadow: '0 8px 30px rgba(0,240,255,0.3)'
   },
 
   reviewList: { width: '100%', display: 'flex', flexDirection: 'column', gap: 12, textAlign: 'left' },
