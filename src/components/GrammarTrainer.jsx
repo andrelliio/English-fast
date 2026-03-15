@@ -136,7 +136,13 @@ export default function GrammarTrainer({ store, go, level }) {
     if (userSentence === targetSentence) {
       setStatus('correct');
       setScore(s => s + 1);
-      // No auto-advance, user will click "NEXT" button
+      setTimeout(() => {
+        if (currentIdx + 1 < exercises.length) {
+          setCurrentIdx(i => i + 1);
+        } else {
+          finishLesson();
+        }
+      }, 800);
     } else {
       setStatus('wrong');
       setWrongCount(w => w + 1);
@@ -429,22 +435,6 @@ export default function GrammarTrainer({ store, go, level }) {
         {selected.length === currentEx?.en.length && status === 'idle' && (
           <button style={S.checkBtn} onClick={handleCheck} className="anim-pop">
             ПРОВЕРИТЬ 🔍
-          </button>
-        )}
-
-        {status === 'correct' && (
-          <button 
-            style={{ ...S.checkBtn, background: 'var(--success-gradient)' }} 
-            onClick={() => {
-              if (currentIdx + 1 < exercises.length) {
-                setCurrentIdx(i => i + 1);
-              } else {
-                finishLesson();
-              }
-            }} 
-            className="anim-pop"
-          >
-            ДАЛЬШЕ →
           </button>
         )}
       </div>
