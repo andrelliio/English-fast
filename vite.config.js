@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
-  base: '/english-islands/',
+  base: '/English-fast/',
   build: {
     target: 'esnext'
   }

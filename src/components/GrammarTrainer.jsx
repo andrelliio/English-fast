@@ -131,19 +131,45 @@ export default function GrammarTrainer({ store, go, level }) {
 
   const finishLesson = () => {
     const finalScore = score / exercises.length;
-    if (initialLesson.isExam && finalScore < (initialLesson.threshold || 0.85)) {
-      if (initialLesson.isSuper) {
-        // Pick top mistake categories for review
-        const sortedCats = Object.entries(mistakes).sort((a,b) => b[1] - a[1]).map(e => e[0]);
-        setReviewCategories(sortedCats.slice(0, 3));
-        setStep('review');
-      } else {
-        setStep('exam_fail');
-      }
-    } else {
-      setStep('finished');
-      confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#00f0ff', '#00ff87', '#7000ff'] });
+    const threshold = initialLesson.threshold || 0.85;
+
+    if (initialLesson.isSuper && finalScore < threshold) {
+      // Analyze mistakes and show review
+      const sortedMistakes = Object.entries(mistakes)
+        .sort(([, a], [, b]) => b - a)
+        .filter(([, count]) => count > 0)
+        .map(([cat]) => cat)
+        .slice(0, 3);
+
+      setReviewCategories(sortedMistakes);
+      setStep('review');
+      return;
+    }
+
+    if (finalScore >= threshold) {
       store.completeGrammarLesson(islandId, lessonId, finalScore);
+      setStep('finished');
+      confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+    } else {
+      setStep('exam_fail');
+    }
+  };
+
+  const handleContinue = () => {
+    const islandIndex = GRAMMAR_ISLANDS.findIndex(i => i.id === islandId);
+    if (islandIndex === -1) return go('home');
+    
+    const currentIsland = GRAMMAR_ISLANDS[islandIndex];
+    const lessonIndex = currentIsland.lessons.findIndex(l => l.id === lessonId);
+
+    if (lessonIndex < currentIsland.lessons.length - 1) {
+      const nextLesson = currentIsland.lessons[lessonIndex + 1];
+      go('grammarTrainer', { islandId, lessonId: nextLesson.id });
+    } else if (islandIndex < GRAMMAR_ISLANDS.length - 1) {
+      const nextIsland = GRAMMAR_ISLANDS[islandIndex + 1];
+      go('grammarTrainer', { islandId: nextIsland.id, lessonId: nextIsland.lessons[0].id });
+    } else {
+      go('home');
     }
   };
 
@@ -207,7 +233,25 @@ export default function GrammarTrainer({ store, go, level }) {
             <div style={S.statItem}><div style={S.statVal}>+25</div><div style={S.statLbl}>💰</div></div>
             <div style={S.statItem}><div style={S.statVal}>{Math.round((score/exercises.length)*100)}%</div><div style={S.statLbl}>Точность</div></div>
           </div>
-          <button className="btn-primary btn-full" onClick={() => go('home')}>НА ГЛАВНУЮ</button>
+          <button className="btn-primary btn-full" style={{ marginBottom: 12 }} onClick={handleContinue}>
+            ПРОДОЛЖИТЬ ОБУЧЕНИЕ
+          </button>
+          <button 
+            style={{ 
+              background: 'rgba(255,255,255,0.05)', 
+              border: '1px solid rgba(255,255,255,0.1)',
+              color: 'var(--text)', 
+              width: '100%', 
+              padding: '16px', 
+              borderRadius: 16, 
+              fontSize: 16, 
+              fontWeight: 800,
+              cursor: 'pointer'
+            }} 
+            onClick={() => go('home')}
+          >
+            ДОМОЙ
+          </button>
         </div>
       </div>
     );
