@@ -10,7 +10,298 @@
 // difficulty: 1 = Beginner, 2 = Elementary, 3 = Intermediate, 4 = Upper-Intermediate
 // ══════════════════════════════════════════════════════════════════
 
+export const GRAMMAR_ISLANDS = [
+  {
+    id: "present_simple",
+    title: "Здесь и сейчас",
+    subtitle: "Present Simple",
+    label: "Настоящее время",
+    icon: "🟢",
+    lessons: [
+      {
+        id: "affirmative",
+        title: "Утверждение",
+        explanation: "Когда говоришь о том, что делаешь обычно, регулярно — используй Present Simple.",
+        whatAndWhy: {
+          what: "Как строить базовые утверждения в настоящем времени.",
+          why: "Это база. Без этого невозможно рассказать о себе, своих привычках, фактах и распорядке дня."
+        },
+        formulas: ["I / you / we / they + глагол", "he / she / it + глагол+s"],
+        exercises: [
+          { ru: "Я хожу в спортзал", en: ["I", "go", "to", "the", "gym"], category: "present_affirmative" },
+          { ru: "Она работает из дома", en: ["She", "works", "from", "home"], category: "present_affirmative_3rd" },
+          { ru: "Мы любим пиццу", en: ["We", "love", "pizza"], category: "present_affirmative" },
+          { ru: "Он играет в футбол", en: ["He", "plays", "football"], category: "present_affirmative_3rd" },
+          { ru: "Они живут в Москве", en: ["They", "live", "in", "Moscow"], category: "present_affirmative" },
+          { ru: "Я читаю книги", en: ["I", "read", "books"], category: "present_affirmative" },
+          { ru: "Она готовит ужин", en: ["She", "cooks", "dinner"], category: "present_affirmative_3rd" },
+          { ru: "Мы смотрим фильмы", en: ["We", "watch", "movies"], category: "present_affirmative" },
+          { ru: "Он пьет чай", en: ["He", "drinks", "tea"], category: "present_affirmative_3rd" },
+          { ru: "Они учат английский", en: ["They", "learn", "English"], category: "present_affirmative" }
+        ]
+      },
+      {
+        id: "negative",
+        title: "Отрицание",
+        explanation: "Чтобы сказать 'не делаю' — добавь don't / doesn't перед глаголом.",
+        whatAndWhy: {
+          what: "Как говорить о том, чего мы НЕ делаем или что не является правдой.",
+          why: "Чтобы уметь выражать отказ, отсутствие привычки или опровергать неверные факты."
+        },
+        formulas: ["I / you / we / they + don't + глагол", "he / she / it + doesn't + глагол (БЕЗ s!)"],
+        exercises: [
+          { ru: "Я не пью кофе", en: ["I", "don't", "drink", "coffee"], category: "present_negative" },
+          { ru: "Она не работает по субботам", en: ["She", "doesn't", "work", "on", "Saturdays"], category: "present_negative_3rd" },
+          { ru: "Мы не смотрим телевизор", en: ["We", "don't", "watch", "TV"], category: "present_negative" },
+          { ru: "Он не говорит по-русски", en: ["He", "doesn't", "speak", "Russian"], category: "present_negative_3rd" },
+          { ru: "Я не ем мясо", en: ["I", "don't", "eat", "meat"], category: "present_negative" },
+          { ru: "Она не любит зиму", en: ["She", "doesn't", "like", "winter"], category: "present_negative_3rd" },
+          { ru: "Мы не играем на гитаре", en: ["We", "don't", "play", "the", "guitar"], category: "present_negative" },
+          { ru: "Он не курит", en: ["He", "doesn't", "smoke"], category: "present_negative_3rd" },
+          { ru: "Они не ходят в школу", en: ["They", "don't", "go", "to", "school"], category: "present_negative" },
+          { ru: "Я не понимаю", en: ["I", "don't", "understand"], category: "present_negative" }
+        ]
+      },
+      {
+        id: "question",
+        title: "Вопрос",
+        explanation: "Чтобы задать вопрос — поставь Do / Does в начало.",
+        whatAndWhy: {
+          what: "Как расспрашивать собеседника о его жизни, интересах и распорядке.",
+          why: "Основа любого диалога — умение задавать вопросы. Без этого невозможно познакомиться и узнать что-то новое."
+        },
+        formulas: ["Do + I / you / we / they + глагол?", "Does + he / she / it + глагол (БЕЗ s!)?"],
+        exercises: [
+          { ru: "Ты любишь музыку?", en: ["Do", "you", "like", "music?"], category: "present_question" },
+          { ru: "Она говорит по-английски?", en: ["Does", "she", "speak", "English?"], category: "present_question_3rd" },
+          { ru: "Они работают вместе?", en: ["Do", "they", "work", "together?"], category: "present_question" },
+          { ru: "Ты пьешь чай?", en: ["Do", "you", "drink", "tea?"], category: "present_question" },
+          { ru: "Он живет здесь?", en: ["Does", "he", "live", "here?"], category: "present_question_3rd" },
+          { ru: "Она готовит завтрак?", en: ["Does", "she", "cook", "breakfast?"], category: "present_question_3rd" },
+          { ru: "Мы знаем его?", en: ["Do", "we", "know", "him?"], category: "present_question" },
+          { ru: "Ты понимаешь меня?", en: ["Do", "you", "understand", "me?"], category: "present_question" },
+          { ru: "Она читает новости?", en: ["Does", "she", "read", "the", "news?"], category: "present_question_3rd" },
+          { ru: "Они играют в теннис?", en: ["Do", "they", "play", "tennis?"], category: "present_question" }
+        ]
+      },
+      {
+        id: "mix",
+        title: "Микс",
+        isMix: true,
+        count: 15
+      },
+      {
+        id: "exam",
+        title: "Экзамен",
+        isExam: true,
+        count: 20,
+        threshold: 0.85
+      }
+    ]
+  },
+  {
+    id: "past_simple",
+    title: "Машина времени",
+    subtitle: "Past Simple",
+    label: "Прошедшее время",
+    icon: "🔵",
+    lessons: [
+      {
+        id: "affirmative",
+        title: "Утверждение",
+        explanation: "Когда говоришь о том, что уже произошло — используй Past Simple.",
+        whatAndWhy: {
+          what: "Как рассказывать о событиях, которые уже завершились в прошлом.",
+          why: "Чтобы делиться историями из жизни, своим опытом, воспоминаниями и тем, как прошел вчерашний день."
+        },
+        formulas: ["I / you / we / they / he / she / it + глагол в прошедшем"],
+        table: "go→went, eat→ate, work→worked, see→saw, buy→bought, make→made, take→took, come→came, have→had, get→got",
+        exercises: [
+          { ru: "Я ходил в кино вчера", en: ["I", "went", "to", "the", "cinema", "yesterday"], category: "past_affirmative" },
+          { ru: "Она купила новый телефон", en: ["She", "bought", "a", "new", "phone"], category: "past_affirmative" },
+          { ru: "Мы ели пиццу", en: ["We", "ate", "pizza"], category: "past_affirmative" },
+          { ru: "Он сделал ошибку", en: ["He", "made", "a", "mistake"], category: "past_affirmative" },
+          { ru: "Они видели фильм", en: ["They", "saw", "the", "movie"], category: "past_affirmative" },
+          { ru: "Я работал вчера", en: ["I", "worked", "yesterday"], category: "past_affirmative" },
+          { ru: "Она пришла домой", en: ["She", "came", "home"], category: "past_affirmative" },
+          { ru: "Мы купили продукты", en: ["We", "bought", "groceries"], category: "past_affirmative" },
+          { ru: "Он забыл ключи", en: ["He", "forgot", "the", "keys"], category: "past_affirmative" },
+          { ru: "Они взяли такси", en: ["They", "took", "a", "taxi"], category: "past_affirmative" }
+        ]
+      },
+      {
+        id: "negative",
+        title: "Отрицание",
+        explanation: "Для 'не делал' — didn't + глагол в начальной форме (НЕ в прошедшей!).",
+        whatAndWhy: {
+          what: "Как говорить о том, что НЕ случалось в прошлом.",
+          why: "Чтобы уточнять детали событий, опровергать обвинения или рассказывать о несбывшихся планах."
+        },
+        formulas: ["I / you / we / they / he / she / it + didn't + глагол"],
+        exercises: [
+          { ru: "Я не видел его", en: ["I", "didn't", "see", "him"], category: "past_negative" },
+          { ru: "Она не пришла на вечеринку", en: ["She", "didn't", "come", "to", "the", "party"], category: "past_negative" },
+          { ru: "Мы не ели здесь", en: ["We", "didn't", "eat", "here"], category: "past_negative" },
+          { ru: "Он не купил машину", en: ["He", "didn't", "buy", "a", "car"], category: "past_negative" },
+          { ru: "Они не знали об этом", en: ["They", "didn't", "know", "about", "it"], category: "past_negative" },
+          { ru: "Я не звонил ей", en: ["I", "didn't", "call", "her"], category: "past_negative" },
+          { ru: "Она не сделала это", en: ["She", "didn't", "do", "it"], category: "past_negative" },
+          { ru: "Мы не нашли отель", en: ["We", "didn't", "find", "the", "hotel"], category: "past_negative" },
+          { ru: "Он не работал в воскресенье", en: ["He", "didn't", "work", "on", "Sunday"], category: "past_negative" },
+          { ru: "Они не ушли", en: ["They", "didn't", "leave"], category: "past_negative" }
+        ]
+      },
+      {
+        id: "question",
+        title: "Вопрос",
+        explanation: "Для вопроса — Did в начало + глагол в начальной форме.",
+        whatAndWhy: {
+          what: "Как узнавать у других о том, что они делали в прошлом.",
+          why: "Чтобы расспросить собеседника о его приключениях, вчерашнем вечере или проверить факты."
+        },
+        formulas: ["Did + I / you / we / they / he / she / it + глагол?"],
+        exercises: [
+          { ru: "Ты видел это?", en: ["Did", "you", "see", "this?"], category: "past_question" },
+          { ru: "Она позвонила тебе?", en: ["Did", "she", "call", "you?"], category: "past_question" },
+          { ru: "Они купили еду?", en: ["Did", "they", "buy", "food?"], category: "past_question" },
+          { ru: "Ты работал вчера?", en: ["Did", "you", "work", "yesterday?"], category: "past_question" },
+          { ru: "Он пришел?", en: ["Did", "he", "come?"], category: "past_question" },
+          { ru: "Мы опоздали?", en: ["Did", "we", "arrive", "late?"], category: "past_question" },
+          { ru: "Ты понял вопрос?", en: ["Did", "you", "understand", "the", "question?"], category: "past_question" },
+          { ru: "Они играли в футбол?", en: ["Did", "they", "play", "football?"], category: "past_question" },
+          { ru: "Она видела тебя?", en: ["Did", "she", "see", "you?"], category: "past_question" },
+          { ru: "Ты пил кофе?", en: ["Did", "you", "drink", "coffee?"], category: "past_question" }
+        ]
+      },
+      {
+        id: "mix",
+        title: "Микс",
+        isMix: true,
+        count: 15
+      },
+      {
+        id: "exam",
+        title: "Экзамен",
+        isExam: true,
+        count: 20,
+        threshold: 0.85
+      }
+    ]
+  },
+  {
+    id: "future_simple",
+    title: "Назад в будущее",
+    subtitle: "Future Simple",
+    label: "Будущее время",
+    icon: "🟡",
+    lessons: [
+      {
+        id: "affirmative",
+        title: "Утверждение",
+        explanation: "Когда говоришь о планах и будущем — will + глагол.",
+        whatAndWhy: {
+          what: "Как строить планы, давать обещания и предсказывать будущее.",
+          why: "Чтобы договариваться о встречах, рассказывать о своих мечтах и намерениях на будущее."
+        },
+        formulas: ["I / you / we / they / he / she / it + will + глагол"],
+        exercises: [
+          { ru: "Я позвоню тебе завтра", en: ["I", "will", "call", "you", "tomorrow"], category: "future_affirmative" },
+          { ru: "Она приедет в понедельник", en: ["She", "will", "come", "on", "Monday"], category: "future_affirmative" },
+          { ru: "Мы пойдем домой", en: ["We", "will", "go", "home"], category: "future_affirmative" },
+          { ru: "Он поможет нам", en: ["He", "will", "help", "us"], category: "future_affirmative" },
+          { ru: "Они купят новую квартиру", en: ["They", "will", "buy", "a", "new", "apartment"], category: "future_affirmative" },
+          { ru: "Я сделаю это позже", en: ["I", "will", "do", "it", "later"], category: "future_affirmative" },
+          { ru: "Она напишет письмо", en: ["She", "will", "write", "a", "letter"], category: "future_affirmative" },
+          { ru: "Мы увидимся в субботу", en: ["We", "will", "see", "each", "other", "on", "Saturday"], category: "future_affirmative" },
+          { ru: "Он вернется скоро", en: ["He", "will", "be", "back", "soon"], category: "future_affirmative" },
+          { ru: "Они закончат работу", en: ["They", "will", "finish", "the", "work"], category: "future_affirmative" }
+        ]
+      },
+      {
+        id: "negative",
+        title: "Отрицание",
+        explanation: "Для 'не буду' — won't + глагол.",
+        whatAndWhy: {
+          what: "Как отказываться от планов или говорить о том, что чего-то не произойдет.",
+          why: "Чтобы четко обозначать свои границы, планы и намерения на будущее."
+        },
+        formulas: ["I / you / we / they / he / she / it + won't + глагол"],
+        exercises: [
+          { ru: "Я не забуду", en: ["I", "won't", "forget"], category: "future_negative" },
+          { ru: "Он не придёт", en: ["He", "won't", "come"], category: "future_negative" },
+          { ru: "Она не поверит", en: ["She", "won't", "believe", "it"], category: "future_negative" },
+          { ru: "Мы не пойдем туда", en: ["We", "won't", "go", "there"], category: "future_negative" },
+          { ru: "Они не сделают этого", en: ["They", "won't", "do", "it"], category: "future_negative" },
+          { ru: "Я не скажу никому", en: ["I", "won't", "tell", "anyone"], category: "future_negative" },
+          { ru: "Она не позвонит ему", en: ["She", "won't", "call", "him"], category: "future_negative" },
+          { ru: "Мы не опоздаем", en: ["We", "won't", "be", "late"], category: "future_negative" },
+          { ru: "Он не будет работать", en: ["He", "won't", "work"], category: "future_negative" },
+          { ru: "Они не купят это", en: ["They", "won't", "buy", "this"], category: "future_negative" }
+        ]
+      },
+      {
+        id: "question",
+        title: "Вопрос",
+        explanation: "Для вопроса — Will в начало.",
+        whatAndWhy: {
+          what: "Как спрашивать других людей об их планах и намерениях на будущее.",
+          why: "Чтобы планировать совместные дела, договариваться о встречах и узнавать чужие мечты."
+        },
+        formulas: ["Will + I / you / we / they / he / she / it + глагол?"],
+        exercises: [
+          { ru: "Ты придёшь завтра?", en: ["Will", "you", "come", "tomorrow?"], category: "future_question" },
+          { ru: "Она поможет нам?", en: ["Will", "she", "help", "us?"], category: "future_question" },
+          { ru: "Они будут там?", en: ["Will", "they", "be", "there?"], category: "future_question" },
+          { ru: "Ты позвонишь мне?", en: ["Will", "you", "call", "me?"], category: "future_question" },
+          { ru: "Он сделает это?", en: ["Will", "he", "do", "it?"], category: "future_question" },
+          { ru: "Мы встретимся позже?", en: ["Will", "we", "meet", "later?"], category: "future_question" },
+          { ru: "Они купят билеты?", en: ["Will", "they", "buy", "tickets?"], category: "future_question" },
+          { ru: "Ты поедешь с нами?", en: ["Will", "you", "go", "with", "us?"], category: "future_question" },
+          { ru: "Она споет песню?", en: ["Will", "she", "sing", "a", "song?"], category: "future_question" },
+          { ru: "Он пойдет в кино?", en: ["Will", "he", "go", "to", "the", "cinema?"], category: "future_question" }
+        ]
+      },
+      {
+        id: "mix",
+        title: "Микс",
+        isMix: true,
+        count: 15
+      },
+      {
+        id: "exam",
+        title: "Экзамен",
+        isExam: true,
+        count: 20,
+        threshold: 0.85
+      }
+    ]
+  },
+  {
+    id: "final_battle",
+    title: "Генеральное сражение",
+    subtitle: "Hard Test",
+    label: "Все времена",
+    icon: "⚔️",
+    lessons: [
+      {
+        id: "hard_test",
+        title: "Жесткий тест",
+        explanation: "Финальное испытание по всем изученным темам. 50 предложений, 90% точности.",
+        whatAndWhy: {
+          what: "Все времена и формы вперемешку.",
+          why: "Чтобы убедиться, что ты действительно освоил базу и не путаешься в конструкциях."
+        },
+        isExam: true,
+        count: 40,
+        threshold: 0.9,
+        isSuper: true // Flag for special handling
+      }
+    ]
+  }
+];
+
 const islands = [
+
 
   // ╔══════════════════════════════════════════════════════════════╗
   // ║  ОСТРОВ 1: ЗНАКОМСТВО И SMALL TALK                         ║

@@ -28,6 +28,7 @@ const defaults = () => ({
   unlockedThemes: ['default'], // List of unlocked theme IDs
   currentTheme: 'default',    // The active theme ID
   lives: 3,                   // The user's lives (max 3)
+  grammarProgress: {},        // { islandId: { lessonId: { passed: true, score: 0.9 } } }
 });
 
 export function useStorage() {
@@ -42,6 +43,8 @@ export function useStorage() {
   // Load from LocalStorage initially (fast but local)
   useEffect(() => {
     try {
+      const d = new Date();
+      const today = `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getDate().toString().padStart(2, '0')}`;
       const s = localStorage.getItem(KEY);
       if (s) {
         const parsed = JSON.parse(s);
@@ -65,8 +68,6 @@ export function useStorage() {
             }
 
             // Streak Check during Init
-            const d = new Date();
-            const today = `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getDate().toString().padStart(2, '0')}`;
             if (next.lastVisit !== today) {
               const last = next.lastVisit;
               if (!last) {
@@ -97,12 +98,13 @@ export function useStorage() {
               if (next.lastActiveLevel >= actualMax) next.lastActiveLevel = 0;
             }
 
-            // Lives Daily Refresh
-            if (next.lastVisit !== today) {
+            if (parsed.lastVisit && parsed.lastVisit !== today) {
               next.lives = 3; 
             } else {
               next.lives = parsed.lives ?? 3;
             }
+
+            next.grammarProgress = parsed.grammarProgress ?? prev.grammarProgress;
 
             return syncRewards(next);
           });
@@ -213,7 +215,7 @@ export function useStorage() {
     });
   }, []);
 
-  const recordResult = useCallback((idx, ok) => {
+  const recordResult = useCallback((idx, ok, skipLife = false) => {
     setData(prev => {
       const wp = { ...prev.wordProgress };
       const e = wp[idx] || { seen: true, correct: 0, wrong: 0, mastered: false, lastSeen: Date.now(), interval: 0, nextReview: 0 };
@@ -257,7 +259,7 @@ export function useStorage() {
       const leveled = checkLevelUp(prev, nextData);
       
       // Handle Lives
-      if (!ok) {
+      if (!ok && !skipLife) {
         leveled.lives = Math.max((leveled.lives || 0) - 1, 0);
       }
 
@@ -329,6 +331,27 @@ export function useStorage() {
       return { ...nextData, achievements: checkAchievements(nextData) };
     });
   }, [checkAchievements]);
+
+  const completeGrammarLesson = useCallback((islandId, lessonId, score = 1) => {
+    setData(prev => {
+      const gp = { ...prev.grammarProgress };
+      if (!gp[islandId]) gp[islandId] = {};
+      
+      const isNewPass = !gp[islandId][lessonId]?.passed;
+      gp[islandId][lessonId] = { passed: true, score, date: Date.now() };
+
+      const xpGain = isNewPass ? 50 : 10; // 50 XP for first time, 10 XP for repeat
+      const nextData = {
+        ...prev,
+        grammarProgress: gp,
+        xp: prev.xp + xpGain,
+        coins: prev.coins + (isNewPass ? 25 : 5) // Bonus coins too
+      };
+
+      const leveled = checkLevelUp(prev, nextData);
+      return { ...leveled, achievements: checkAchievements(leveled) };
+    });
+  }, [checkAchievements, checkLevelUp]);
 
   // Pass an exam: mark levels as passed, unlock 1 more
   const passExam = useCallback((levels) => {
@@ -450,6 +473,18 @@ export function useStorage() {
               }
             }
             
+            // 5. Grammar Progress Merge
+            const mergedGP = { ...(prev.grammarProgress || {}) };
+            Object.entries(cloudData.grammarProgress || {}).forEach(([iId, lessons]) => {
+              if (!mergedGP[iId]) mergedGP[iId] = {};
+              Object.entries(lessons).forEach(([lId, lData]) => {
+                if (!mergedGP[iId][lId] || (lData.score > (mergedGP[iId][lId].score || 0))) {
+                  mergedGP[iId][lId] = lData;
+                }
+              });
+            });
+            merged.grammarProgress = mergedGP;
+
             return syncRewards(merged);
           });
         } else {
@@ -486,6 +521,23 @@ export function useStorage() {
     return () => clearTimeout(timeout);
   }, [data, user, initialized]);
 
+  // Midnight Refresh Logic (Keep app open)
+  useEffect(() => {
+    const handleRefresh = () => {
+      const d = new Date();
+      const today = `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getDate().toString().padStart(2, '0')}`;
+      setData(prev => {
+        if (prev.lastVisit && prev.lastVisit !== today) {
+          return { ...prev, lastVisit: today, lives: 3 };
+        }
+        return prev;
+      });
+    };
+
+    const interval = setInterval(handleRefresh, 1000 * 60); // Check every minute
+    return () => clearInterval(interval);
+  }, []);
+
   // Guarded calculations
   const rankInfo = useMemo(() => getRankInfo(data?.xp || 0), [data?.xp, getRankInfo]);
   const learnedCountRaw = useMemo(() => 
@@ -499,7 +551,7 @@ export function useStorage() {
     isAuthUnknown: user === undefined,
     learned: learnedCountRaw,
     touchLevel, completeLevel, passExam, untestedCount,
-    refillLives,
+    refillLives, completeGrammarLesson,
     user, setUser,
     checkAchievements, checkLevelUp, getRankInfo,
     level: rankInfo.level, rankTitle: rankInfo.title,
@@ -507,6 +559,7 @@ export function useStorage() {
   }), [
     data, user, update, register, markSeen, recordResult, logout, 
     touchLevel, completeLevel, passExam, untestedCount, setUser, 
-    checkAchievements, checkLevelUp, getRankInfo, rankInfo, learnedCountRaw, initialized, isLoaded
+    checkAchievements, checkLevelUp, getRankInfo, rankInfo, learnedCountRaw, initialized, isLoaded, 
+    refillLives, completeGrammarLesson
   ]);
 }
