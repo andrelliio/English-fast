@@ -445,7 +445,7 @@ export default function GrammarTrainer({ store, go, level }) {
         </div>
 
         {/* Action Button */}
-        {selected.length === currentEx?.en.length && status === 'idle' && (
+        {selected.length > 0 && status === 'idle' && (
           <button style={S.checkBtn} onClick={handleCheck} className="anim-pop">
             ПРОВЕРИТЬ 🔍
           </button>
