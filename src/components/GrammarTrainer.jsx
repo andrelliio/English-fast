@@ -39,6 +39,15 @@ export default function GrammarTrainer({ store, go, level }) {
     return initialLesson.formulas[0];
   }, [initialLesson?.formulas, currentEx]);
 
+  // Find the original lesson for the current exercise to show the correct hint/rule
+  const activeRuleLesson = useMemo(() => {
+    if (!island || !currentEx) return null;
+    return island.lessons.find(l => 
+      !l.isMix && !l.isExam && 
+      l.exercises?.some(e => e.category === currentEx.category)
+    ) || initialLesson;
+  }, [island, currentEx, initialLesson]);
+
   // Initialize exercises
   useEffect(() => {
     if (!initialLesson) return;
@@ -448,17 +457,17 @@ export default function GrammarTrainer({ store, go, level }) {
       </div>
 
       {/* Rule Hint Overlay */}
-      {showRuleHint && initialLesson && (
+      {showRuleHint && activeRuleLesson && (
         <div style={S.hintOverlay} className="anim-pop">
           <div style={S.hintOverlayHeader}>
             <span style={{ fontSize: 24 }}>💡</span>
             <div style={{ fontWeight: 800 }}>ПРАВИЛО</div>
             <button style={S.hintClose} onClick={() => setShowRuleHint(false)}>✕</button>
           </div>
-          <div style={S.hintOverlayText}>{initialLesson.explanation}</div>
-          {initialLesson.formulas && (
+          <div style={S.hintOverlayText}>{activeRuleLesson.explanation}</div>
+          {activeRuleLesson.formulas && (
             <div style={{ marginTop: 12 }}>
-              {initialLesson.formulas.map((f, i) => (
+              {activeRuleLesson.formulas.map((f, i) => (
                 <div key={i} style={S.hintFormula}>{f}</div>
               ))}
             </div>
