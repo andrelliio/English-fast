@@ -124,7 +124,7 @@ export const GRAMMAR_DICTIONARY = {
   "will": "буду/будет", "not": "не", "don't": "не (презент)", "doesn't": "не (презент 3-е лицо)",
   "didn't": "не (прошедшее)", "won't": "не будет/не буду",
   "am": "есть (я)", "is": "есть (он/она/оно)", "are": "есть (мы/вы/они)",
-  "was": "был/была", "were": "были", "the": "артикль", "a": "артикль", "to": "в / к"
+  "was": "был/была", "were": "были", "the": "артикль", "a": "артикль", "to": "в / к", "away": "прочь/ушел", "about": "о / около"
 };
 
 export const GRAMMAR_ISLANDS = [
@@ -242,7 +242,7 @@ export const GRAMMAR_ISLANDS = [
           { ru: "Она сказала нет", en: ["She", "said", "no"], category: "past_affirmative", verbBase: "say" },
           { ru: "Они сказали спасибо", en: ["They", "said", "thanks"], category: "past_affirmative", verbBase: "say" },
           { ru: "Я пошел домой", en: ["I", "went", "home"], category: "past_affirmative", verbBase: "go" },
-          { ru: "Он ушел", en: ["He", "went", "away"], category: "past_affirmative", verbBase: "go" },
+          { ru: "Он ушел (прочь)", en: ["He", "went", "away"], category: "past_affirmative", verbBase: "go" },
           { ru: "Мы получили приз", en: ["We", "got", "a", "prize"], category: "past_affirmative", verbBase: "get" },
           { ru: "Мне повезло (я получил удачу)", en: ["I", "got", "lucky"], category: "past_affirmative", verbBase: "get" },
           { ru: "Он испек (сделал) торт", en: ["He", "made", "a", "cake"], category: "past_affirmative", verbBase: "make" },
