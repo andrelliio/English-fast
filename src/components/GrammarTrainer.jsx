@@ -133,7 +133,7 @@ export default function GrammarTrainer({ store, go, level }) {
         setStep('training');
         const ex = item.data;
         const correctWords = [...ex.en].map(w => w.toLowerCase().replace(/[?!.,]$/g, ''));
-        const trapsCount = (initialLesson.isExam || initialLesson.isSuper) ? 7 : 2;
+        const trapsCount = (initialLesson.isExam || initialLesson.isSuper) ? 7 : 4;
         const traps = getDistractors(ex, trapsCount, correctWords);
         
         setSelected([]);
@@ -153,6 +153,17 @@ export default function GrammarTrainer({ store, go, level }) {
     const generalPool = new Set();
     const lowers = correctWords.map(w => w.toLowerCase());
     
+    // 0. Sibling Context Traps (Add words from other exercises in the same lesson)
+    if (initialLesson?.exercises) {
+      const otherEx = initialLesson.exercises.filter(e => e.ru !== ex.ru);
+      otherEx.forEach(e => {
+        e.en.forEach(word => {
+          const w = word.toLowerCase().replace(/[?!.,]$/g, '');
+          if (!lowers.includes(w) && w.length > 3) generalPool.add(w);
+        });
+      });
+    }
+
     // 1. Critical Counter-Traps (Priority)
     lowers.forEach(w => {
       if (w === "don't") priorityPool.add("doesn't");
@@ -172,6 +183,13 @@ export default function GrammarTrainer({ store, go, level }) {
       if (['he', 'she', 'it'].includes(w)) priorityPool.add("they");
       if (['they', 'we', 'i'].includes(w)) priorityPool.add("he");
     });
+
+    // 1.5. Verb Base Traps (Specific requested challenge)
+    if (ex.verbBase) {
+      priorityPool.add(ex.verbBase);
+      priorityPool.add(ex.verbBase + 's');
+      priorityPool.add(ex.verbBase + 'ing');
+    }
 
     // 2. Core grammar traps (General)
     if (category.includes('present')) {
@@ -222,7 +240,14 @@ export default function GrammarTrainer({ store, go, level }) {
         'drank': ['drink', 'drinks'],
         'read': ['reading'],
         'told': ['tell', 'tells'],
-        'said': ['say', 'says']
+        'said': ['say', 'says'],
+        'found': ['find', 'finds'],
+        'knew': ['know', 'knows'],
+        'thought': ['think', 'thinks'],
+        'took': ['take', 'takes'],
+        'gave': ['give', 'gives'],
+        'made': ['make', 'makes'],
+        'got': ['get', 'gets']
       };
       if (irregulars[clean]) {
         irregulars[clean].forEach(trap => priorityPool.add(trap));
