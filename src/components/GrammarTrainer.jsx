@@ -26,7 +26,7 @@ export default function GrammarTrainer({ store, go, level }) {
   const [errorFeedback, setErrorFeedback] = useState("");
   const [reviewCategories, setReviewCategories] = useState([]);
   const [showRuleHint, setShowRuleHint] = useState(false);
-  const [showVerbRef, setShowVerbRef] = useState(false);
+  const [showVerbRef, setShowVerbRef] = useState(false); // Kept for logic if needed but removed from UI for now
   const [translationTooltip, setTranslationTooltip] = useState(null); // { word, translation }
   const tooltipTimer = useRef(null);
 
@@ -783,14 +783,7 @@ export default function GrammarTrainer({ store, go, level }) {
             </div>
           </div>
 
-          {activeRuleLesson?.table && (
-            <button 
-              style={{ ...S.dismissBtn, background: 'rgba(255,255,255,0.1)', color: '#fff', border: '1px solid rgba(255,255,255,0.2)', marginBottom: 10 }}
-              onClick={() => setShowVerbRef(true)}
-            >
-              📚 СПРАВОЧНИК СЛОВ
-            </button>
-          )}
+          {/* Vocabulary reference button removed as per user request */}
 
           <button 
             style={S.dismissBtn}
@@ -801,35 +794,7 @@ export default function GrammarTrainer({ store, go, level }) {
         </div>
       )}
 
-      {/* Verb Reference Modal (Contextual) */}
-      {showVerbRef && activeRuleLesson?.table && (
-        <div style={S.hintOverlay} className="anim-pop">
-          <div style={S.hintOverlayHeader}>
-            <span style={{ fontSize: 24 }}>📚</span>
-            <div style={{ fontWeight: 800 }}>СПРАВОЧНИК СЛОВ</div>
-            <button style={S.hintClose} onClick={() => setShowVerbRef(false)}>✕</button>
-          </div>
-          <div style={{ ...S.hintOverlayText, marginBottom: 20 }}>Слова и их формы в этом уроке:</div>
-          
-          <div style={{ ...S.miniVerbTable, background: 'rgba(0,0,0,0.3)', padding: 12 }}>
-            {parseVerbTable(activeRuleLesson.table).map((row, i) => (
-              <div key={i} style={{ ...S.verbRow, borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: 8, marginBottom: 8 }}>
-                <div style={S.verbCell}>
-                  <span style={S.verbBase}>{row.from}</span>
-                  <span style={S.verbRu}>{row.fromRu}</span>
-                </div>
-                <div style={S.verbArrow}>→</div>
-                <div style={S.verbCell}>
-                  <span style={S.verbTransformed}>{row.to}</span>
-                  <span style={S.verbRu}>{row.toRu}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <button style={S.hintProceed} onClick={() => setShowVerbRef(false)}>ВЕРНУТЬСЯ ✅</button>
-        </div>
-      )}
+      {/* Verb Reference Modal removed as per user request */}
 
       {status === 'correct' && <div style={S.correctFlash} />}
     </div>
