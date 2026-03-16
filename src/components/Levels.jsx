@@ -15,9 +15,14 @@ export default function Levels({ store, go }) {
   const isPassed = (l) => data.passedLessons.includes(l);
 
   const giUnlocked = (giId) => {
+    if (giId === 'irreg_verbs') {
+      return data.grammarProgress['present_simple']?.['exam']?.passed;
+    }
+    if (giId === 'past_simple') {
+      return data.grammarProgress['irreg_verbs']?.['exam_100']?.passed;
+    }
     if (giId === 'final_battle') {
       return (
-        data.grammarProgress['present_simple']?.['exam']?.passed &&
         data.grammarProgress['past_simple']?.['exam']?.passed &&
         data.grammarProgress['future_simple']?.['exam']?.passed
       );
@@ -54,30 +59,58 @@ export default function Levels({ store, go }) {
         {GRAMMAR_ISLANDS.map((gi) => {
           const unlocked = giUnlocked(gi.id);
           return (
-            <div key={gi.id} style={{ ...S.card, marginBottom: 12, border: '1px solid rgba(0, 240, 255, 0.2)', opacity: unlocked ? 1 : 0.6, filter: unlocked ? 'none' : 'grayscale(0.5)' }} className="glass-card">
-              <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 16 }}>
-                <div style={{ ...S.num, background: unlocked ? 'rgba(0, 240, 255, 0.1)' : 'rgba(255,255,255,0.05)', color: unlocked ? 'var(--accent)' : 'var(--text-muted)', border: `1px solid ${unlocked ? 'var(--accent)' : 'transparent'}` }}>{unlocked ? gi.icon : '🔒'}</div>
+            <div key={gi.id} 
+              style={{ 
+                ...S.card, 
+                marginBottom: 16, 
+                border: `1px solid ${unlocked ? 'rgba(0, 240, 255, 0.2)' : 'rgba(255,255,255,0.05)'}`, 
+                opacity: unlocked ? 1 : 0.7, 
+                filter: unlocked ? 'none' : 'grayscale(0.6)',
+                background: unlocked ? 'var(--bg-card)' : 'rgba(255,255,255,0.02)'
+              }} 
+              className="glass-card anim-up"
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
+                <div style={{ 
+                  ...S.giIconBox, 
+                  background: unlocked ? 'linear-gradient(135deg, rgba(0,240,255,0.2), rgba(0,240,255,0.05))' : 'rgba(255,255,255,0.03)',
+                  borderColor: unlocked ? 'var(--accent)' : 'transparent'
+                }}>
+                  {unlocked ? (gi.icon || '💎') : '🔒'}
+                </div>
                 <div style={{ flex: 1 }}>
-                  <div style={S.name}>{gi.title}</div>
-                  <div style={S.sub}>{unlocked ? gi.subtitle : 'Пройдите все экзамены выше'}</div>
+                  <div style={S.giTitle}>{gi.title}</div>
+                  <div style={S.giSubtitle}>{unlocked ? (gi.subtitle || gi.label) : 'Пройдите предыдущие испытания'}</div>
                 </div>
               </div>
-              <div style={{ ...S.lessonGrid, pointerEvents: unlocked ? 'auto' : 'none' }}>
-                {gi.lessons.map(l => {
+
+              <div style={{ 
+                ...S.lessonGrid, 
+                gridTemplateColumns: gi.lessons.length <= 4 ? `repeat(${gi.lessons.length}, 1fr)` : 'repeat(auto-fit, minmax(80px, 1fr))',
+                pointerEvents: unlocked ? 'auto' : 'none' 
+              }}>
+                {gi.lessons.map((l, lIdx) => {
                   const isPassed = data.grammarProgress[gi.id]?.[l.id]?.passed;
+                  const isLessonUnlocked = lIdx === 0 || data.grammarProgress[gi.id]?.[gi.lessons[lIdx - 1].id]?.passed;
+                  
                   return (
                     <button 
                       key={l.id} 
                       style={{ 
-                        ...S.lessonBtn, 
-                        borderColor: isPassed ? 'var(--green)' : 'rgba(255,255,255,0.1)',
-                        gridColumn: gi.lessons.length === 1 ? 'span 5' : 'auto',
-                        background: l.isSuper ? 'linear-gradient(135deg, rgba(255,51,102,0.1), rgba(112,0,255,0.1))' : 'rgba(255,255,255,0.03)'
+                        ...S.lessonCard, 
+                        borderColor: isPassed ? 'var(--green)' : isLessonUnlocked ? 'rgba(255,255,255,0.1)' : 'transparent',
+                        opacity: isLessonUnlocked ? 1 : 0.4,
+                        pointerEvents: isLessonUnlocked ? 'auto' : 'none',
+                        background: l.isSuper 
+                          ? 'linear-gradient(135deg, rgba(255,51,102,0.15), rgba(112,0,255,0.15))' 
+                          : isPassed ? 'rgba(0, 255, 135, 0.05)' : 'rgba(255,255,255,0.03)'
                       }} 
-                      onClick={() => unlocked && go('grammarTrainer', { islandId: gi.id, lessonId: l.id })}
+                      onClick={() => unlocked && isLessonUnlocked && go('grammarTrainer', { islandId: gi.id, lessonId: l.id })}
                     >
-                      <span style={{ fontSize: 14 }}>{isPassed ? '✅' : l.isSuper ? '⚔️' : l.id === 'exam' ? '🎓' : l.id === 'mix' ? '🌪️' : '📖'}</span>
-                      <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase' }}>{l.title}</span>
+                      <div style={S.lessonIcon}>
+                        {isPassed ? '✅' : !isLessonUnlocked ? '🔒' : l.isSuper ? '⚔️' : (l.isExam ? '🎓' : (l.id === 'mix' ? '🌪️' : '📖'))}
+                      </div>
+                      <div style={S.lessonLabel}>{l.title.split(' ')[0]}</div>
                     </button>
                   );
                 })}
@@ -86,7 +119,7 @@ export default function Levels({ store, go }) {
           );
         })}
 
-        <div style={{ ...S.sectionLabel, marginTop: 20 }}>ТРОПИНКА СЛОВ</div>
+        <div style={{ ...S.sectionLabel, marginTop: 24 }}>ТРОПИНКА СЛОВ</div>
         {LEVELS.map((_, l) => {
           const p = lvlProgress(l);
           const pct = p.total > 0 ? Math.round((p.mastered / p.total) * 100) : 0;
@@ -123,32 +156,44 @@ export default function Levels({ store, go }) {
 }
 
 const S = {
-  page: { minHeight: '100vh', padding: 20, maxWidth: 460, margin: '0 auto', zIndex: 1, position: 'relative' },
+  page: { minHeight: '100vh', padding: '16px 16px 100px', maxWidth: 460, margin: '0 auto', zIndex: 1, position: 'relative' },
   list: { display: 'flex', flexDirection: 'column', gap: 12 },
-  item: { padding: '16px 20px', display: 'flex', alignItems: 'center', gap: 16, color: 'var(--text)', textAlign: 'left', transition: 'all 0.3s ease' },
+  item: { padding: '16px 20px', display: 'flex', alignItems: 'center', gap: 16, color: 'var(--text)', textAlign: 'left', borderRadius: 24, transition: 'all 0.3s ease' },
   locked: { opacity: 0.4, filter: 'grayscale(1)', pointerEvents: 'none' },
   num: { fontFamily: 'var(--font-display)', fontSize: 15, fontWeight: 800, width: 44, height: 44, borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
   name: { fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 14, marginBottom: 4, letterSpacing: 0.5 },
   sub: { fontSize: 12, color: 'var(--text-dim)', fontWeight: 600 },
-  statVal: { fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 800, marginBottom: 4 },
-  statLbl: { fontSize: 11, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: 1, fontWeight: 700 },
+  
+  miniBar: { height: 4, background: 'rgba(255,255,255,0.05)', borderRadius: 2, marginTop: 6, overflow: 'hidden' },
+  miniBarIn: { height: '100%', background: 'var(--accent-gradient)', transition: 'width 0.5s ease' },
+  
+  smallBtn: { width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.05)', borderRadius: 10, fontSize: 16, cursor: 'pointer', transition: '0.2s' },
 
-  sectionLabel: { fontSize: 11, fontWeight: 900, color: 'var(--accent)', letterSpacing: 2, marginBottom: 16, marginTop: 10, opacity: 0.8 },
-  card: { padding: '20px', borderRadius: 24, background: 'var(--bg-card)', position: 'relative', overflow: 'hidden' },
-  lessonGrid: { display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8 },
-  lessonBtn: { 
+  sectionLabel: { fontSize: 11, fontWeight: 900, color: 'var(--accent)', letterSpacing: 2, marginBottom: 16, marginTop: 10, opacity: 0.8, textTransform: 'uppercase' },
+  
+  card: { padding: '24px 20px', borderRadius: 32, position: 'relative', overflow: 'hidden', transition: 'all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1)' },
+  
+  giIconBox: { width: 50, height: 50, borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, border: '1px solid rgba(255,255,255,0.1)', flexShrink: 0 },
+  giTitle: { fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 900, color: 'var(--text)', marginBottom: 2 },
+  giSubtitle: { fontSize: 12, color: 'var(--text-dim)', fontWeight: 600 },
+
+  lessonGrid: { display: 'grid', gap: 8 },
+  lessonCard: { 
     display: 'flex', 
     flexDirection: 'column', 
     alignItems: 'center', 
-    gap: 6, 
-    padding: '10px 4px', 
-    background: 'rgba(255,255,255,0.03)', 
-    border: '1px solid rgba(255,255,255,0.1)', 
-    borderRadius: 12, 
+    justifyContent: 'center',
+    gap: 8, 
+    padding: '12px 6px', 
+    border: '1px solid rgba(255,255,255,0.08)', 
+    borderRadius: 16, 
     cursor: 'pointer',
-    transition: '0.2s',
-    color: 'var(--text)'
+    transition: 'all 0.2s ease',
+    color: 'var(--text)',
+    minHeight: 80
   },
+  lessonIcon: { fontSize: 18, marginBottom: 2 },
+  lessonLabel: { fontSize: 9, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 0.5, textAlign: 'center', width: '100%', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', opacity: 0.8 },
 
-  examBanner: { width: '100%', padding: '18px 20px', marginBottom: 20, border: '1px solid rgba(255, 215, 0, 0.3)', display: 'flex', alignItems: 'center', gap: 16, color: 'var(--text)', background: 'linear-gradient(90deg, rgba(255, 215, 0, 0.1), transparent)' },
+  examBanner: { width: '100%', padding: '20px 24px', marginBottom: 24, borderRadius: 28, border: '1px solid rgba(255, 215, 0, 0.2)', display: 'flex', alignItems: 'center', gap: 16, color: 'var(--text)', background: 'linear-gradient(135deg, rgba(255, 215, 0, 0.05), transparent)', cursor: 'pointer' },
 };

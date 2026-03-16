@@ -10,6 +10,123 @@
 // difficulty: 1 = Beginner, 2 = Elementary, 3 = Intermediate, 4 = Upper-Intermediate
 // ══════════════════════════════════════════════════════════════════
 
+export const GRAMMAR_DICTIONARY = {
+  // Irregular Verbs Top 100
+  "be": "быть", "was": "был/была", "were": "были",
+  "have": "иметь", "had": "имел/был",
+  "do": "делать", "did": "сделал",
+  "say": "сказать", "said": "сказал",
+  "go": "идти/ехать", "went": "шел/ходил/ездил",
+  "get": "получать", "got": "получил",
+  "make": "делать/создавать", "made": "сделал/создал",
+  "know": "знать", "knew": "знал",
+  "think": "думать", "thought": "думал",
+  "take": "брать", "took": "взял",
+  "see": "видеть", "saw": "видел",
+  "come": "приходить", "came": "пришел",
+  "find": "находить", "found": "нашел",
+  "give": "давать", "gave": "дал",
+  "tell": "рассказывать", "told": "рассказал",
+  "feel": "чувствовать", "felt": "чувствовал",
+  "become": "становиться", "became": "стал",
+  "leave": "уходить/оставлять", "left": "ушел/оставил",
+  "put": "класть", "mean": "значить/иметь в виду", "meant": "значил",
+  "keep": "держать/хранить", "kept": "держал",
+  "let": "позволять", "begin": "начинать", "began": "начал",
+  "show": "показывать", "showed": "показал",
+  "hear": "слышать", "heard": "слышал",
+  "run": "бежать", "ran": "бежал",
+  "hold": "держать", "held": "держал",
+  "write": "писать", "wrote": "написал",
+  "stand": "стоять", "stood": "стоял",
+  "lose": "терять", "lost": "потерял",
+  "pay": "платить", "paid": "заплатил",
+  "meet": "встречать", "met": "встретил",
+  "set": "устанавливать", "learn": "учить", "learnt": "выучил", "learned": "выучил",
+  "lead": "вести", "led": "вел",
+  "read": "читать", "grow": "расти", "grew": "вырос",
+  "buy": "покупать", "bought": "купил",
+  "eat": "есть", "ate": "съел",
+  "speak": "говорить", "spoke": "сказал/поговорил",
+  "send": "отправлять", "sent": "отправил",
+  "build": "строить", "built": "построил",
+  "fall": "падать", "fell": "упал",
+  "cut": "резать", "spend": "тратить", "spent": "потратил",
+  "win": "побеждать", "won": "победил",
+  "sit": "сидеть", "sat": "сел",
+  "hit": "ударять", "break": "ломать", "broke": "сломал",
+  "bring": "приносить", "brought": "принес",
+  
+  "catch": "ловить", "caught": "поймал",
+  "drive": "водить/ехать", "drove": "вел/ехал",
+  "forget": "забывать", "forgot": "забыл",
+  "choose": "выбирать", "chose": "выбрал",
+  "sleep": "спать", "slept": "спал",
+  "fly": "летать", "flew": "летал",
+  "wear": "носить (одежду)", "wore": "носил",
+  "draw": "рисовать", "drew": "рисовал",
+  "teach": "учить (кого-то)", "taught": "научил/преподавал",
+  "throw": "бросать", "threw": "бросил",
+  "understand": "понимать", "understood": "понял",
+  "sell": "продавать", "sold": "продал",
+  "drink": "пить", "drank": "выпил",
+  "sing": "петь", "sang": "спел",
+  "swim": "плавать", "swam": "плавал",
+  "lie": "лежать", "lay": "лежал",
+  "fight": "бороться/драться", "fought": "боролся",
+  "shut": "закрывать", "ride": "ездить верхом", "rode": "ездил",
+  "wake": "просыпаться", "woke": "проснулся",
+  "rise": "подниматься", "rose": "поднялся",
+  "hang": "вешать", "hung": "повесил",
+  "blow": "дуть", "blew": "дул",
+  "steal": "красть", "stole": "украл",
+  "shake": "трясти", "shook": "тряс/потряс",
+  "feed": "кормить", "fed": "покормил",
+  "dig": "копать", "dug": "копал",
+  "hide": "прятать", "hid": "спрятал",
+  "shoot": "стрелять", "shot": "выстрелил",
+  "stick": "приклеивать/застревать", "stuck": "приклеил",
+  "bend": "гнуть", "bent": "согнул",
+  "spread": "распространять", "hurt": "причинять боль",
+  "forgive": "прощать", "forgave": "простил",
+  "lend": "одалживать (кому-то)", "lent": "одолжил",
+  "bite": "кусать", "bit": "укусил",
+  "tear": "рвать", "tore": "порвал",
+  "laid": "положил", "shine": "светить", "shone": "светил",
+  "freeze": "замерзать", "froze": "замерз",
+  "ring": "звонить", "rang": "позвонил",
+  "sweep": "подметать", "swept": "подмел",
+  "slide": "скользить", "slid": "скользил",
+  "seek": "искать", "sought": "искал",
+  "cost": "стоить", "quit": "бросать/уходить",
+  "bear": "нести/выносить", "bore": "нес/вынес",
+  "swing": "качаться", "swung": "качался",
+  "deal": "иметь дело", "dealt": "имел дело",
+  "forbid": "запрещать", "forbade": "запретил",
+
+  // Nouns & Others from GrammarTrainer
+  "movie": "фильм", "film": "фильм", "cinema": "кино", "pizza": "пицца",
+  "mistake": "ошибка", "yesterday": "вчера", "today": "сегодня", "tomorrow": "завтра",
+  "home": "домой", "house": "дом", "groceries": "продукты", "taxi": "такси",
+  "party": "вечеринка", "hotel": "отель", "keys": "ключи", "phone": "телефон",
+  "school": "школа", "together": "вместе", "here": "здесь", "there": "там",
+  "friend": "друг", "friends": "друзья", "book": "книга", "story": "история",
+  "dinner": "ужин", "lunch": "обед", "breakfast": "завтрак",
+  "music": "музыка", "milk": "молоко", "water": "вода", "coffee": "кофе", "tea": "чай",
+  "car": "машина", "bike": "велосипед", "english": "английский", "russian": "русский",
+  "new": "новый", "old": "старый", "good": "хороший", "bad": "плохой",
+
+  // Pronouns & Helpers
+  "i": "я", "you": "ты/вы", "we": "мы", "they": "они", "he": "он", "she": "она", "it": "это/оно",
+  "him": "его", "her": "её", "them": "их", "us": "нам", "me": "мне/меня",
+  "my": "мой", "your": "твой", "his": "его (чей?)", "their": "их (чеё?)",
+  "do": "делать (вспом.)", "does": "делает (вспом.)", "did": "сделал (вспом.)",
+  "will": "буду/будет", "not": "не", "don't": "не (презент)", "doesn't": "не (презент 3-е лицо)",
+  "didn't": "не (прошедшее)", "won't": "не будет/не буду",
+  "am": "есть (я)", "is": "есть (он/она/оно)", "are": "есть (мы/вы/они)",
+  "was": "был/была", "were": "были", "the": "артикль", "a": "артикль", "to": "в / к"
+};
+
 export const GRAMMAR_ISLANDS = [
   {
     id: "present_simple",
@@ -96,6 +213,164 @@ export const GRAMMAR_ISLANDS = [
         isExam: true,
         count: 20,
         threshold: 0.85
+      }
+    ]
+  },
+  {
+    id: "irreg_verbs",
+    title: "Овраг исключений",
+    subtitle: "Irregular Verbs",
+    label: "Спецслова",
+    icon: "💎",
+    lessons: [
+      {
+        id: "top_15",
+        title: "Основа основ (1-15)",
+        explanation: "Самые важные 15 глаголов, которые меняются не по правилам. Их нужно просто выучить наизусть.",
+        whatAndWhy: {
+          what: "Первая порция неправильных глаголов.",
+          why: "Без них невозможно даже базово рассказать о прошлом, так как это самые частые слова в языке."
+        },
+        table: "be→was, have→had, do→did, say→said, go→went, get→got, make→made, know→knew, think→thought, take→took, see→saw, come→came, find→found, give→gave, tell→told",
+        exercises: [
+          { ru: "Я был там", en: ["I", "was", "there"], category: "past_affirmative" },
+          { ru: "У него был шанс", en: ["He", "had", "a", "chance"], category: "past_affirmative" },
+          { ru: "Мы сделали это", en: ["We", "did", "it"], category: "past_affirmative" },
+          { ru: "Она сказала привет", en: ["She", "said", "hi"], category: "past_affirmative" },
+          { ru: "Они ушли домой", en: ["They", "went", "home"], category: "past_affirmative" },
+          { ru: "Я получил письмо", en: ["I", "got", "a", "letter"], category: "past_affirmative" },
+          { ru: "Он сделал ошибку", en: ["He", "made", "a", "mistake"], category: "past_affirmative" },
+          { ru: "Мы знали ответ", en: ["We", "knew", "the", "answer"], category: "past_affirmative" },
+          { ru: "Она думала об этом", en: ["She", "thought", "about", "it"], category: "past_affirmative" },
+          { ru: "Они взяли такси", en: ["They", "took", "a", "taxi"], category: "past_affirmative" }
+        ]
+      },
+      {
+        id: "exam_15",
+        title: "Проверка (1-15)",
+        isExam: true,
+        count: 10,
+        threshold: 0.8,
+        sources: ["top_15"]
+      },
+      {
+        id: "top_16_30",
+        title: "Частые действия (16-30)",
+        explanation: "Следующие 15 слов. Обрати внимание на паттерны (например, feel -> felt, keep -> kept).",
+        whatAndWhy: {
+          what: "Вторая группа глаголов-исключений.",
+          why: "Эти глаголы описывают чувства, движение и базовые взаимодействия."
+        },
+        table: "feel→felt, become→became, leave→left, put→put, mean→meant, keep→kept, let→let, begin→began, show→showed, hear→heard, run→ran, hold→held, write→wrote, stand→stood, lose→lost",
+        exercises: [
+          { ru: "Я чувствовал себя хорошо", en: ["I", "felt", "good"], category: "past_affirmative" },
+          { ru: "Он стал врачом", en: ["He", "became", "a", "doctor"], category: "past_affirmative" },
+          { ru: "Она ушла рано", en: ["She", "left", "early"], category: "past_affirmative" },
+          { ru: "Они положили это здесь", en: ["They", "put", "it", "here"], category: "past_affirmative" },
+          { ru: "Я имел в виду другое", en: ["I", "meant", "something", "else"], category: "past_affirmative" },
+          { ru: "Мы сохранили секрет", en: ["We", "kept", "a", "secret"], category: "past_affirmative" },
+          { ru: "Она позволила мне уйти", en: ["She", "let", "me", "go"], category: "past_affirmative" },
+          { ru: "Шоу началось", en: ["The", "show", "began"], category: "past_affirmative" },
+          { ru: "Он показал мне карту", en: ["He", "showed", "me", "a", "map"], category: "past_affirmative" },
+          { ru: "Я слышал музыку", en: ["I", "heard", "music"], category: "past_affirmative" }
+        ]
+      },
+      {
+        id: "exam_30",
+        title: "Проверка (16-30)",
+        isExam: true,
+        count: 10,
+        threshold: 0.8,
+        sources: ["top_16_30"]
+      },
+      {
+        id: "top_31_50",
+        title: "Завершаем ТОП-50 (31-50)",
+        explanation: "Здесь много слов с похожим звучанием (buy -> bought, bring -> brought).",
+        whatAndWhy: {
+          what: "Третья группа, закрывающая первую половину списка.",
+          why: "Здесь встречаются глаголы общения (speak, send) и созидания (build)."
+        },
+        table: "pay→paid, meet→met, set→set, learn→learnt, lead→led, read→read, grow→grew, buy→bought, eat→ate, speak→spoke, send→sent, build→built, fall→fell, cut→cut, spend→spent, win→won, sit→sat, hit→hit, break→broke, bring→brought",
+        exercises: [
+          { ru: "Я заплатил за кофе", en: ["I", "paid", "for", "coffee"], category: "past_affirmative" },
+          { ru: "Мы встретились вчера", en: ["We", "met", "yesterday"], category: "past_affirmative" },
+          { ru: "Он выучил правило", en: ["He", "learned", "the", "rule"], category: "past_affirmative" },
+          { ru: "Я прочитал книгу", en: ["I", "read", "a", "book"], category: "past_affirmative" },
+          { ru: "Она выросла здесь", en: ["She", "grew", "up", "here"], category: "past_affirmative" },
+          { ru: "Они купили машину", en: ["They", "bought", "a", "car"], category: "past_affirmative" },
+          { ru: "Я съел яблоко", en: ["I", "ate", "an", "apple"], category: "past_affirmative" },
+          { ru: "Он говорил правду", en: ["He", "spoke", "the", "truth"], category: "past_affirmative" },
+          { ru: "Мы потратили все деньги", en: ["We", "spent", "all", "the", "money"], category: "past_affirmative" },
+          { ru: "Она принесла цветы", en: ["She", "brought", "flowers"], category: "past_affirmative" }
+        ]
+      },
+      {
+        id: "exam_50",
+        title: "Экзамен ТОП-50",
+        isExam: true,
+        count: 20,
+        threshold: 0.85
+      },
+      {
+        id: "top_51_75",
+        title: "Важные глаголы (51-75)",
+        explanation: "Вторая половина списка. Обрати внимание на паттерны (sleep -> slept, fly -> flew).",
+        whatAndWhy: {
+          what: "Глаголы с частотой от 51 до 75.",
+          why: "Эти слова часто встречаются в повседневной речи и книгах."
+        },
+        table: "catch→caught, drive→drove, forget→forgot, choose→chose, sleep→slept, fly→flew, wear→wore, draw→drew, teach→taught, throw→threw, understand→understood, sell→sold, drink→drank, sing→sang, swim→swam, lie→lay, fight→fought, shut→shut, ride→rode, wake→woke",
+        exercises: [
+          { ru: "Я поймал мяч", en: ["I", "caught", "the", "ball"], category: "past_affirmative" },
+          { ru: "Он забыл мой номер", en: ["He", "forgot", "my", "number"], category: "past_affirmative" },
+          { ru: "Мы выбрали этот отель", en: ["We", "chose", "this", "hotel"], category: "past_affirmative" },
+          { ru: "Она спала весь день", en: ["She", "slept", "all", "day"], category: "past_affirmative" },
+          { ru: "Они летали в Лондон", en: ["They", "flew", "to", "London"], category: "past_affirmative" },
+          { ru: "Я понял вопрос", en: ["I", "understood", "the", "question"], category: "past_affirmative" },
+          { ru: "Он продал свою гитару", en: ["He", "sold", "his", "guitar"], category: "past_affirmative" },
+          { ru: "Мы пили чай", en: ["We", "drank", "tea"], category: "past_affirmative" },
+          { ru: "Она пела красиво", en: ["She", "sang", "beautifully"], category: "past_affirmative" },
+          { ru: "Он ехал на велосипеде", en: ["He", "rode", "a", "bike"], category: "past_affirmative" }
+        ]
+      },
+      {
+        id: "exam_75",
+        title: "Проверка (51-75)",
+        isExam: true,
+        count: 15,
+        threshold: 0.85,
+        sources: ["top_51_75"]
+      },
+      {
+        id: "top_76_100",
+        title: "Завершаем ТОП-100 (76-100)",
+        explanation: "Финальная группа. Здесь есть редкие, но важные глаголы (forgive, freeze).",
+        whatAndWhy: {
+          what: "Последние 25 глаголов из списка ста самых частых.",
+          why: "Полное владение базой неправильных глаголов открывает путь к свободному общению."
+        },
+        table: "rise→rose, hang→hung, blow→blew, steal→stole, shake→shook, feed→fed, dig→dug, hide→hid, shoot→shot, stick→stuck, bend→bent, spread→spread, hurt→hurt, forgive→forgave, lend→lent, bite→bit, tear→tore, lay→laid, shine→shone, freeze→froze, ring→rang, sweep→swept, slide→slid, seek→sought, cost→cost, quit→quit, bear→bore, swing→swung, deal→dealt, forbid→forbade",
+        exercises: [
+          { ru: "Солнце взошло", en: ["The", "sun", "rose"], category: "past_affirmative" },
+          { ru: "Он покормил кота", en: ["He", "fed", "the", "cat"], category: "past_affirmative" },
+          { ru: "Я спрятал ключи", en: ["I", "hid", "the", "keys"], category: "past_affirmative" },
+          { ru: "Она простила меня", en: ["She", "forgave", "me"], category: "past_affirmative" },
+          { ru: "Это стоило много", en: ["It", "cost", "a", "lot"], category: "past_affirmative" },
+          { ru: "Телефон зазвонил", en: ["The", "phone", "rang"], category: "past_affirmative" },
+          { ru: "Он бросил курить", en: ["He", "quit", "smoking"], category: "past_affirmative" },
+          { ru: "Она украла мое сердце", en: ["She", "stole", "my", "heart"], category: "past_affirmative" },
+          { ru: "Я одолжил ему денег", en: ["I", "lent", "him", "money"], category: "past_affirmative" },
+          { ru: "Вода замерзла", en: ["The", "water", "froze"], category: "past_affirmative" }
+        ]
+      },
+      {
+        id: "exam_100",
+        title: "Финишный Экзамен (100 слов)",
+        isExam: true,
+        count: 40,
+        threshold: 0.9,
+        isSuper: true
       }
     ]
   },

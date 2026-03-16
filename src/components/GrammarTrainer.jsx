@@ -1,6 +1,8 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
-import { GRAMMAR_ISLANDS } from '../data/words';
+import { GRAMMAR_ISLANDS, GRAMMAR_DICTIONARY } from '../data/words';
 import confetti from 'canvas-confetti';
+
+// Using centralized dictionary from words.js
 
 export default function GrammarTrainer({ store, go, level }) {
   // 'level' prop here is overloaded to pass { islandId, lessonId }
@@ -22,6 +24,9 @@ export default function GrammarTrainer({ store, go, level }) {
   const [errorFeedback, setErrorFeedback] = useState("");
   const [reviewCategories, setReviewCategories] = useState([]);
   const [showRuleHint, setShowRuleHint] = useState(false);
+  const [showVerbRef, setShowVerbRef] = useState(false);
+  const [translationTooltip, setTranslationTooltip] = useState(null); // { word, translation }
+  const tooltipTimer = useRef(null);
 
   const progress = exercises.length > 0 ? (currentIdx / exercises.length) * 100 : 0;
   const currentEx = exercises[currentIdx];
@@ -48,6 +53,23 @@ export default function GrammarTrainer({ store, go, level }) {
     ) || initialLesson;
   }, [island, currentEx, initialLesson]);
 
+  const parseVerbTable = (tableStr) => {
+    if (!tableStr) return [];
+    return tableStr.split(', ').map(pair => {
+      const parts = pair.split('→');
+      const from = parts[0];
+      const to = parts[1];
+      const fromLower = from.toLowerCase();
+      const toLower = to.toLowerCase();
+      return {
+        from, to,
+        fromRu: GRAMMAR_DICTIONARY[fromLower] || "",
+        toRu: GRAMMAR_DICTIONARY[toLower] || "",
+        isActive: currentEx?.en.some(w => w.toLowerCase() === toLower || w.toLowerCase() === fromLower)
+      };
+    });
+  };
+
   // Initialize exercises
   useEffect(() => {
     if (!initialLesson) return;
@@ -57,8 +79,15 @@ export default function GrammarTrainer({ store, go, level }) {
       const allSource = GRAMMAR_ISLANDS.flatMap(i => i.lessons.filter(l => !l.isMix && !l.isExam).flatMap(l => l.exercises));
       list = [...allSource].sort(() => Math.random() - 0.5).slice(0, initialLesson.count);
     } else if (initialLesson.isMix || initialLesson.isExam) {
-      // Collect all exercises from other lessons of THIS island
-      const allSource = island.lessons.filter(l => !l.isMix && !l.isExam).flatMap(l => l.exercises);
+      // Collect exercises from sources if specified, or all lessons up to current one
+      let allSource = [];
+      if (initialLesson.sources) {
+        allSource = island.lessons.filter(l => initialLesson.sources.includes(l.id)).flatMap(l => l.exercises);
+      } else {
+        // Default: take all non-exam lessons that come BEFORE or ARE this one (if it was a mixed lesson)
+        // or just all non-exam lessons of this island
+        allSource = island.lessons.filter(l => !l.isMix && !l.isExam).flatMap(l => l.exercises);
+      }
       list = [...allSource].sort(() => Math.random() - 0.5).slice(0, initialLesson.count);
     } else {
       list = initialLesson.exercises;
@@ -70,7 +99,8 @@ export default function GrammarTrainer({ store, go, level }) {
   useEffect(() => {
     if (exercises.length > 0 && currentIdx < exercises.length) {
       const ex = exercises[currentIdx];
-      const correctWords = [...ex.en].map(w => w.toLowerCase());
+      // Strip punctuation from choices to make it harder (no punctuation cues)
+      const correctWords = [...ex.en].map(w => w.toLowerCase().replace(/[?!.,]$/g, ''));
       
       // Inject distractors
       const trapsCount = (initialLesson.isExam || initialLesson.isSuper) ? 7 : 2;
@@ -85,51 +115,113 @@ export default function GrammarTrainer({ store, go, level }) {
 
   function getDistractors(ex, count, correctWords) {
     const category = ex.category || "";
-    const pool = new Set();
+    const priorityPool = new Set();
+    const generalPool = new Set();
+    const lowers = correctWords.map(w => w.toLowerCase());
     
-    // Core grammar traps
+    // 1. Critical Counter-Traps (Priority)
+    lowers.forEach(w => {
+      if (w === "don't") priorityPool.add("doesn't");
+      if (w === "doesn't") priorityPool.add("don't");
+      if (w === "do") priorityPool.add("does");
+      if (w === "does") priorityPool.add("do");
+      if (w === "am") { priorityPool.add("is"); priorityPool.add("are"); }
+      if (w === "is") { priorityPool.add("are"); priorityPool.add("am"); }
+      if (w === "are") { priorityPool.add("is"); priorityPool.add("am"); }
+      if (w === "was") priorityPool.add("were");
+      if (w === "were") priorityPool.add("was");
+      if (w === "did") priorityPool.add("do");
+      if (w === "will") priorityPool.add("won't");
+      if (w === "won't") priorityPool.add("will");
+      
+      // Pronoun swaps
+      if (['he', 'she', 'it'].includes(w)) priorityPool.add("they");
+      if (['they', 'we', 'i'].includes(w)) priorityPool.add("he");
+    });
+
+    // 2. Core grammar traps (General)
     if (category.includes('present')) {
-      ['do', 'does', 'don\'t', 'doesn\'t', 'is', 'am', 'are'].forEach(w => pool.add(w));
+      ['do', 'does', 'don\'t', 'doesn\'t', 'is', 'am', 'are'].forEach(w => generalPool.add(w));
     }
     if (category.includes('past')) {
-      ['did', 'do', 'didn\'t', 'don\'t', 'was', 'were'].forEach(w => pool.add(w));
+      ['did', 'do', 'didn\'t', 'don\'t', 'was', 'were'].forEach(w => generalPool.add(w));
     }
     if (category.includes('future')) {
-      ['will', 'won\'t', 'do', 'does', 'did'].forEach(w => pool.add(w));
+      ['will', 'won\'t', 'do', 'does', 'did'].forEach(w => generalPool.add(w));
     }
     
     // Pronoun traps
-    if (correctWords.some(w => ['i', 'you', 'we', 'they', 'he', 'she', 'it'].includes(w))) {
-      ['i', 'you', 'we', 'they', 'he', 'she', 'it'].forEach(w => pool.add(w));
+    if (lowers.some(w => ['i', 'you', 'we', 'they', 'he', 'she', 'it'].includes(w))) {
+      ['i', 'you', 'we', 'they', 'he', 'she', 'it'].forEach(w => generalPool.add(w));
     }
 
-    // Verb form traps (simple heuristic: if we have "works", add "work")
-    correctWords.forEach(w => {
-      const clean = w.replace(/[?!.,]$/g, ''); // Strip punctuation
+    // 3. Verb form traps
+    lowers.forEach(w => {
+      const clean = w.replace(/[?!.,]$/g, ''); 
       if (clean.length <= 3) return;
 
-      if (clean.endsWith('s')) {
-        pool.add(clean.slice(0, -1));
+      if (clean.endsWith('s') && !['does', 'this', 'news', 'english', 'is', 'has'].includes(clean)) {
+        generalPool.add(clean.slice(0, -1));
       } else {
-        if (!['they', 'this', 'does', 'news'].includes(clean)) {
-          pool.add(clean + 's');
+        const blacklist = [
+          'they', 'this', 'does', 'news', 'english', 'russian', 'music', 
+          'tennis', 'football', 'pizza', 'coffee', 'tea', 'milk', 'water', 
+          'home', 'school', 'gym', 'work', 'together', 'here', 'there', 
+          'it', 'i', 'you', 'we', 'them', 'us', 'me', 'him', 'her', 'is', 'has', 'was'
+        ];
+        if (!blacklist.includes(clean)) {
+          generalPool.add(clean + 's');
         }
       }
       
-      if (clean.endsWith('ed')) pool.add(clean.slice(0, -2));
-      if (clean === 'go') pool.add('goes');
-      if (clean === 'went') pool.add('go');
+      if (clean.endsWith('ed')) generalPool.add(clean.slice(0, -2));
+      
+      // Irregular Verb Mapping (Common ones)
+      const irregulars = {
+        'saw': ['see', 'watch', 'look'],
+        'went': ['go', 'goes'],
+        'bought': ['buy', 'buys'],
+        'met': ['meet', 'meets'],
+        'came': ['come', 'comes'],
+        'had': ['have', 'has'],
+        'ate': ['eat', 'eats'],
+        'drank': ['drink', 'drinks'],
+        'read': ['reading'],
+        'told': ['tell', 'tells'],
+        'said': ['say', 'says']
+      };
+      if (irregulars[clean]) {
+        irregulars[clean].forEach(trap => priorityPool.add(trap));
+      }
+
+      // Add "ing" form as a general trap for any verb
+      if (clean.length > 3 && !['this', 'that', 'with', 'from'].includes(clean)) {
+        generalPool.add(clean + 'ing');
+      }
     });
 
-    // Remove actual correct words from the traps pool
-    correctWords.forEach(w => pool.delete(w.toLowerCase()));
+    // Final filtering and assembly
+    const finalPriority = [...priorityPool].filter(w => !lowers.includes(w));
+    const finalGeneral = [...generalPool].filter(w => !lowers.includes(w) && !priorityPool.has(w));
 
-    // Randomize and limit
-    return [...pool].sort(() => Math.random() - 0.5).slice(0, count);
+    // Combine: priority first, then general pool
+    const result = [
+      ...finalPriority.sort(() => Math.random() - 0.5),
+      ...finalGeneral.sort(() => Math.random() - 0.5)
+    ];
+    
+    return result.slice(0, count);
   }
 
   const onWordClick = (word, idx) => {
     if (status !== 'idle') return;
+
+    // Show translation briefly on first click/selection
+    const translation = GRAMMAR_DICTIONARY[word.toLowerCase()] || "???";
+    setTranslationTooltip({ word, translation });
+    if (tooltipTimer.current) clearTimeout(tooltipTimer.current);
+    tooltipTimer.current = setTimeout(() => setTranslationTooltip(null), 2000);
+
     const newSelected = [...selected, word];
     setSelected(newSelected);
     const remaining = shuffled.filter((_, i) => i !== idx);
@@ -149,8 +241,9 @@ export default function GrammarTrainer({ store, go, level }) {
 
   const handleValidate = (finalSelected) => {
     const ex = exercises[currentIdx];
-    const userSentence = finalSelected.map(w => w.toLowerCase()).join(' ');
-    const targetSentence = ex.en.map(w => w.toLowerCase()).join(' ');
+    const userSentence = finalSelected.map(w => w.toLowerCase().trim()).join(' ');
+    // Strip terminal punctuation from target for comparison since we removed it from choices
+    const targetSentence = ex.en.map(w => w.toLowerCase().replace(/[?!.,]$/g, '').trim()).join(' ');
 
     if (userSentence === targetSentence) {
       setStatus('correct');
@@ -176,7 +269,7 @@ export default function GrammarTrainer({ store, go, level }) {
         present_negative_3rd: "Используй doesn't и глагол БЕЗ s для He / She / It.",
         present_question: "Для вопроса используй Do в начале.",
         present_question_3rd: "Для He / She / It используй Does в начале (и убери s у глагола).",
-        past_affirmative: "Нужна прошедшая форма глагола (окончание -ed или 2-я колонка).",
+        past_affirmative: "Нужна прошедшая форма глагола (окончание -ed или специальная форма, как saw).",
         past_negative: "В отрицании используем didn't + глагол в начальной форме.",
         past_question: "Для вопроса в прошлом ставим Did в начало.",
         future_affirmative: "Используй will перед глаголом.",
@@ -189,10 +282,10 @@ export default function GrammarTrainer({ store, go, level }) {
 
   const dismissError = () => {
     setStatus('idle');
-    // Reset selection for this exercise so user can try again
-    const ex = exercises[currentIdx];
+    // Return selected words to the pool and clear selection
+    // This keeps the exact same set of distractors for the retry
+    setShuffled(prev => [...prev, ...selected].sort(() => Math.random() - 0.5));
     setSelected([]);
-    setShuffled([...ex.en].map(w => w.toLowerCase()).sort(() => Math.random() - 0.5));
   };
 
   const useHint = () => {
@@ -286,8 +379,21 @@ export default function GrammarTrainer({ store, go, level }) {
           )}
 
           {initialLesson.table && (
-            <div style={S.tableBox}>
-              {initialLesson.table.split(', ').map(t => <div key={t} style={S.tableItem}>{t}</div>)}
+            <div style={S.introVerbTable}>
+              <div style={S.verbTableHeader}>Как меняются слова:</div>
+              {parseVerbTable(initialLesson.table).map((row, i) => (
+                <div key={i} style={S.verbRow}>
+                  <div style={S.verbCell}>
+                    <span style={S.verbBase}>{row.from}</span>
+                    <span style={S.verbRu}>{row.fromRu}</span>
+                  </div>
+                  <div style={S.verbArrow}>→</div>
+                  <div style={S.verbCell}>
+                    <span style={S.verbTransformed}>{row.to}</span>
+                    <span style={S.verbRu}>{row.toRu}</span>
+                  </div>
+                </div>
+              ))}
             </div>
           )}
 
@@ -451,6 +557,13 @@ export default function GrammarTrainer({ store, go, level }) {
               {w}
             </button>
           ))}
+          {translationTooltip && (
+            <div style={S.tooltipOverlay} className="anim-pop">
+              <span style={S.tooltipWord}>{translationTooltip.word}</span>
+              <span style={S.tooltipArrow}>=</span>
+              <span style={S.tooltipTrans}>{translationTooltip.translation}</span>
+            </div>
+          )}
         </div>
 
         {/* Action Button */}
@@ -474,6 +587,25 @@ export default function GrammarTrainer({ store, go, level }) {
             <button style={S.hintClose} onClick={() => setShowRuleHint(false)}>✕</button>
           </div>
           <div style={S.hintOverlayText}>{activeRuleLesson.explanation}</div>
+          
+          {activeRuleLesson.table && (
+            <div style={S.miniVerbTable}>
+              {parseVerbTable(activeRuleLesson.table).map((row, i) => (
+                <div key={i} style={{ ...S.verbRow, background: row.isActive ? 'rgba(0,240,255,0.1)' : 'transparent', padding: '4px 8px', borderRadius: 8 }}>
+                  <div style={S.verbCell}>
+                    <span style={S.verbBase}>{row.from}</span>
+                    <span style={S.verbRu}>{row.fromRu}</span>
+                  </div>
+                  <div style={S.verbArrow}>→</div>
+                  <div style={S.verbCell}>
+                    <span style={S.verbTransformed}>{row.to}</span>
+                    <span style={S.verbRu}>{row.toRu}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
           {activeRuleLesson.formulas && (
             <div style={{ marginTop: 12 }}>
               {activeRuleLesson.formulas.map((f, i) => (
@@ -494,8 +626,19 @@ export default function GrammarTrainer({ store, go, level }) {
           
           <div style={S.correctBlock}>
             <div style={S.correctLabel}>КАК НАДО БЫЛО:</div>
-            <div style={S.correctWord}>{exercises[currentIdx]?.en.join(' ')}</div>
+            <div style={S.correctWord}>
+              {exercises[currentIdx]?.en.map(w => w.toLowerCase().replace(/[?!.,]$/g, '')).join(' ')}
+            </div>
           </div>
+
+          {activeRuleLesson?.table && (
+            <button 
+              style={{ ...S.dismissBtn, background: 'rgba(255,255,255,0.1)', color: '#fff', border: '1px solid rgba(255,255,255,0.2)', marginBottom: 10 }}
+              onClick={() => setShowVerbRef(true)}
+            >
+              📚 СПРАВОЧНИК СЛОВ
+            </button>
+          )}
 
           <button 
             style={S.dismissBtn}
@@ -503,6 +646,36 @@ export default function GrammarTrainer({ store, go, level }) {
           >
             ПОНЯТНО 👌
           </button>
+        </div>
+      )}
+
+      {/* Verb Reference Modal (Contextual) */}
+      {showVerbRef && activeRuleLesson?.table && (
+        <div style={S.hintOverlay} className="anim-pop">
+          <div style={S.hintOverlayHeader}>
+            <span style={{ fontSize: 24 }}>📚</span>
+            <div style={{ fontWeight: 800 }}>СПРАВОЧНИК СЛОВ</div>
+            <button style={S.hintClose} onClick={() => setShowVerbRef(false)}>✕</button>
+          </div>
+          <div style={{ ...S.hintOverlayText, marginBottom: 20 }}>Слова и их формы в этом уроке:</div>
+          
+          <div style={{ ...S.miniVerbTable, background: 'rgba(0,0,0,0.3)', padding: 12 }}>
+            {parseVerbTable(activeRuleLesson.table).map((row, i) => (
+              <div key={i} style={{ ...S.verbRow, borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: 8, marginBottom: 8 }}>
+                <div style={S.verbCell}>
+                  <span style={S.verbBase}>{row.from}</span>
+                  <span style={S.verbRu}>{row.fromRu}</span>
+                </div>
+                <div style={S.verbArrow}>→</div>
+                <div style={S.verbCell}>
+                  <span style={S.verbTransformed}>{row.to}</span>
+                  <span style={S.verbRu}>{row.toRu}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <button style={S.hintProceed} onClick={() => setShowVerbRef(false)}>ВЕРНУТЬСЯ ✅</button>
         </div>
       )}
 
@@ -590,18 +763,24 @@ const S = {
   },
   correctLabel: { fontSize: 10, fontWeight: 800, color: 'rgba(255,255,255,0.5)', marginBottom: 4, letterSpacing: 1 },
   correctWord: { fontSize: 20, fontWeight: 900, color: '#fff' },
-  dismissBtn: {
-    background: '#fff',
-    color: '#ff3366',
-    border: 'none',
-    padding: '12px 32px',
-    borderRadius: 12,
-    fontSize: 14,
-    fontWeight: 900,
-    cursor: 'pointer',
-    width: '100%',
-    boxShadow: '0 4px 15px rgba(0,0,0,0.1)'
-  },
+  dismissBtn: { background: 'white', color: 'black', border: 'none', padding: '16px 32px', borderRadius: 16, fontSize: 16, fontWeight: 900, cursor: 'pointer', width: '100%' },
+
+  // Verb Mapping Styles
+  introVerbTable: { background: 'rgba(255,255,255,0.03)', borderRadius: 16, padding: 16, width: '100%', marginBottom: 16, textAlign: 'left' },
+  verbTableHeader: { fontSize: 11, fontWeight: 800, color: 'var(--text-dim)', textTransform: 'uppercase', marginBottom: 12, display: 'block' },
+  verbRow: { display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 },
+  verbCell: { display: 'flex', flexDirection: 'column', flex: 1 },
+  verbBase: { fontSize: 15, fontWeight: 700, color: 'var(--text)' },
+  verbTransformed: { fontSize: 15, fontWeight: 900, color: 'var(--accent)' },
+  verbRu: { fontSize: 11, color: 'var(--text-dim)', marginTop: 2 },
+  verbArrow: { fontSize: 16, color: 'var(--text-dim)', fontWeight: 300 },
+  miniVerbTable: { marginTop: 16, background: 'rgba(0,0,0,0.2)', borderRadius: 12, padding: 8, display: 'flex', flexDirection: 'column', gap: 4 },
+
+  // Tooltip Styles
+  tooltipOverlay: { position: 'absolute', top: -40, left: '50%', transform: 'translateX(-50%)', background: 'var(--accent)', color: 'black', padding: '6px 12px', borderRadius: 12, display: 'flex', alignItems: 'center', gap: 6, fontWeight: 900, boxShadow: '0 4px 15px rgba(0,240,255,0.4)', zIndex: 10, pointerEvents: 'none' },
+  tooltipWord: { fontSize: 13, textDecoration: 'underline' },
+  tooltipArrow: { fontSize: 12, opacity: 0.7 },
+  tooltipTrans: { fontSize: 14 },
   checkBtn: {
     width: '100%',
     padding: '18px',
