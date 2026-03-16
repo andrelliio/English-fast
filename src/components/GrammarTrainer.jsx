@@ -137,7 +137,10 @@ export default function GrammarTrainer({ store, go, level }) {
         const traps = getDistractors(ex, trapsCount, correctWords);
         
         setSelected([]);
-        setShuffled([...correctWords, ...traps].sort(() => Math.random() - 0.5));
+        setShuffled([...correctWords, ...traps]
+          .sort(() => Math.random() - 0.5)
+          .map((text, i) => ({ text, id: i, hidden: false }))
+        );
         setStatus('idle');
         setShowHint(false);
       }
@@ -253,16 +256,21 @@ export default function GrammarTrainer({ store, go, level }) {
     if (tooltipTimer.current) clearTimeout(tooltipTimer.current);
     tooltipTimer.current = setTimeout(() => setTranslationTooltip(null), 2000);
 
-    const newSelected = [...selected, word];
-    setSelected(newSelected);
-    const remaining = shuffled.filter((_, i) => i !== idx);
-    setShuffled(remaining);
+    // Mark as hidden in shuffled pool
+    setShuffled(prev => prev.map((item, i) => i === idx ? { ...item, hidden: true } : item));
+    
+    // Add to selected with original index for restoration
+    setSelected(prev => [...prev, { text: word, originalIdx: idx }]);
   };
 
-  const onRemoveWord = (word, idx) => {
+  const onRemoveWord = (item, idx) => {
     if (status !== 'idle') return;
+    
+    // Restore in shuffled pool
+    setShuffled(prev => prev.map((s, i) => i === item.originalIdx ? { ...s, hidden: false } : s));
+    
+    // Remove from selected
     setSelected(prev => prev.filter((_, i) => i !== idx));
-    setShuffled(prev => [...prev, word]);
   };
 
   const handleCheck = () => {
@@ -274,7 +282,7 @@ export default function GrammarTrainer({ store, go, level }) {
     const ex = currentEx;
     if (!ex) return;
     
-    const userSentence = finalSelected.map(w => w.toLowerCase().trim()).join(' ');
+    const userSentence = finalSelected.map(sh => sh.text.toLowerCase().trim()).join(' ');
     // Strip terminal punctuation from target for comparison since we removed it from choices
     const targetSentence = ex.en.map(w => w.toLowerCase().replace(/[?!.,]$/g, '').trim()).join(' ');
 
@@ -315,9 +323,8 @@ export default function GrammarTrainer({ store, go, level }) {
 
   const dismissError = () => {
     setStatus('idle');
-    // Return selected words to the pool and clear selection
-    // This keeps the exact same set of distractors for the retry
-    setShuffled(prev => [...prev, ...selected].sort(() => Math.random() - 0.5));
+    // Just reset the hidden states in shuffled and clear selection
+    setShuffled(prev => prev.map(item => ({ ...item, hidden: false })));
     setSelected([]);
   };
 
@@ -628,13 +635,13 @@ export default function GrammarTrainer({ store, go, level }) {
 
         {/* Selected Words */}
         <div style={{ ...S.selectedArea, borderColor: status === 'correct' ? 'var(--green)' : status === 'wrong' ? '#ff3366' : 'rgba(255,255,255,0.1)' }} className={status === 'wrong' ? 'shake' : ''}>
-          {selected.map((w, i) => (
+          {selected.map((item, i) => (
             <div 
               key={i} 
               style={{ ...S.wordChipFixed, cursor: status === 'idle' ? 'pointer' : 'default' }} 
-              onClick={() => onRemoveWord(w, i)}
+              onClick={() => onRemoveWord(item, i)}
             >
-              {w}
+              {item.text}
             </div>
           ))}
           {status === 'idle' && selected.length < (currentEx?.en.length || 0) && <div style={S.cursor} />}
@@ -645,14 +652,19 @@ export default function GrammarTrainer({ store, go, level }) {
         </div>
 
         <div style={S.chipsArea}>
-          {shuffled.map((w, i) => (
+          {shuffled.map((item, i) => (
             <button 
-              key={`${i}-${w}`} 
-              style={{ ...S.chip, outline: showHint === w ? '2px solid var(--accent)' : 'none' }} 
-              onClick={() => onWordClick(w, i)}
+              key={`${i}-${item.text}`} 
+              style={{ 
+                ...S.chip, 
+                outline: showHint === item.text ? '2px solid var(--accent)' : 'none',
+                visibility: item.hidden ? 'hidden' : 'visible',
+                pointerEvents: item.hidden ? 'none' : 'auto'
+              }} 
+              onClick={() => onWordClick(item.text, i)}
               className="anim-pop"
             >
-              {w}
+              {item.text}
             </button>
           ))}
           {translationTooltip && (
