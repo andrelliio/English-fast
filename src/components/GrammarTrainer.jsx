@@ -865,7 +865,18 @@ const S = {
   cursor: { width: 2, height: 24, background: 'var(--accent)', animation: 'blink 1s infinite', marginLeft: 4, marginTop: 6 },
   
   chipsArea: { width: '100%', marginTop: 40, display: 'flex', flexWrap: 'wrap', gap: 10, justifyContent: 'center' },
-  chip: { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'var(--text)', padding: '12px 20px', borderRadius: 16, fontSize: 16, fontWeight: 700, cursor: 'pointer' },
+  chip: { 
+    background: 'rgba(255,255,255,0.05)', 
+    border: '1px solid rgba(255,255,255,0.1)', 
+    color: 'var(--text)', 
+    padding: '12px 20px', 
+    borderRadius: 16, 
+    fontSize: 16, 
+    fontWeight: 700, 
+    cursor: 'pointer',
+    transition: 'none', // Override global button transition
+    transform: 'none'    // Prevent hover scale during state transition
+  },
   
   footer: { padding: '20px 0', borderTop: '1px solid rgba(255,255,255,0.05)' },
   hintBtn: { background: 'none', border: 'none', color: 'var(--text-dim)', fontSize: 13, fontWeight: 600, cursor: 'pointer', width: '100%' },
