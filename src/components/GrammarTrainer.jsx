@@ -10,9 +10,10 @@ export default function GrammarTrainer({ store, go, level }) {
   const island = GRAMMAR_ISLANDS.find(i => i.id === islandId);
   const initialLesson = island?.lessons.find(l => l.id === lessonId);
 
-  const [step, setStep] = useState('intro'); // intro, training, mix_summary, exam_result, finished
-  const [currentIdx, setCurrentIdx] = useState(0);
-  const [exercises, setExercises] = useState([]);
+  const [step, setStep] = useState('intro'); // intro, training, discovery, mix_summary, exam_result, finished
+  const [currentIdx, setCurrentIdx] = useState(0); // Index in sessionQueue
+  const [sessionQueue, setSessionQueue] = useState([]); // [{ type: 'card', data: verbObj } | { type: 'ex', data: exObj }]
+  const [exercises, setExercises] = useState([]); // Kept for back-compat/exams
   const [selected, setSelected] = useState([]);
   const [shuffled, setShuffled] = useState([]);
   const [status, setStatus] = useState('idle'); // idle, correct, wrong
@@ -28,8 +29,10 @@ export default function GrammarTrainer({ store, go, level }) {
   const [translationTooltip, setTranslationTooltip] = useState(null); // { word, translation }
   const tooltipTimer = useRef(null);
 
-  const progress = exercises.length > 0 ? (currentIdx / exercises.length) * 100 : 0;
-  const currentEx = exercises[currentIdx];
+  const totalSteps = sessionQueue.length;
+  const progress = totalSteps > 0 ? (currentIdx / totalSteps) * 100 : 0;
+  const currentItem = sessionQueue[currentIdx];
+  const currentEx = currentItem?.type === 'ex' ? currentItem.data : null;
 
   const activeFormula = useMemo(() => {
     if (!initialLesson?.formulas) return null;
@@ -75,48 +78,64 @@ export default function GrammarTrainer({ store, go, level }) {
     });
   };
 
-  // Initialize exercises
+  // Initialize sessionQueue
   useEffect(() => {
     if (!initialLesson) return;
-    let list = [];
+    
     if (initialLesson.isSuper) {
-      // Super Exam: Collect EVERYTHING from ALL islands
       const allSource = GRAMMAR_ISLANDS.flatMap(i => i.lessons.filter(l => !l.isMix && !l.isExam).flatMap(l => l.exercises));
-      list = [...allSource].sort(() => Math.random() - 0.5).slice(0, initialLesson.count);
+      const list = [...allSource].sort(() => Math.random() - 0.5).slice(0, initialLesson.count);
+      setSessionQueue(list.map(ex => ({ type: 'ex', data: ex })));
     } else if (initialLesson.isMix || initialLesson.isExam) {
-      // Collect exercises from sources if specified, or all lessons up to current one
       let allSource = [];
       if (initialLesson.sources) {
         allSource = island.lessons.filter(l => initialLesson.sources.includes(l.id)).flatMap(l => l.exercises);
       } else {
-        // Default: take all non-exam lessons that come BEFORE or ARE this one (if it was a mixed lesson)
-        // or just all non-exam lessons of this island
         allSource = island.lessons.filter(l => !l.isMix && !l.isExam).flatMap(l => l.exercises);
       }
-      list = [...allSource].sort(() => Math.random() - 0.5).slice(0, initialLesson.count);
+      const list = [...allSource].sort(() => Math.random() - 0.5).slice(0, initialLesson.count);
+      setSessionQueue(list.map(ex => ({ type: 'ex', data: ex })));
+    } else if (island.id === 'irreg_verbs') {
+      // INTERLEAVED FLOW for Irregular Verbs
+      const queue = [];
+      const verbsInLesson = parseVerbTable(initialLesson.table);
+      
+      verbsInLesson.forEach(v => {
+        // 1. Add Card
+        queue.push({ type: 'card', data: v });
+        // 2. Add Exercises for this specific verb
+        const verbEx = initialLesson.exercises.filter(ex => ex.verbBase === v.from.toLowerCase());
+        verbEx.forEach(ex => queue.push({ type: 'ex', data: ex }));
+      });
+      
+      setSessionQueue(queue);
     } else {
-      list = initialLesson.exercises;
+      // Regular Lesson
+      setSessionQueue(initialLesson.exercises.map(ex => ({ type: 'ex', data: ex })));
     }
-    setExercises(list);
   }, [initialLesson, island]);
 
-  // Load current exercise
+  // Load current stage (Discovery or Practice)
   useEffect(() => {
-    if (exercises.length > 0 && currentIdx < exercises.length) {
-      const ex = exercises[currentIdx];
-      // Strip punctuation from choices to make it harder (no punctuation cues)
-      const correctWords = [...ex.en].map(w => w.toLowerCase().replace(/[?!.,]$/g, ''));
+    if (sessionQueue.length > 0 && currentIdx < sessionQueue.length) {
+      const item = sessionQueue[currentIdx];
       
-      // Inject distractors
-      const trapsCount = (initialLesson.isExam || initialLesson.isSuper) ? 7 : 2;
-      const traps = getDistractors(ex, trapsCount, correctWords);
-      
-      setSelected([]);
-      setShuffled([...correctWords, ...traps].sort(() => Math.random() - 0.5));
-      setStatus('idle');
-      setShowHint(false);
+      if (item.type === 'card') {
+        setStep('discovery');
+      } else {
+        setStep('training');
+        const ex = item.data;
+        const correctWords = [...ex.en].map(w => w.toLowerCase().replace(/[?!.,]$/g, ''));
+        const trapsCount = (initialLesson.isExam || initialLesson.isSuper) ? 7 : 2;
+        const traps = getDistractors(ex, trapsCount, correctWords);
+        
+        setSelected([]);
+        setShuffled([...correctWords, ...traps].sort(() => Math.random() - 0.5));
+        setStatus('idle');
+        setShowHint(false);
+      }
     }
-  }, [currentIdx, exercises, initialLesson]);
+  }, [currentIdx, sessionQueue, initialLesson]);
 
   function getDistractors(ex, count, correctWords) {
     const category = ex.category || "";
@@ -254,7 +273,7 @@ export default function GrammarTrainer({ store, go, level }) {
       setStatus('correct');
       setScore(s => s + 1);
       setTimeout(() => {
-        if (currentIdx + 1 < exercises.length) {
+        if (currentIdx + 1 < sessionQueue.length) {
           setCurrentIdx(i => i + 1);
         } else {
           finishLesson();
@@ -305,7 +324,8 @@ export default function GrammarTrainer({ store, go, level }) {
   };
 
   const finishLesson = () => {
-    const finalScore = score / exercises.length;
+    const exerciseCount = sessionQueue.filter(i => i.type === 'ex').length || 1;
+    const finalScore = score / exerciseCount;
     const threshold = initialLesson.threshold || 0.85;
 
     if (initialLesson.isSuper && finalScore < threshold) {
@@ -410,7 +430,55 @@ export default function GrammarTrainer({ store, go, level }) {
     );
   }
 
+  if (step === 'discovery') {
+    const verb = currentItem.data;
+    return (
+      <div style={S.page} className="anim-in">
+        <div style={S.lessonHeader}>
+          <button style={S.closeBtn} onClick={() => go('levels')}>✕</button>
+          <div style={S.progressWrapper}>
+            <div style={S.levelInfo}>{initialLesson.title} • {currentIdx + 1}/{totalSteps}</div>
+            <div style={S.barOuter}><div style={{ ...S.barInner, width: `${progress}%` }} /></div>
+          </div>
+        </div>
+
+        <div style={S.content}>
+          <div style={S.discoveryCard} className="glass-card">
+            <div style={S.discoveryLabel}>НОВОЕ СЛОВО:</div>
+            
+            <div style={S.discoveryMain}>
+              <div style={S.verbCellLarge}>
+                <span style={S.verbBaseLarge}>{verb.from}</span>
+                <span style={S.verbRuLarge}>{verb.fromRu}</span>
+              </div>
+              <div style={S.verbArrowLarge}>→</div>
+              <div style={S.verbCellLarge}>
+                <span style={S.verbTransformedLarge}>{verb.to}</span>
+                <span style={S.verbRuLarge}>{verb.toRu}</span>
+              </div>
+            </div>
+
+            <div style={S.discoveryHint}>
+              Запомни эту форму! Сейчас будет пара упражнений на закрепление.
+            </div>
+
+            <button className="btn-primary btn-full" onClick={() => {
+               if (currentIdx + 1 < sessionQueue.length) {
+                 setCurrentIdx(i => i + 1);
+               } else {
+                 finishLesson();
+               }
+            }}>
+              Я ЗАПОМНИЛ 👍
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (step === 'finished') {
+    const exerciseCount = sessionQueue.filter(i => i.type === 'ex').length || 1;
     return (
       <div style={{ ...S.page, justifyContent: 'center' }} className="anim-in">
         <div style={S.finishCard} className="glass-card">
@@ -419,7 +487,7 @@ export default function GrammarTrainer({ store, go, level }) {
           <div style={S.statsRow}>
             <div style={S.statItem}><div style={S.statVal}>+50</div><div style={S.statLbl}>XP</div></div>
             <div style={S.statItem}><div style={S.statVal}>+25</div><div style={S.statLbl}>💰</div></div>
-            <div style={S.statItem}><div style={S.statVal}>{Math.round((score/exercises.length)*100)}%</div><div style={S.statLbl}>Точность</div></div>
+            <div style={S.statItem}><div style={S.statVal}>{Math.round((score/exerciseCount)*100)}%</div><div style={S.statLbl}>Точность</div></div>
           </div>
           <button className="btn-primary btn-full" style={{ marginBottom: 12 }} onClick={handleContinue}>
             ПРОДОЛЖИТЬ ОБУЧЕНИЕ
@@ -520,7 +588,7 @@ export default function GrammarTrainer({ store, go, level }) {
       <div style={S.lessonHeader}>
         <button style={S.closeBtn} onClick={() => go('levels')}>✕</button>
         <div style={S.progressWrapper}>
-          <div style={S.levelInfo}>{initialLesson.title} • {currentIdx + 1}/{exercises.length}</div>
+          <div style={S.levelInfo}>{initialLesson.title} • {currentIdx + 1}/{totalSteps}</div>
           <div style={S.barOuter}><div style={{ ...S.barInner, width: `${progress}%` }} /></div>
         </div>
       </div>
@@ -897,15 +965,63 @@ const S = {
     borderRadius: 20,
     fontSize: 15,
     fontWeight: 900,
-    marginTop: 8,
-    cursor: 'pointer',
     boxShadow: '0 8px 15px rgba(0,240,255,0.2)',
     textTransform: 'uppercase',
     letterSpacing: 1
   },
-
   reviewList: { width: '100%', display: 'flex', flexDirection: 'column', gap: 12, textAlign: 'left' },
   reviewItem: { background: 'rgba(255,255,255,0.03)', borderRadius: 16, padding: 16, border: '1px solid rgba(255,255,255,0.05)' },
   reviewItemTitle: { fontSize: 14, fontWeight: 800, color: 'var(--accent)', marginBottom: 4 },
   reviewItemText: { fontSize: 13, color: 'var(--text-dim)', lineHeight: 1.4 },
+  discoveryCard: {
+    padding: 32,
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: 32,
+    textAlign: 'center',
+    maxWidth: 400,
+    margin: '0 auto'
+  },
+  discoveryLabel: {
+    fontSize: 12,
+    fontWeight: 900,
+    color: 'var(--accent)',
+    letterSpacing: 2
+  },
+  discoveryMain: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 20
+  },
+  verbCellLarge: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 4
+  },
+  verbBaseLarge: {
+    fontSize: 28,
+    fontWeight: 900,
+    color: '#fff'
+  },
+  verbTransformedLarge: {
+    fontSize: 28,
+    fontWeight: 900,
+    color: 'var(--accent)'
+  },
+  verbRuLarge: {
+    fontSize: 14,
+    color: 'var(--text-dim)'
+  },
+  verbArrowLarge: {
+    fontSize: 24,
+    color: 'rgba(255,255,255,0.2)'
+  },
+  discoveryHint: {
+    fontSize: 16,
+    color: 'rgba(255,255,255,0.7)',
+    lineHeight: 1.5,
+    marginBottom: 8
+  },
+  reviewSummary: { width: '100%', marginBottom: 24 }
 };
