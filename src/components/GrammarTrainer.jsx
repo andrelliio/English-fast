@@ -65,15 +65,21 @@ export default function GrammarTrainer({ store, go, level }) {
     if (!tableStr) return [];
     return tableStr.split(', ').map(pair => {
       const parts = pair.split('→');
-      const from = parts[0];
-      const to = parts[1];
+      const from = parts[0] || "";
+      const to = parts[1] || "";
       const fromLower = from.toLowerCase();
       const toLower = to.toLowerCase();
+      
+      // Match by verbBase (new system) or by any word in the exercise (fallback)
+      const isActive = currentEx?.verbBase 
+        ? currentEx.verbBase === fromLower
+        : currentEx?.en.some(w => w.toLowerCase() === toLower || w.toLowerCase() === fromLower);
+
       return {
         from, to,
         fromRu: GRAMMAR_DICTIONARY[fromLower] || "",
         toRu: GRAMMAR_DICTIONARY[toLower] || "",
-        isActive: currentEx?.en.some(w => w.toLowerCase() === toLower || w.toLowerCase() === fromLower)
+        isActive
       };
     });
   };
@@ -653,51 +659,60 @@ export default function GrammarTrainer({ store, go, level }) {
         <button style={S.hintBtn} onClick={useHint}>💡 Подсказка (-5 💰)</button>
       </div>
 
-      {/* Rule Hint Overlay */}
       {showRuleHint && activeRuleLesson && (
-        <div style={S.hintOverlay} className="anim-pop">
-          <div style={S.hintOverlayHeader}>
-            <span style={{ fontSize: 24 }}>💡</span>
-            <div style={{ fontWeight: 800 }}>ПРАВИЛО</div>
-            <button style={S.hintClose} onClick={() => setShowRuleHint(false)}>✕</button>
-          </div>
-          <div style={S.hintOverlayText}>{activeRuleLesson.explanation}</div>
-          
-          {activeRuleLesson.table && (
-            <div style={S.hintTableContainer}>
-              <div style={S.hintTableLabel}>Глаголы этого урока:</div>
-              <div style={S.miniVerbTable}>
-                {parseVerbTable(activeRuleLesson.table).map((row, i) => (
-                  <div key={i} style={{ 
-                    ...S.verbRow, 
-                    background: row.isActive ? 'rgba(0,240,255,0.08)' : 'transparent',
-                    borderLeft: row.isActive ? '3px solid var(--accent)' : '3px solid transparent',
-                    padding: '8px 12px'
-                  }}>
-                    <div style={S.verbCell}>
-                      <span style={S.verbBase}>{row.from}</span>
-                      <span style={S.verbRu}>{row.fromRu}</span>
-                    </div>
-                    <div style={S.verbArrow}>→</div>
-                    <div style={S.verbCell}>
-                      <span style={S.verbTransformed}>{row.to}</span>
-                      <span style={S.verbRu}>{row.toRu}</span>
-                    </div>
-                  </div>
-                ))}
+        <div style={S.hintOverlayBackdrop} onClick={() => setShowRuleHint(false)}>
+          <div style={S.hintOverlay} className="anim-pop" onClick={e => e.stopPropagation()}>
+            <div style={S.hintOverlayHeader}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <span style={{ fontSize: 24 }}>💡</span>
+                <div style={{ fontWeight: 800, letterSpacing: 1 }}>ПРАВИЛО</div>
               </div>
+              <button style={S.hintClose} onClick={() => setShowRuleHint(false)}>✕</button>
             </div>
-          )}
+            
+            <div style={S.hintOverlayScrollArea}>
+              <div style={S.hintOverlayText}>{activeRuleLesson.explanation}</div>
+              
+              {activeRuleLesson.table && (
+                <div style={S.hintTableContainer}>
+                  <div style={S.hintTableLabel}>Глаголы этого урока:</div>
+                  <div style={S.miniVerbTable}>
+                    {parseVerbTable(activeRuleLesson.table).map((row, i) => (
+                      <div key={i} style={{ 
+                        ...S.verbRow, 
+                        background: row.isActive ? 'rgba(0,240,255,0.12)' : 'transparent',
+                        borderLeft: row.isActive ? '4px solid var(--accent)' : '4px solid transparent',
+                        padding: '10px 14px',
+                        borderRadius: row.isActive ? 8 : 0,
+                        margin: '2px 0'
+                      }}>
+                        <div style={S.verbCell}>
+                          <span style={{ ...S.verbBase, color: row.isActive ? '#fff' : 'var(--text-dim)' }}>{row.from}</span>
+                          <span style={S.verbRu}>{row.fromRu}</span>
+                        </div>
+                        <div style={{ ...S.verbArrow, opacity: row.isActive ? 1 : 0.4 }}>→</div>
+                        <div style={S.verbCell}>
+                          <span style={{ ...S.verbTransformed, color: row.isActive ? 'var(--accent)' : 'rgba(255,255,255,0.4)' }}>{row.to}</span>
+                          <span style={S.verbRu}>{row.toRu}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
-          {activeRuleLesson.formulas && (
-            <div style={{ marginTop: 8 }}>
-              <div style={S.hintTableLabel}>Конструкция:</div>
-              {activeRuleLesson.formulas.map((f, i) => (
-                <div key={i} style={S.hintFormula}>{f}</div>
-              ))}
+              {activeRuleLesson.formulas && (
+                <div style={{ marginTop: 20 }}>
+                  <div style={S.hintTableLabel}>Конструкция:</div>
+                  {activeRuleLesson.formulas.map((f, i) => (
+                    <div key={i} style={S.hintFormula}>{f}</div>
+                  ))}
+                </div>
+              )}
             </div>
-          )}
-          <button style={S.hintProceed} onClick={() => setShowRuleHint(false)}>ПОНЯТНО 👌</button>
+
+            <button style={S.hintProceed} onClick={() => setShowRuleHint(false)}>ПОНЯТНО 👌</button>
+          </div>
         </div>
       )}
 
@@ -890,33 +905,52 @@ const S = {
     height: 14 // Stability: keep height even if empty
   },
 
+  hintOverlayBackdrop: {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    background: 'rgba(0,0,0,0.6)',
+    backdropFilter: 'blur(10px)',
+    zIndex: 200,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20
+  },
   hintOverlay: {
-    position: 'absolute',
-    top: '50%',
-    left: 20,
-    right: 20,
-    transform: 'translateY(-50%)',
-    background: 'rgba(25, 25, 35, 0.98)',
-    backdropFilter: 'blur(25px)',
-    padding: '28px 24px',
+    width: '100%',
+    maxWidth: 400,
+    background: 'rgba(25, 25, 35, 1)',
     borderRadius: 32,
     border: '1px solid rgba(0,240,255,0.25)',
-    boxShadow: '0 30px 60px rgba(0,0,0,0.6), 0 0 20px rgba(0,240,255,0.1)',
-    zIndex: 200,
+    boxShadow: '0 30px 60px rgba(0,0,0,0.6)',
+    display: 'flex',
+    flexDirection: 'column',
+    maxHeight: '90dvh',
+    position: 'relative',
+    overflow: 'hidden'
+  },
+  hintOverlayHeader: {
+    padding: '24px 24px 12px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderBottom: '1px solid rgba(255,255,255,0.05)'
+  },
+  hintOverlayScrollArea: {
+    flex: 1,
+    overflowY: 'auto',
+    padding: '20px 24px',
     display: 'flex',
     flexDirection: 'column',
     gap: 20
   },
-  hintOverlayHeader: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 4
-  },
   hintOverlayText: {
-    fontSize: 16,
+    fontSize: 15,
     lineHeight: 1.6,
-    color: 'rgba(255,255,255,0.95)',
+    color: 'rgba(255,255,255,0.8)',
     fontWeight: 500
   },
   hintTableContainer: {
@@ -963,13 +997,15 @@ const S = {
     background: 'var(--accent-gradient)',
     color: '#000',
     border: 'none',
-    padding: '18px',
+    padding: '20px',
+    margin: '12px 24px 24px',
     borderRadius: 20,
     fontSize: 15,
     fontWeight: 900,
-    boxShadow: '0 8px 15px rgba(0,240,255,0.2)',
+    boxShadow: '0 8px 30px rgba(0,240,255,0.3)',
     textTransform: 'uppercase',
-    letterSpacing: 1
+    letterSpacing: 1,
+    cursor: 'pointer'
   },
   reviewList: { width: '100%', display: 'flex', flexDirection: 'column', gap: 12, textAlign: 'left' },
   reviewItem: { background: 'rgba(255,255,255,0.03)', borderRadius: 16, padding: 16, border: '1px solid rgba(255,255,255,0.05)' },
