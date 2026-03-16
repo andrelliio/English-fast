@@ -47,9 +47,14 @@ export default function GrammarTrainer({ store, go, level }) {
   // Find the original lesson for the current exercise to show the correct hint/rule
   const activeRuleLesson = useMemo(() => {
     if (!island || !currentEx) return null;
+    // If we're in a regular lesson, use it directly (don't search)
+    if (!initialLesson.isMix && !initialLesson.isExam && !initialLesson.isSuper) {
+      return initialLesson;
+    }
+    // For Exams/Mix: find the lesson that contains this EXACT exercise
     return island.lessons.find(l => 
       !l.isMix && !l.isExam && 
-      l.exercises?.some(e => e.category === currentEx.category)
+      l.exercises?.some(e => e.ru === currentEx.ru)
     ) || initialLesson;
   }, [island, currentEx, initialLesson]);
 
@@ -589,25 +594,34 @@ export default function GrammarTrainer({ store, go, level }) {
           <div style={S.hintOverlayText}>{activeRuleLesson.explanation}</div>
           
           {activeRuleLesson.table && (
-            <div style={S.miniVerbTable}>
-              {parseVerbTable(activeRuleLesson.table).map((row, i) => (
-                <div key={i} style={{ ...S.verbRow, background: row.isActive ? 'rgba(0,240,255,0.1)' : 'transparent', padding: '4px 8px', borderRadius: 8 }}>
-                  <div style={S.verbCell}>
-                    <span style={S.verbBase}>{row.from}</span>
-                    <span style={S.verbRu}>{row.fromRu}</span>
+            <div style={S.hintTableContainer}>
+              <div style={S.hintTableLabel}>Глаголы этого урока:</div>
+              <div style={S.miniVerbTable}>
+                {parseVerbTable(activeRuleLesson.table).map((row, i) => (
+                  <div key={i} style={{ 
+                    ...S.verbRow, 
+                    background: row.isActive ? 'rgba(0,240,255,0.08)' : 'transparent',
+                    borderLeft: row.isActive ? '3px solid var(--accent)' : '3px solid transparent',
+                    padding: '8px 12px'
+                  }}>
+                    <div style={S.verbCell}>
+                      <span style={S.verbBase}>{row.from}</span>
+                      <span style={S.verbRu}>{row.fromRu}</span>
+                    </div>
+                    <div style={S.verbArrow}>→</div>
+                    <div style={S.verbCell}>
+                      <span style={S.verbTransformed}>{row.to}</span>
+                      <span style={S.verbRu}>{row.toRu}</span>
+                    </div>
                   </div>
-                  <div style={S.verbArrow}>→</div>
-                  <div style={S.verbCell}>
-                    <span style={S.verbTransformed}>{row.to}</span>
-                    <span style={S.verbRu}>{row.toRu}</span>
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           )}
 
           {activeRuleLesson.formulas && (
-            <div style={{ marginTop: 12 }}>
+            <div style={{ marginTop: 8 }}>
+              <div style={S.hintTableLabel}>Конструкция:</div>
               {activeRuleLesson.formulas.map((f, i) => (
                 <div key={i} style={S.hintFormula}>{f}</div>
               ))}
@@ -812,57 +826,82 @@ const S = {
     left: 20,
     right: 20,
     transform: 'translateY(-50%)',
-    background: 'rgba(30, 30, 45, 0.98)',
-    backdropFilter: 'blur(20px)',
-    padding: 24,
+    background: 'rgba(25, 25, 35, 0.98)',
+    backdropFilter: 'blur(25px)',
+    padding: '28px 24px',
     borderRadius: 32,
-    border: '1px solid rgba(0,240,255,0.2)',
-    boxShadow: '0 20px 50px rgba(0,0,0,0.5)',
+    border: '1px solid rgba(0,240,255,0.25)',
+    boxShadow: '0 30px 60px rgba(0,0,0,0.6), 0 0 20px rgba(0,240,255,0.1)',
     zIndex: 200,
     display: 'flex',
     flexDirection: 'column',
-    gap: 16
+    gap: 20
   },
   hintOverlayHeader: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    color: 'var(--accent)',
-    fontSize: 12,
-    letterSpacing: 2
+    marginBottom: 4
   },
   hintOverlayText: {
     fontSize: 16,
-    lineHeight: 1.5,
-    color: '#fff',
+    lineHeight: 1.6,
+    color: 'rgba(255,255,255,0.95)',
     fontWeight: 500
   },
-  hintFormula: {
-    background: 'rgba(0,240,255,0.1)',
+  hintTableContainer: {
+    background: 'rgba(0,0,0,0.25)',
+    borderRadius: 20,
+    padding: '16px 4px',
+    border: '1px solid rgba(255,255,255,0.05)'
+  },
+  hintTableLabel: {
+    fontSize: 10,
+    fontWeight: 800,
     color: 'var(--accent)',
-    padding: '8px 12px',
+    textTransform: 'uppercase',
+    letterSpacing: 1.5,
+    marginBottom: 12,
+    paddingLeft: 16,
+    opacity: 0.8
+  },
+  hintFormula: {
+    background: 'linear-gradient(90deg, rgba(0,240,255,0.12), transparent)',
+    color: 'var(--accent)',
+    padding: '10px 16px',
     borderRadius: 12,
-    fontSize: 13,
+    fontSize: 14,
     fontFamily: 'monospace',
-    marginBottom: 6
+    borderLeft: '2px solid var(--accent)',
+    marginBottom: 8
   },
   hintClose: {
-    background: 'none',
+    background: 'rgba(255,255,255,0.05)',
     border: 'none',
     color: 'var(--text-dim)',
-    fontSize: 20,
-    cursor: 'pointer'
+    width: 32,
+    height: 32,
+    borderRadius: '50%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: 14,
+    cursor: 'pointer',
+    transition: '0.2s'
   },
   hintProceed: {
     background: 'var(--accent-gradient)',
     color: '#000',
     border: 'none',
-    padding: '14px',
-    borderRadius: 16,
-    fontSize: 14,
+    padding: '18px',
+    borderRadius: 20,
+    fontSize: 15,
     fontWeight: 900,
     marginTop: 8,
-    cursor: 'pointer'
+    cursor: 'pointer',
+    boxShadow: '0 8px 15px rgba(0,240,255,0.2)',
+    textTransform: 'uppercase',
+    letterSpacing: 1
   },
 
   reviewList: { width: '100%', display: 'flex', flexDirection: 'column', gap: 12, textAlign: 'left' },
