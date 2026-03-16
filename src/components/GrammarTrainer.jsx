@@ -264,7 +264,9 @@ export default function GrammarTrainer({ store, go, level }) {
   };
 
   const handleValidate = (finalSelected) => {
-    const ex = exercises[currentIdx];
+    const ex = currentEx;
+    if (!ex) return;
+    
     const userSentence = finalSelected.map(w => w.toLowerCase().trim()).join(' ');
     // Strip terminal punctuation from target for comparison since we removed it from choices
     const targetSentence = ex.en.map(w => w.toLowerCase().replace(/[?!.,]$/g, '').trim()).join(' ');
@@ -709,7 +711,7 @@ export default function GrammarTrainer({ store, go, level }) {
           <div style={S.correctBlock}>
             <div style={S.correctLabel}>КАК НАДО БЫЛО:</div>
             <div style={S.correctWord}>
-              {exercises[currentIdx]?.en.map(w => w.toLowerCase().replace(/[?!.,]$/g, '')).join(' ')}
+              {currentEx?.en.map(w => w.toLowerCase().replace(/[?!.,]$/g, '')).join(' ')}
             </div>
           </div>
 
