@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { GRAMMAR_ISLANDS, GRAMMAR_DICTIONARY } from '../data/words';
 import confetti from 'canvas-confetti';
+import { tts } from '../utils/tts';
 
 // Using centralized dictionary from words.js
 
@@ -464,6 +465,14 @@ export default function GrammarTrainer({ store, go, level }) {
                 <span style={S.verbTransformedLarge}>{verb.to}</span>
                 <span style={S.verbRuLarge}>{verb.toRu}</span>
               </div>
+              
+              <button 
+                className="anim-pop" 
+                style={S.audioDiscoveryBtn} 
+                onClick={(e) => { e.stopPropagation(); tts.speak(verb.to); }}
+              >
+                🔊
+              </button>
             </div>
 
             <div style={S.discoveryHint}>
@@ -603,6 +612,14 @@ export default function GrammarTrainer({ store, go, level }) {
 
       <div style={S.content}>
         <div style={S.targetRu}>{currentEx?.ru}</div>
+        
+        {/* Lexical hint for phrasal verbs/tricky parts */}
+        {currentEx?.lexicalHint && (
+          <div style={S.lexicalHint} className="anim-pop">
+            <span style={{ opacity: 0.6 }}>💡 Подсказка:</span> {currentEx.lexicalHint}
+          </div>
+        )}
+        
         
         {/* Formula hint */}
         {activeFormula && (
@@ -798,6 +815,22 @@ const S = {
   introBox: { background: 'rgba(255,255,255,0.03)', borderRadius: 14, padding: '12px 16px', textAlign: 'left', border: '1px solid rgba(255,255,255,0.05)' },
   introBoxHeader: { fontSize: 11, fontWeight: 800, color: 'var(--accent)', marginBottom: 4, textTransform: 'uppercase', letterSpacing: 0.5 },
   introBoxText: { fontSize: 14, color: 'var(--text)', lineHeight: 1.3 },
+  
+  lexicalHint: {
+    background: 'rgba(255,255,255,0.05)',
+    border: '1px solid rgba(0,240,255,0.2)',
+    borderRadius: 12,
+    padding: '8px 14px',
+    fontSize: 13,
+    color: 'var(--accent)',
+    marginTop: -8,
+    marginBottom: 20,
+    fontWeight: 700,
+    display: 'inline-block',
+    alignSelf: 'center',
+    boxShadow: '0 4px 15px rgba(0,0,0,0.2)'
+  },
+  
 
   formulaBox: { background: 'rgba(0,240,255,0.03)', borderRadius: 16, border: '1px dashed rgba(0,240,255,0.3)', padding: 16, width: '100%', marginBottom: 16 },
   formulaLabel: { fontSize: 10, color: 'var(--text-dim)', textTransform: 'uppercase', marginBottom: 8, fontWeight: 700 },
@@ -1060,6 +1093,23 @@ const S = {
     color: 'rgba(255,255,255,0.7)',
     lineHeight: 1.5,
     marginBottom: 8
+  },
+  audioDiscoveryBtn: {
+    background: 'rgba(0,240,255,0.1)',
+    border: '1px solid rgba(0,240,255,0.3)',
+    color: 'var(--accent)',
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: 24,
+    cursor: 'pointer',
+    marginLeft: 10,
+    marginTop: -10,
+    transition: 'all 0.2s',
+    boxShadow: '0 4px 15px rgba(0,240,255,0.1)'
   },
   reviewSummary: { width: '100%', marginBottom: 24 }
 };

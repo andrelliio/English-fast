@@ -224,64 +224,76 @@ export const GRAMMAR_ISLANDS = [
     icon: "💎",
     lessons: [
       {
-        id: "top_15",
-        title: "Основа основ (1-15)",
-        explanation: "Самые важные 15 глаголов, которые меняются не по правилам. Эти слова — «динозавры» языка: они сохранились с древних времен именно потому, что их использовали каждый день.",
+        id: "top_1_7",
+        title: "Основа основ (1-7)",
+        explanation: "Самые важные 7 глаголов. Эти слова — «динозавры» языка: они сохранились с древних времен именно потому, что их использовали каждый день.",
         whatAndWhy: {
-          what: "Первая порция неправильных глаголов.",
-          why: "Без них невозможно даже базово рассказать о прошлом, так как это самые частые слова в языке."
+          what: "Базовые неправильные глаголы (часть 1).",
+          why: "Без них невозможно даже базово рассказать о прошлом."
         },
-        table: "be→was, have→had, do→did, say→said, go→went, get→got, make→made, know→knew, think→thought, take→took, see→saw, come→came, find→found, give→gave, tell→told",
+        table: "be→was, have→had, do→did, say→said, go→went, get→got, make→made",
         exercises: [
           { ru: "Я был там", en: ["I", "was", "there"], category: "past_affirmative", verbBase: "be" },
           { ru: "Он был счастлив", en: ["He", "was", "happy"], category: "past_affirmative", verbBase: "be" },
           { ru: "У меня была машина", en: ["I", "had", "a", "car"], category: "past_affirmative", verbBase: "have" },
           { ru: "У неё было время", en: ["She", "had", "time"], category: "past_affirmative", verbBase: "have" },
-          { ru: "Мы сделали это", en: ["We", "did", "it"], category: "past_affirmative", verbBase: "do" },
-          { ru: "Он сделал свою работу", en: ["He", "did", "his", "job"], category: "past_affirmative", verbBase: "do" },
-          { ru: "Она сказала нет", en: ["She", "said", "no"], category: "past_affirmative", verbBase: "say" },
-          { ru: "Они сказали спасибо", en: ["They", "said", "thanks"], category: "past_affirmative", verbBase: "say" },
-          { ru: "Я пошел домой", en: ["I", "went", "home"], category: "past_affirmative", verbBase: "go" },
-          { ru: "Он ушел (прочь)", en: ["He", "went", "away"], category: "past_affirmative", verbBase: "go" },
-          { ru: "Мы получили приз", en: ["We", "got", "a", "prize"], category: "past_affirmative", verbBase: "get" },
-          { ru: "Мне повезло (я получил удачу)", en: ["I", "got", "lucky"], category: "past_affirmative", verbBase: "get" },
-          { ru: "Он испек (сделал) торт", en: ["He", "made", "a", "cake"], category: "past_affirmative", verbBase: "make" },
-          { ru: "Она сделала чай", en: ["She", "made", "tea"], category: "past_affirmative", verbBase: "make" },
-          { ru: "Я знал это", en: ["I", "knew", "it"], category: "past_affirmative", verbBase: "know" },
-          { ru: "Мы знали его", en: ["We", "knew", "him"], category: "past_affirmative", verbBase: "know" },
-          { ru: "Я так и думал", en: ["I", "thought", "so"], category: "past_affirmative", verbBase: "think" },
-          { ru: "Она подумала дважды", en: ["She", "thought", "twice"], category: "past_affirmative", verbBase: "think" },
-          { ru: "Он сел на автобус (взял автобус)", en: ["He", "took", "a", "bus"], category: "past_affirmative", verbBase: "take" },
-          { ru: "Они сделали перерыв (взяли перерыв)", en: ["They", "took", "a", "break"], category: "past_affirmative", verbBase: "take" },
-          { ru: "Я видел тебя", en: ["I", "saw", "you"], category: "past_affirmative", verbBase: "see" },
-          { ru: "Мы смотрели (видели) фильм", en: ["We", "saw", "a", "movie"], category: "past_affirmative", verbBase: "see" },
-          { ru: "Он пришел поздно", en: ["He", "came", "late"], category: "past_affirmative", verbBase: "come" },
+          { ru: "Я сделал это", en: ["I", "did", "it"], category: "past_affirmative", verbBase: "do" },
+          { ru: "Он сделал ошибку", en: ["He", "did", "a", "mistake"], category: "past_affirmative", verbBase: "do" },
+          { ru: "Она сказала привет", en: ["She", "said", "hi"], category: "past_affirmative", verbBase: "say" },
+          { ru: "Они сказали правду", en: ["They", "said", "the", "truth"], category: "past_affirmative", verbBase: "say" },
+          { ru: "Мы ходили в кино", en: ["We", "went", "to", "the", "cinema"], category: "past_affirmative", verbBase: "go" },
+          { ru: "Он пошел домой", en: ["He", "went", "home"], category: "past_affirmative", verbBase: "go" },
+          { ru: "Я получил письмо", en: ["I", "got", "a", "letter"], category: "past_affirmative", verbBase: "get" },
+          { ru: "Она получила подарок", en: ["She", "got", "a", "gift"], category: "past_affirmative", verbBase: "get" },
+          { ru: "Он сделал (создал) это", en: ["He", "made", "it"], category: "past_affirmative", verbBase: "make" },
+          { ru: "Она сделала кофе", en: ["She", "made", "coffee"], category: "past_affirmative", verbBase: "make" }
+        ]
+      },
+      {
+        id: "top_8_15",
+        title: "Первые шаги (8-15)",
+        explanation: "Вторая часть первой группы. Эти слова помогают описывать мысли, знания и действия. Ты уже на пути к мастерству!",
+        whatAndWhy: {
+          what: "Базовые неправильных глаголы (часть 2).",
+          why: "Без этих слов невозможно выразить мысли и простые действия в прошлом."
+        },
+        table: "know→knew, think→thought, take→took, see→saw, come→came, find→found, give→gave, tell→told",
+        exercises: [
+          { ru: "Я знал об этом", en: ["I", "knew", "about", "it"], category: "past_affirmative", verbBase: "know" },
+          { ru: "Она знала ответ", en: ["She", "knew", "the", "answer"], category: "past_affirmative", verbBase: "know" },
+          { ru: "Я думал о тебе", en: ["I", "thought", "about", "you"], category: "past_affirmative", verbBase: "think" },
+          { ru: "Он думал, это хорошая идея", en: ["He", "thought", "it", "was", "a", "good", "idea"], category: "past_affirmative", verbBase: "think" },
+          { ru: "Она взяла ключи", en: ["She", "took", "the", "keys"], category: "past_affirmative", verbBase: "take" },
+          { ru: "Мы взяли такси", en: ["We", "took", "a", "taxi"], category: "past_affirmative", verbBase: "take" },
+          { ru: "Я видел фильм", en: ["I", "saw", "a", "movie"], category: "past_affirmative", verbBase: "see" },
+          { ru: "Он видел её", en: ["He", "saw", "her"], category: "past_affirmative", verbBase: "see" },
           { ru: "Она пришла домой", en: ["She", "came", "home"], category: "past_affirmative", verbBase: "come" },
-          { ru: "Я нашел свой ключ", en: ["I", "found", "my", "key"], category: "past_affirmative", verbBase: "find" },
-          { ru: "Они нашли место", en: ["They", "found", "a", "place"], category: "past_affirmative", verbBase: "find" },
-          { ru: "Он дал мне это", en: ["He", "gave", "me", "this"], category: "past_affirmative", verbBase: "give" },
-          { ru: "Она подарила подарок (дала подарок)", en: ["She", "gave", "a", "gift"], category: "past_affirmative", verbBase: "give" },
-          { ru: "Я сказал (рассказал) тебе", en: ["I", "told", "you"], category: "past_affirmative", verbBase: "tell" },
-          { ru: "Он рассказал историю", en: ["He", "told", "a", "story"], category: "past_affirmative", verbBase: "tell" }
+          { ru: "Они пришли поздно", en: ["They", "came", "late"], category: "past_affirmative", verbBase: "come" },
+          { ru: "Я нашел свои ключи", en: ["I", "found", "my", "keys"], category: "past_affirmative", verbBase: "find" },
+          { ru: "Мы нашли этот отель", en: ["We", "found", "this", "hotel"], category: "past_affirmative", verbBase: "find" },
+          { ru: "Он дал мне книгу", en: ["He", "gave", "me", "a", "book"], category: "past_affirmative", verbBase: "give" },
+          { ru: "Она дала ему шанс", en: ["She", "gave", "him", "a", "chance"], category: "past_affirmative", verbBase: "give" },
+          { ru: "Он рассказал мне историю", en: ["He", "told", "me", "a", "story"], category: "past_affirmative", verbBase: "tell" },
+          { ru: "Они рассказали нам правду", en: ["They", "told", "us", "the", "truth"], category: "past_affirmative", verbBase: "tell" }
         ]
       },
       {
         id: "exam_15",
-        title: "Проверка (1-15)",
+        title: "Экзамен ТОП-15",
         isExam: true,
         count: 10,
         threshold: 0.8,
-        sources: ["top_15"]
+        sources: ["top_1_7", "top_8_15"]
       },
       {
-        id: "top_16_30",
-        title: "Частые действия (16-30)",
-        explanation: "Следующие 15 слов. Обрати внимание на паттерны (например, feel -> felt, keep -> kept). Помни: эти формы не каприз, а история языка!",
+        id: "top_16_23",
+        title: "Частые действия (16-23)",
+        explanation: "Продолжаем путь. Обрати внимание на паттерны (например, feel -> felt, keep -> kept). Короткие уроки помогают лучше сфокусироваться на деталях.",
         whatAndWhy: {
-          what: "Вторая группа глаголов-исключений.",
-          why: "Эти глаголы описывают чувства, движение и базовые взаимодействия."
+          what: "Вторая группа глаголов (часть 1).",
+          why: "Эти глаголы описывают базовые состояния и начало действий."
         },
-        table: "feel→felt, become→became, leave→left, put→put, mean→meant, keep→kept, let→let, begin→began, show→showed, hear→heard, run→ran, hold→held, write→wrote, stand→stood, lose→lost",
+        table: "feel→felt, become→became, leave→left, put→put, mean→meant, keep→kept, let→let, begin→began",
         exercises: [
           { ru: "Я чувствовал себя хорошо", en: ["I", "felt", "good"], category: "past_affirmative", verbBase: "feel" },
           { ru: "Она почувствовала холод", en: ["She", "felt", "cold"], category: "past_affirmative", verbBase: "feel" },
@@ -298,7 +310,19 @@ export const GRAMMAR_ISLANDS = [
           { ru: "Она позволила мне уйти", en: ["She", "let", "me", "go"], category: "past_affirmative", verbBase: "let" },
           { ru: "Они позволили нам войти", en: ["They", "let", "us", "in"], category: "past_affirmative", verbBase: "let" },
           { ru: "Шоу началось", en: ["The", "show", "began"], category: "past_affirmative", verbBase: "begin" },
-          { ru: "Игра началась вовремя", en: ["The", "game", "began", "on", "time"], category: "past_affirmative", verbBase: "begin" },
+          { ru: "Игра началась вовремя", en: ["The", "game", "began", "on", "time"], category: "past_affirmative", verbBase: "begin" }
+        ]
+      },
+      {
+        id: "top_24_30",
+        title: "Частые действия (24-30)",
+        explanation: "Завершаем вторую группу. Здесь глаголы восприятия и движения. Помни: практика — ключ к автоматизму!",
+        whatAndWhy: {
+          what: "Вторая группа глаголов (часть 2).",
+          why: "Эти слова помогают описывать то, что мы слышим, пишем и держим в руках."
+        },
+        table: "show→showed, hear→heard, run→ran, hold→held, write→wrote, stand→stood, lose→lost",
+        exercises: [
           { ru: "Он показал мне карту", en: ["He", "showed", "me", "a", "map"], category: "past_affirmative", verbBase: "show" },
           { ru: "Она показала свой новый дом", en: ["She", "showed", "her", "new", "house"], category: "past_affirmative", verbBase: "show" },
           { ru: "Я слышал музыку", en: ["I", "heard", "music"], category: "past_affirmative", verbBase: "hear" },
@@ -321,17 +345,17 @@ export const GRAMMAR_ISLANDS = [
         isExam: true,
         count: 10,
         threshold: 0.8,
-        sources: ["top_16_30"]
+        sources: ["top_16_23", "top_24_30"]
       },
       {
-        id: "top_31_50",
-        title: "Завершаем ТОП-50 (31-50)",
-        explanation: "Здесь много слов с похожим звучанием (buy -> bought, bring -> brought). Обрати внимание на паттерны -ought и -aught. Это настоящая магия правописания!",
+        id: "top_31_40",
+        title: "Разнообразие (31-40)",
+        explanation: "Здесь много слов с похожим звучанием (buy -> bought). Обрати внимание на паттерны. Короткие шаги — быстрый прогресс.",
         whatAndWhy: {
-          what: "Третья группа, закрывающая первую половину списка.",
-          why: "Здесь встречаются глаголы общения (speak, send) и созидания (build)."
+          what: "Третья группа глаголов (часть 1).",
+          why: "Здесь встречаются глаголы общения и созидания."
         },
-        table: "pay→paid, meet→met, set→set, learn→learnt, lead→led, read→read, grow→grew, buy→bought, eat→ate, speak→spoke, send→sent, build→built, fall→fell, cut→cut, spend→spent, win→won, sit→sat, hit→hit, break→broke, bring→brought",
+        table: "pay→paid, meet→met, set→set, learn→learnt, lead→led, read→read, grow→grew, buy→bought, eat→ate, speak→spoke",
         exercises: [
           { ru: "Я заплатил за кофе", en: ["I", "paid", "for", "coffee"], category: "past_affirmative", verbBase: "pay" },
           { ru: "Он заплатил по счету", en: ["He", "paid", "the", "bill"], category: "past_affirmative", verbBase: "pay" },
@@ -344,14 +368,26 @@ export const GRAMMAR_ISLANDS = [
           { ru: "Он вел команду", en: ["He", "led", "the", "team"], category: "past_affirmative", verbBase: "lead" },
           { ru: "Я прочитал книгу", en: ["I", "read", "a", "book"], category: "past_affirmative", verbBase: "read" },
           { ru: "Она прочитала письмо", en: ["She", "read", "the", "letter"], category: "past_affirmative", verbBase: "read" },
-          { ru: "Она выросла здесь", en: ["She", "grew", "up", "here"], category: "past_affirmative", verbBase: "grow" },
+          { ru: "Она выросла здесь", en: ["She", "grew", "up", "here"], category: "past_affirmative", verbBase: "grow", lexicalHint: "выросла = grew up" },
           { ru: "Дерево выросло быстро", en: ["The", "tree", "grew", "fast"], category: "past_affirmative", verbBase: "grow" },
           { ru: "Они купили машину", en: ["They", "bought", "a", "car"], category: "past_affirmative", verbBase: "buy" },
           { ru: "Она купила платье", en: ["She", "bought", "a", "dress"], category: "past_affirmative", verbBase: "buy" },
           { ru: "Я съел яблоко", en: ["I", "ate", "an", "apple"], category: "past_affirmative", verbBase: "eat" },
           { ru: "Мы съели пиццу", en: ["We", "ate", "pizza"], category: "past_affirmative", verbBase: "eat" },
           { ru: "Он говорил правду", en: ["He", "spoke", "the", "truth"], category: "past_affirmative", verbBase: "speak" },
-          { ru: "Она говорила по-английски", en: ["She", "spoke", "English"], category: "past_affirmative", verbBase: "speak" },
+          { ru: "Она говорила по-английски", en: ["She", "spoke", "English"], category: "past_affirmative", verbBase: "speak" }
+        ]
+      },
+      {
+        id: "top_41_50",
+        title: "Разнообразие (41-50)",
+        explanation: "Завершаем ТОП-50! Это огромный шаг. Теперь ты знаешь основу английского прошлого времени.",
+        whatAndWhy: {
+          what: "Третья группа глаголов (часть 2).",
+          why: "Закрываем первую половину списка самыми полезными словами."
+        },
+        table: "send→sent, build→built, fall→fell, cut→cut, spend→spent, win→won, sit→sat, hit→hit, break→broke, bring→brought",
+        exercises: [
           { ru: "Я отправил письмо", en: ["I", "sent", "a", "letter"], category: "past_affirmative", verbBase: "send" },
           { ru: "Мы отправили цветы", en: ["We", "sent", "flowers"], category: "past_affirmative", verbBase: "send" },
           { ru: "Они построили этот мост", en: ["They", "built", "this", "bridge"], category: "past_affirmative", verbBase: "build" },
@@ -377,18 +413,19 @@ export const GRAMMAR_ISLANDS = [
         id: "exam_50",
         title: "Экзамен ТОП-50",
         isExam: true,
-        count: 20,
-        threshold: 0.85
+        count: 15,
+        threshold: 0.8,
+        sources: ["top_31_40", "top_41_50"]
       },
       {
-        id: "top_51_75",
-        title: "Важные глаголы (51-75)",
+        id: "top_51_60",
+        title: "Движение и мысли (51-60)",
         explanation: "Вторая половина списка. Обрати внимание на паттерны (sleep -> slept, fly -> flew). Чем сложнее слово, тем интереснее его история!",
         whatAndWhy: {
-          what: "Глаголы с частотой от 51 до 75.",
+          what: "Глаголы с частотой от 51 до 60.",
           why: "Эти слова часто встречаются в повседневной речи и книгах."
         },
-        table: "catch→caught, drive→drove, forget→forgot, choose→chose, sleep→slept, fly→flew, wear→wore, draw→drew, teach→taught, throw→threw, understand→understood, sell→sold, drink→drank, sing→sang, swim→swam, lie→lay, fight→fought, shut→shut, ride→rode, wake→woke",
+        table: "catch→caught, drive→drove, forget→forgot, choose→chose, sleep→slept, fly→flew, wear→wore, draw→drew, teach→taught, throw→threw",
         exercises: [
           { ru: "Я поймал мяч", en: ["I", "caught", "the", "ball"], category: "past_affirmative", verbBase: "catch" },
           { ru: "Она поймала такси", en: ["She", "caught", "a", "taxi"], category: "past_affirmative", verbBase: "catch" },
@@ -401,11 +438,23 @@ export const GRAMMAR_ISLANDS = [
           { ru: "Она спала весь день", en: ["She", "slept", "all", "day"], category: "past_affirmative", verbBase: "sleep" },
           { ru: "Я спал хорошо", en: ["I", "slept", "well"], category: "past_affirmative", verbBase: "sleep" },
           { ru: "Они летали в Лондон", en: ["They", "flew", "to", "London"], category: "past_affirmative", verbBase: "fly" },
-          { ru: "Птица улетела", en: ["The", "bird", "flew", "away"], category: "past_affirmative", verbBase: "fly" },
+          { ru: "Птица улетела", en: ["The", "bird", "flew", "away"], category: "past_affirmative", verbBase: "fly", lexicalHint: "улетела = flew away" },
           { ru: "Он носил черную куртку", en: ["He", "wore", "a", "black", "jacket"], category: "past_affirmative", verbBase: "wear" },
           { ru: "Она нарисовала картину", en: ["She", "drew", "a", "picture"], category: "past_affirmative", verbBase: "draw" },
           { ru: "Он учил (преподавал) английский", en: ["He", "taught", "English"], category: "past_affirmative", verbBase: "teach" },
-          { ru: "Я бросил (кинул) мяч", en: ["I", "threw", "the", "ball"], category: "past_affirmative", verbBase: "throw" },
+          { ru: "Я бросил (кинул) мяч", en: ["I", "threw", "the", "ball"], category: "past_affirmative", verbBase: "throw" }
+        ]
+      },
+      {
+        id: "top_61_70",
+        title: "Состояния (61-70)",
+        explanation: "Продолжаем! Глаголы понимания и чувств. Ты уже знаешь больше большинства изучающих!",
+        whatAndWhy: {
+          what: "Глаголы с частотой от 61 до 70.",
+          why: "Здесь важны глаголы состояния и физической активности."
+        },
+        table: "understand→understood, sell→sold, drink→drank, sing→sang, swim→swam, lie→lay, fight→fought, shut→shut, ride→rode, wake→woke",
+        exercises: [
           { ru: "Я понял вопрос", en: ["I", "understood", "the", "question"], category: "past_affirmative", verbBase: "understand" },
           { ru: "Мы поняли друг друга", en: ["We", "understood", "each", "other"], category: "past_affirmative", verbBase: "understand" },
           { ru: "Он продал свою гитару", en: ["He", "sold", "his", "guitar"], category: "past_affirmative", verbBase: "sell" },
@@ -419,60 +468,96 @@ export const GRAMMAR_ISLANDS = [
           { ru: "Они сражались (дрались) смело", en: ["They", "fought", "bravely"], category: "past_affirmative", verbBase: "fight" },
           { ru: "Он закрыл дверь", en: ["He", "shut", "the", "door"], category: "past_affirmative", verbBase: "shut" },
           { ru: "Он ехал на велосипеде", en: ["He", "rode", "a", "bike"], category: "past_affirmative", verbBase: "ride" },
-          { ru: "Я проснулся рано", en: ["I", "woke", "up", "early"], category: "past_affirmative", verbBase: "wake" }
+          { ru: "Я проснулся рано", en: ["I", "woke", "up", "early"], category: "past_affirmative", verbBase: "wake", lexicalHint: "проснулся = woke up" }
         ]
       },
       {
         id: "exam_75",
-        title: "Проверка (51-75)",
+        title: "Проверка (51-70)",
         isExam: true,
-        count: 15,
-        threshold: 0.85,
-        sources: ["top_51_75"]
+        count: 10,
+        threshold: 0.8,
+        sources: ["top_51_60", "top_61_70"]
       },
       {
-        id: "top_76_100",
-        title: "Завершаем ТОП-100 (76-100)",
-        explanation: "Финальная группа. Здесь есть редкие, но важные глаголы (forgive, freeze). Поздравляю, ты почти у цели! Это уровень настоящего мастера.",
+        id: "top_76_85",
+        title: "Мастерство (76-85)",
+        explanation: "Финальный рывок! Эти глаголы чуть реже, но без них не обойтись в красивой речи. Поздравляю, ты почти у цели!",
         whatAndWhy: {
-          what: "Последние 25 глаголов из списка ста самых частых.",
+          what: "Глаголы с частотой от 76 до 85.",
           why: "Полное владение базой неправильных глаголов открывает путь к свободному общению."
         },
-        table: "rise→rose, hang→hung, blow→blew, steal→stole, shake→shook, feed→fed, dig→dug, hide→hid, shoot→shot, stick→stuck, bend→bent, spread→spread, hurt→hurt, forgive→forgave, lend→lent, bite→bit, tear→tore, lay→laid, shine→shone, freeze→froze, ring→rang, sweep→swept, slide→slid, seek→sought, cost→cost, quit→quit, bear→bore, swing→swung, deal→dealt, forbid→forbade",
+        table: "rise→rose, hang→hung, blow→blew, steal→stole, shake→shook, feed→fed, dig→dug, hide→hid, shoot→shot, stick→stuck",
         exercises: [
           { ru: "Солнце взошло", en: ["The", "sun", "rose"], category: "past_affirmative", verbBase: "rise" },
           { ru: "Он покормил кота", en: ["He", "fed", "the", "cat"], category: "past_affirmative", verbBase: "feed" },
           { ru: "Я спрятал ключи", en: ["I", "hid", "the", "keys"], category: "past_affirmative", verbBase: "hide" },
-          { ru: "Она простила меня", en: ["She", "forgave", "me"], category: "past_affirmative", verbBase: "forgive" },
-          { ru: "Это стоило много", en: ["It", "cost", "a", "lot"], category: "past_affirmative", verbBase: "cost" },
-          { ru: "Телефон зазвонил", en: ["The", "phone", "rang"], category: "past_affirmative", verbBase: "ring" },
-          { ru: "Он бросил курить", en: ["He", "quit", "smoking"], category: "past_affirmative", verbBase: "quit" },
-          { ru: "Она украла мое сердце", en: ["She", "stole", "my", "heart"], category: "past_affirmative", verbBase: "steal" },
-          { ru: "Я одолжил ему денег", en: ["I", "lent", "him", "money"], category: "past_affirmative", verbBase: "lend" },
-          { ru: "Вода замерзла", en: ["The", "water", "froze"], category: "past_affirmative", verbBase: "freeze" },
+          { ru: "На стене висела картина", en: ["A", "picture", "hung", "on", "the", "wall"], category: "past_affirmative", verbBase: "hang" },
           { ru: "Ветер дул сильно", en: ["The", "wind", "blew", "hard"], category: "past_affirmative", verbBase: "blow" },
+          { ru: "Она украла мое сердце", en: ["She", "stole", "my", "heart"], category: "past_affirmative", verbBase: "steal" },
           { ru: "Он пожал мне руку", en: ["He", "shook", "my", "hand"], category: "past_affirmative", verbBase: "shake" },
           { ru: "Я вырыл яму", en: ["I", "dug", "a", "hole"], category: "past_affirmative", verbBase: "dig" },
           { ru: "Он выстрелил в воздух", en: ["He", "shot", "in", "the", "air"], category: "past_affirmative", verbBase: "shoot" },
-          { ru: "Оно прилипло ко мне", en: ["It", "stuck", "to", "me"], category: "past_affirmative", verbBase: "stick" },
+          { ru: "Оно прилипло ко мне", en: ["It", "stuck", "to", "me"], category: "past_affirmative", verbBase: "stick" }
+        ]
+      },
+      {
+        id: "top_86_95",
+        title: "Мастерство (86-95)",
+        explanation: "Продолжаем финальную группу. Здесь есть редкие, но важные глаголы (forgive, freeze). Это уровень настоящего мастера.",
+        whatAndWhy: {
+          what: "Глаголы с частотой от 86 до 95.",
+          why: "Эти слова добавляют точности твоим рассказам о прошлом."
+        },
+        table: "bend→bent, spread→spread, hurt→hurt, forgive→forgave, lend→lent, bite→bit, tear→tore, lay→laid, shine→shone, freeze→froze",
+        exercises: [
           { ru: "Он согнул проволоку", en: ["He", "bent", "the", "wire"], category: "past_affirmative", verbBase: "bend" },
           { ru: "Новость распространилась", en: ["The", "news", "spread"], category: "past_affirmative", verbBase: "spread" },
           { ru: "Это было больно (ранило)", en: ["It", "hurt"], category: "past_affirmative", verbBase: "hurt" },
+          { ru: "Она простила меня", en: ["She", "forgave", "me"], category: "past_affirmative", verbBase: "forgive" },
+          { ru: "Я одолжил ему денег", en: ["I", "lent", "him", "money"], category: "past_affirmative", verbBase: "lend" },
           { ru: "Собака укусила его", en: ["The", "dog", "bit", "him"], category: "past_affirmative", verbBase: "bite" },
           { ru: "Он порвал письмо", en: ["He", "tore", "the", "letter"], category: "past_affirmative", verbBase: "tear" },
           { ru: "Она накрыла (положила) стол", en: ["She", "laid", "the", "table"], category: "past_affirmative", verbBase: "lay" },
           { ru: "Свет сиял ярко", en: ["The", "light", "shone", "brightly"], category: "past_affirmative", verbBase: "shine" },
+          { ru: "Вода замерзла", en: ["The", "water", "froze"], category: "past_affirmative", verbBase: "freeze" }
+        ]
+      },
+      {
+        id: "top_96_105",
+        title: "Мастерство (96-105)",
+        explanation: "Самый-самый финал! Последние несколько слов, и ты знаешь 100+ неправильных глаголов. Невероятный результат!",
+        whatAndWhy: {
+          what: "Глаголы с частотой от 96 до 105.",
+          why: "Завершаем список ста самых частых глаголов."
+        },
+        table: "ring→rang, sweep→swept, slide→slid, seek→sought, cost→cost, quit→quit, bear→bore, swing→swung, deal→dealt, forbid→forbade",
+        exercises: [
+          { ru: "Телефон зазвонил", en: ["The", "phone", "rang"], category: "past_affirmative", verbBase: "ring" },
           { ru: "Она подмела пол", en: ["She", "swept", "the", "floor"], category: "past_affirmative", verbBase: "sweep" },
           { ru: "Он поскользнулся на льду", en: ["He", "slid", "on", "the", "ice"], category: "past_affirmative", verbBase: "slide" },
-          { ru: "Мы искали правду", en: ["We", "sought", "the", "truth"], category: "past_affirmative", verbBase: "seek" }
+          { ru: "Мы искали правду", en: ["We", "sought", "the", "truth"], category: "past_affirmative", verbBase: "seek" },
+          { ru: "Это стоило много", en: ["It", "cost", "a", "lot"], category: "past_affirmative", verbBase: "cost" },
+          { ru: "Он бросил курить", en: ["He", "quit", "smoking"], category: "past_affirmative", verbBase: "quit" },
+          { ru: "Она вынесла боль (вытерпела)", en: ["She", "bore", "the", "pain"], category: "past_affirmative", verbBase: "bear" },
+          { ru: "Он качнулся на качелях", en: ["He", "swung", "on", "the", "swing"], category: "past_affirmative", verbBase: "swing" },
+          { ru: "Мы заключили сделку", en: ["We", "dealt", "with", "the", "issue"], category: "past_affirmative", verbBase: "deal" },
+          { ru: "Отец запретил это", en: ["Father", "forbade", "it"], category: "past_affirmative", verbBase: "forbid" }
         ]
       },
       {
         id: "exam_100",
-        title: "Финишный Экзамен (100 слов)",
+        title: "Финишный Экзамен",
         isExam: true,
-        count: 40,
-        threshold: 0.9,
+        count: 20,
+        threshold: 0.8,
+        sources: [
+          "top_1_7", "top_8_15", 
+          "top_16_23", "top_24_30", 
+          "top_31_40", "top_41_50", 
+          "top_51_60", "top_61_70", 
+          "top_76_85", "top_86_95", "top_96_105"
+        ],
         isSuper: true
       }
     ]
