@@ -16,32 +16,34 @@ export default function Review({ store, go }) {
     const now = Date.now();
     const wp = store.data.wordProgress;
     
-    // 1. Get words DUE for review (nextReview <= now)
-    const due = Object.entries(wp)
-      .filter(([_, w]) => (w.seen || w.mastered) && (w.nextReview || 0) <= now)
-      .map(([idx]) => parseInt(idx));
-
-    // 2. Get all SEEN words
-    const allSeen = Object.entries(wp)
-      .filter(([_, w]) => w.seen || w.mastered)
-      .map(([idx]) => parseInt(idx));
-
-    // 3. NEW: Also pick some purely random words from across the whole app (as requested)
-    const totalAppWords = allWords.length;
-    const randomAny = [];
-    if (totalAppWords > 0) {
-      for (let i = 0; i < 15; i++) {
-        randomAny.push(Math.floor(Math.random() * totalAppWords));
+    // 1. Identify all levels that are UNLOCKED or PASSED
+    const unlockedLevels = store.data.unlockedLevels || [0];
+    const WORDS_PER_LEVEL = 10; // Match the constant in words.js
+    
+    // 2. Build a pool of all possible word indices from these levels
+    const poolIndices = [];
+    unlockedLevels.forEach(lvl => {
+      const start = lvl * WORDS_PER_LEVEL;
+      for (let i = 0; i < WORDS_PER_LEVEL; i++) {
+        if (allWords[start + i]) {
+          poolIndices.push(start + i);
+        }
       }
-    }
+    });
 
-    // Combine: Due (Priority) + Some Seen + Some Random Any
-    // We use a Set to ensure unique indices
+    // 3. Get words specifically DUE for review (SRS priority)
+    const due = Object.entries(wp)
+      .filter(([idx, w]) => poolIndices.includes(parseInt(idx)) && (w.seen || w.mastered) && (w.nextReview || 0) <= now)
+      .map(([idx]) => parseInt(idx));
+
+    // 4. Combine: Due (Priority) + Random words from the unlocked pool
+    // We shuffle the pool to get random words from any unlocked level
+    const randomFromPool = shuffle(poolIndices);
+
     let selectedIndices = Array.from(new Set([
-      ...shuffle(due).slice(0, 20),
-      ...shuffle(allSeen).slice(0, 10),
-      ...randomAny
-    ])).slice(0, 25); // Cap to 25 questions per session for focus
+      ...shuffle(due).slice(0, 15),
+      ...randomFromPool.slice(0, 20)
+    ])).slice(0, 25); 
 
     if (selectedIndices.length === 0) {
       setQs([]);
