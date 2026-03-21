@@ -21,18 +21,27 @@ export default function Review({ store, go }) {
       .filter(([_, w]) => (w.seen || w.mastered) && (w.nextReview || 0) <= now)
       .map(([idx]) => parseInt(idx));
 
-    // 2. Fallback: if nothing is due, allow reviewing any seen word that isn't mastered, 
-    // or just any randomized seen words if all are mastered.
-    let selectedIndices = [];
-    if (due.length > 0) {
-      selectedIndices = shuffle(due).slice(0, 30);
-    } else {
-      // If nothing is due, pick 15 random seen words to keep the habit
-      const allSeen = Object.entries(wp)
-        .filter(([_, w]) => w.seen || w.mastered)
-        .map(([idx]) => parseInt(idx));
-      selectedIndices = shuffle(allSeen).slice(0, 15);
+    // 2. Get all SEEN words
+    const allSeen = Object.entries(wp)
+      .filter(([_, w]) => w.seen || w.mastered)
+      .map(([idx]) => parseInt(idx));
+
+    // 3. NEW: Also pick some purely random words from across the whole app (as requested)
+    const totalAppWords = allWords.length;
+    const randomAny = [];
+    if (totalAppWords > 0) {
+      for (let i = 0; i < 15; i++) {
+        randomAny.push(Math.floor(Math.random() * totalAppWords));
+      }
     }
+
+    // Combine: Due (Priority) + Some Seen + Some Random Any
+    // We use a Set to ensure unique indices
+    let selectedIndices = Array.from(new Set([
+      ...shuffle(due).slice(0, 20),
+      ...shuffle(allSeen).slice(0, 10),
+      ...randomAny
+    ])).slice(0, 25); // Cap to 25 questions per session for focus
 
     if (selectedIndices.length === 0) {
       setQs([]);
@@ -106,6 +115,7 @@ export default function Review({ store, go }) {
 
   const q = qs[cur];
   const answered = sel !== null;
+  const pct = qs.length > 0 ? Math.round((cur / qs.length) * 100) : 0;
 
   const next = () => {
     if (sel === null) return; // Prevent manual skip without answer
